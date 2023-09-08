@@ -61,3 +61,28 @@ test('calculate Full House score with invalid dice', () => {
   const fullHouseScore = screen.getByText(/Full House/i);
   expect(fullHouseScore).toHaveTextContent('Full House: 0');
 });
+
+test('game reset functionality', () => {
+  // 1. Render the App component with some initial dice values
+  render(<App initialDice={[2, 3, 2, 5, 6]} />);
+  
+  // Check the initial state
+  let rollButton = screen.getByText(/Roll Dice/i);
+  expect(rollButton).toHaveTextContent('Roll Dice (Rolls left: 3)');
+  
+  // Simulate rolling the dice once
+  fireEvent.click(rollButton);
+
+  // Check if the roll count decreases
+  rollButton = screen.getByText(/Roll Dice/i);
+  expect(rollButton).toHaveTextContent('Roll Dice (Rolls left: 2)');
+  
+  // 2. Click the "Reset Game" button
+  const resetButton = screen.getByText(/Reset Game/i);
+  fireEvent.click(resetButton);
+
+  // 3. Check if the game state is reset
+  rollButton = screen.getByText(/Roll Dice/i);
+  expect(rollButton).toHaveTextContent('Roll Dice (Rolls left: 3)');
+
+});

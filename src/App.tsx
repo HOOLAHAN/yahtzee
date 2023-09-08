@@ -93,13 +93,22 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
     
     return 0;
   };
-  
+
+    // Function to reset the game
+    const resetGame = () => {
+      setDice(initialDice);
+      setRollsLeft(3);
+      setHeldDice(new Set());
+    };
 
   return (
       <div className="App">
       <h1>Yahtzee!</h1>
       <button onClick={rollDice} disabled={rollsLeft <= 0}>
         Roll Dice (Rolls left: {rollsLeft})
+      </button>
+      <button onClick={resetGame}>
+        Reset Game
       </button>
       <div>
         {dice.map((die, index) => (
