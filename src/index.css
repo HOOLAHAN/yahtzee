@@ -11,3 +11,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.App {
+  text-align: center;
+}
+
+.die {
+  display: inline-block;
+  margin: 10px;
+  font-size: 24px;
+  border: 2px solid black;
+  width: 40px;
+  height: 40px;
+  line-height: 36px;
+}
+
+button:disabled {
+  background-color: grey;
+  cursor: not-allowed;
+}
