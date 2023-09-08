@@ -5,13 +5,14 @@ interface DieProps {
   value: number;
   canHold: boolean;
   onToggleHold: () => void;
+  hasRolled: boolean;
 }
 
-const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold }) => {
+const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, hasRolled }) => {
   return (
     <span className="die">
       {value}
-      {canHold && <input type="checkbox" onChange={onToggleHold} />}
+      {canHold && hasRolled && <input type="checkbox" onChange={onToggleHold} />}
     </span>
   );
 };
@@ -28,16 +29,32 @@ const rollDie = (): DieFace => {
 
 const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [dice, setDice] = useState(initialDice);
-  const [rollsLeft, setRollsLeft] = useState(3);
   const [heldDice, setHeldDice] = useState(new Set<number>());
+  const [currentScore, setCurrentScore] = useState(0);
+  const [scoreHistory, setScoreHistory] = useState<number[]>([]);
+  const [rollsLeft, setRollsLeft] = useState(3);
+  const [totalScore, setTotalScore] = useState(0);
+  const [hasRolled, setHasRolled] = useState(false);
 
   const rollDice = () => {
     if (rollsLeft > 0) {
+      setHasRolled(true);
       const newDice = dice.map((d, i) => (heldDice.has(i) ? d : rollDie()));
       setDice(newDice);
-      setRollsLeft(rollsLeft - 1);
+      const newRollsLeft = rollsLeft - 1;
+      setRollsLeft(newRollsLeft);
+      
+      // Update current score here
+      const newCurrentScore = calculateScore('ThreeOfAKind') + calculateScore('FourOfAKind') + calculateFullHouse();
+      setCurrentScore(newCurrentScore);
+      
+      // If no more rolls are left, consider the round to be over and update score history.
+      if (newRollsLeft === 0) {
+        setScoreHistory([...scoreHistory, newCurrentScore]);
+      }
     }
   };
+  
 
   const toggleHoldDie = (index: number) => {
     const newHeldDice = new Set(heldDice);
@@ -99,23 +116,50 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       setDice(initialDice);
       setRollsLeft(3);
       setHeldDice(new Set());
+      setCurrentScore(0);
+      setScoreHistory([]);
+      setHasRolled(false);
+      setTotalScore(0);
+    };
+
+    const startNewRound = () => {
+      // Reset state for the new round
+      setDice(initialDice);
+      setRollsLeft(3);
+      setHeldDice(new Set());
+      setCurrentScore(0);
+      setHasRolled(false);
+      // Add the score from the last round to the total score
+      setTotalScore(totalScore + currentScore);
     };
 
   return (
       <div className="App">
       <h1>Yahtzee!</h1>
       <button onClick={rollDice} disabled={rollsLeft <= 0}>
-        Roll Dice (Rolls left: {rollsLeft})
+      Roll Dice (Rolls left: {rollsLeft})
+    </button>
+    <button onClick={startNewRound}>
+        Start New Round
       </button>
-      <button onClick={resetGame}>
-        Reset Game
-      </button>
+    <button onClick={resetGame}>
+      Reset Game
+    </button>
+    <h2>Current Score: {currentScore}</h2>
+    <h2>Total Score: {totalScore}</h2>
+      <h2>Score History</h2>
+      <ul>
+        {scoreHistory.map((score, index) => (
+          <li key={index}>{score}</li>
+        ))}
+      </ul>
       <div>
         {dice.map((die, index) => (
           <Die
             key={index}
             value={die}
             canHold={rollsLeft > 0}
+            hasRolled={hasRolled} 
             onToggleHold={() => toggleHoldDie(index)}
           />
         ))}
