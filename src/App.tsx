@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import './App.css';
 
+interface AppProps {
+  initialDice?: number[];
+}
+
+
 type DieFace = 1 | 2 | 3 | 4 | 5 | 6;
 
 const rollDie = (): DieFace => {
   return (Math.floor(Math.random() * 6) + 1) as DieFace;
 };
 
-const App: React.FC = () => {
-  const [dice, setDice] = useState<DieFace[]>([1, 1, 1, 1, 1]);
+const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
+  const [dice, setDice] = useState(initialDice);
   const [rollsLeft, setRollsLeft] = useState(3);
 
   const rollDice = () => {
