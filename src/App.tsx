@@ -45,7 +45,11 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       setRollsLeft(newRollsLeft);
       
       // Update current score here
-      const newCurrentScore = calculateScore('ThreeOfAKind') + calculateScore('FourOfAKind') + calculateFullHouse();
+      const newCurrentScore = calculateScore('ThreeOfAKind') + calculateScore('FourOfAKind') + calculateFullHouse()
+      + (isStraight(dice, 4) ? 30 : 0)  // Small Straight: 30 points
+      + (isStraight(dice, 5) ? 40 : 0)  // Large Straight: 40 points
+      + (calculateScore('Yahtzee') ? 50 : 0)  // Yahtzee: 50 points
+      + calculateChance();  // Chance: Sum of all dice
       setCurrentScore(newCurrentScore);
       
       // If no more rolls are left, consider the round to be over and update score history.
@@ -67,7 +71,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   };
 
 
-  const calculateScore = (type: 'ThreeOfAKind' | 'FourOfAKind') => {
+  const calculateScore = (type: 'ThreeOfAKind' | 'FourOfAKind' | 'Yahtzee') => {
     const counts: { [key: number]: number } = {};
     for (const die of dice) {
       counts[die] = (counts[die] || 0) + 1;
@@ -78,6 +82,13 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       }
       if (type === 'FourOfAKind' && count >= 4) {
         return dice.reduce((acc, curr) => acc + curr, 0);
+      }
+    }
+    if (type === 'Yahtzee') {
+      for (const count of Object.values(counts)) {
+        if (count === 5) {
+          return 50; // Yahtzee score
+        }
       }
     }
     return 0;
@@ -111,27 +122,49 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
     return 0;
   };
 
-    // Function to reset the game
-    const resetGame = () => {
-      setDice(initialDice);
-      setRollsLeft(3);
-      setHeldDice(new Set());
-      setCurrentScore(0);
-      setScoreHistory([]);
-      setHasRolled(false);
-      setTotalScore(0);
-    };
+  const isStraight = (dice: number[], minLength: number) => {
+    const uniqueSortedDice = Array.from(new Set(dice)).sort();
+    let consecutiveCount = 1;
+    
+    for (let i = 1; i < uniqueSortedDice.length; i++) {
+      if (uniqueSortedDice[i] - uniqueSortedDice[i - 1] === 1) {
+        consecutiveCount++;
+        if (consecutiveCount >= minLength) {
+          return true;
+        }
+      } else {
+        consecutiveCount = 1;
+      }
+    }
+    
+    return false;
+  };
 
-    const startNewRound = () => {
-      // Reset state for the new round
-      setDice(initialDice);
-      setRollsLeft(3);
-      setHeldDice(new Set());
-      setCurrentScore(0);
-      setHasRolled(false);
-      // Add the score from the last round to the total score
-      setTotalScore(totalScore + currentScore);
-    };
+  const calculateChance = () => {
+    return dice.reduce((acc, curr) => acc + curr, 0);
+  };
+  
+  // Function to reset the game
+  const resetGame = () => {
+    setDice(initialDice);
+    setRollsLeft(3);
+    setHeldDice(new Set());
+    setCurrentScore(0);
+    setScoreHistory([]);
+    setHasRolled(false);
+    setTotalScore(0);
+  };
+
+  const startNewRound = () => {
+    // Reset state for the new round
+    setDice(initialDice);
+    setRollsLeft(3);
+    setHeldDice(new Set());
+    setCurrentScore(0);
+    setHasRolled(false);
+    // Add the score from the last round to the total score
+    setTotalScore(totalScore + currentScore);
+  };
 
   return (
       <div className="App">
@@ -165,15 +198,13 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         ))}
       </div>
       <h2>Scores</h2>
-      <div>
-        Three of a Kind: {calculateScore('ThreeOfAKind')}
-      </div>
-      <div>
-        Four of a Kind: {calculateScore('FourOfAKind')}
-      </div>
-      <div>
-        Full House: {calculateFullHouse()}
-      </div>
+      <div>Three of a Kind: {calculateScore('ThreeOfAKind')}</div>
+      <div>Four of a Kind: {calculateScore('FourOfAKind')}</div>
+      <div>Full House: {calculateFullHouse()}</div>
+      <div>Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
+      <div>Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
+      <div>Yahtzee: {calculateScore('Yahtzee')}</div>
+      <div>Chance: {calculateChance()}</div>
     </div>
   );
   

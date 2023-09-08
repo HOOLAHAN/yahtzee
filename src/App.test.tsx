@@ -90,3 +90,38 @@ test('game reset functionality', () => {
   expect(rollButton).toHaveTextContent('Roll Dice (Rolls left: 3)');
 
 });
+
+test('calculate Small Straight score with valid dice', () => {
+  render(<App initialDice={[1, 2, 3, 4, 6]} />);
+  expect(screen.getByText(/Small Straight: 30/)).toBeInTheDocument();
+});
+
+test('calculate Small Straight score with invalid dice', () => {
+  render(<App initialDice={[1, 1, 1, 2, 2]} />);
+  expect(screen.getByText(/Small Straight: 0/)).toBeInTheDocument();
+});
+
+test('calculate Large Straight score with valid dice', () => {
+  render(<App initialDice={[1, 2, 3, 4, 5]} />);
+  expect(screen.getByText(/Large Straight: 40/)).toBeInTheDocument();
+});
+
+test('calculate Large Straight score with invalid dice', () => {
+  render(<App initialDice={[1, 2, 3, 3, 5]} />);
+  expect(screen.getByText(/Large Straight: 0/)).toBeInTheDocument();
+});
+
+test('calculate Yahtzee score with valid dice', () => {
+  render(<App initialDice={[2, 2, 2, 2, 2]} />);
+  expect(screen.getByText(/Yahtzee: 50/)).toBeInTheDocument();
+});
+
+test('calculate Yahtzee score with invalid dice', () => {
+  render(<App initialDice={[1, 1, 2, 2, 2]} />);
+  expect(screen.getByText(/Yahtzee: 0/)).toBeInTheDocument();
+});
+
+test('calculate Chance score', () => {
+  render(<App initialDice={[1, 2, 3, 4, 5]} />);
+  expect(screen.getByText(/Chance: 15/)).toBeInTheDocument();
+});
