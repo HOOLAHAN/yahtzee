@@ -5,14 +5,18 @@ interface DieProps {
   value: number;
   canHold: boolean;
   onToggleHold: () => void;
-  hasRolled: boolean;
+  isHeld: boolean;
 }
 
-const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, hasRolled }) => {
+const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, isHeld }) => {
   return (
-    <span className="die">
+    <span 
+      className={`die ${isHeld ? 'held' : ''}`} 
+      onClick={canHold ? onToggleHold : undefined}
+      role="button"
+      aria-label={`${value}`}
+    >
       {value}
-      {canHold && hasRolled && <input type="checkbox" onChange={onToggleHold} />}
     </span>
   );
 };
@@ -167,46 +171,47 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   };
 
   return (
-      <div className="App">
+    <div className="App">
       <h1>Yahtzee!</h1>
-      <button onClick={rollDice} disabled={rollsLeft <= 0}>
-      Roll Dice (Rolls left: {rollsLeft})
-    </button>
-    <button onClick={startNewRound}>
+      <button className="action-button" onClick={rollDice} disabled={rollsLeft <= 0}>
+        Roll Dice (Rolls left: {rollsLeft})
+      </button>
+      <button className="action-button" onClick={startNewRound}>
         Start New Round
       </button>
-    <button onClick={resetGame}>
-      Reset Game
-    </button>
-    <h2>Current Score: {currentScore}</h2>
-    <h2>Total Score: {totalScore}</h2>
+      <button className="action-button" onClick={resetGame}>
+        Reset Game
+      </button>
+      <h2>Current Score: {currentScore}</h2>
+      <h2>Total Score: {totalScore}</h2>
       <h2>Score History</h2>
-      <ul>
+      <ul className="history">
         {scoreHistory.map((score, index) => (
           <li key={index}>{score}</li>
         ))}
       </ul>
       <div>
-        {dice.map((die, index) => (
-          <Die
-            key={index}
-            value={die}
-            canHold={rollsLeft > 0}
-            hasRolled={hasRolled} 
-            onToggleHold={() => toggleHoldDie(index)}
-          />
-        ))}
+      {dice.map((die, index) => (
+        <Die
+          key={index}
+          value={die}
+          canHold={rollsLeft > 0 && hasRolled}
+          isHeld={heldDice.has(index)}
+          onToggleHold={() => toggleHoldDie(index)}
+        />
+      ))}
       </div>
       <h2>Scores</h2>
-      <div>Three of a Kind: {calculateScore('ThreeOfAKind')}</div>
-      <div>Four of a Kind: {calculateScore('FourOfAKind')}</div>
-      <div>Full House: {calculateFullHouse()}</div>
-      <div>Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
-      <div>Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
-      <div>Yahtzee: {calculateScore('Yahtzee')}</div>
-      <div>Chance: {calculateChance()}</div>
+      <div className="scoreboard">Three of a Kind: {calculateScore('ThreeOfAKind')}</div>
+      <div className="scoreboard">Four of a Kind: {calculateScore('FourOfAKind')}</div>
+      <div className="scoreboard">Full House: {calculateFullHouse()}</div>
+      <div className="scoreboard">Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
+      <div className="scoreboard">Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
+      <div className="scoreboard">Yahtzee: {calculateScore('Yahtzee')}</div>
+      <div className="scoreboard">Chance: {calculateChance()}</div>
     </div>
   );
+  
   
 };
 

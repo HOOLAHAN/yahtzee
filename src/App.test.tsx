@@ -33,25 +33,22 @@ test('initial Full House score starts at 0', () => {
   expect(fullHouseScore).toHaveTextContent('Full House: 0');
 });
 
-
 test('holding dice functionality', async () => {
-  render(<App initialDice={[1, 1, 1, 2, 2]} />);
-  
-  // Simulate the clicking of the Roll Dice button to trigger the rendering of checkboxes
-  fireEvent.click(screen.getByText(/Roll Dice/));
+  render(<App initialDice={[1, 2, 3, 4, 5]} />);
 
-  // Wait for checkboxes to appear and then proceed with test
-  const checkboxes = await screen.findAllByRole('checkbox');
+  // Simulate an initial roll
+  const rollButton = screen.getByText(/Roll Dice/i);
+  fireEvent.click(rollButton);
 
-  // Make sure 5 checkboxes are rendered (or however many you expect)
-  expect(checkboxes.length).toBe(5);
+  // Check that dice are clickable (can be held)
+  const diceElements = screen.getAllByRole('button', { name: /^([1-6])$/ }); // Assumes that the dice have role="button" and their names are the numbers 1-6
+  expect(diceElements.length).toBe(5);
 
-  // Clicking a checkbox should toggle its checked status
-  fireEvent.click(checkboxes[0]);
-  expect(checkboxes[0]).toBeChecked();
+  // Click a die to hold it
+  fireEvent.click(diceElements[0]);
 
-  fireEvent.click(checkboxes[0]);
-  expect(checkboxes[0]).not.toBeChecked();
+  // Confirm that the die has received the 'held' class
+  expect(diceElements[0]).toHaveClass('held');
 });
 
 test('calculate Full House score with valid dice', () => {
