@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './App.css';
+import './tailwind.output.css';
 
 interface DieProps {
   value: number;
@@ -9,15 +9,19 @@ interface DieProps {
 }
 
 const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, isHeld }) => {
+  const baseStyle = 'transition-colors duration-300 ease-in-out text-2xl p-4 rounded-full flex items-center justify-center h-16 w-16';
+  const heldStyle = 'bg-green-500 text-white shadow-lg';
+  const notHeldStyle = 'bg-white text-black shadow hover:bg-gray-100';
+
   return (
-    <span 
-      className={`die ${isHeld ? 'held' : ''}`} 
+    <div 
+      className={`${baseStyle} ${isHeld ? heldStyle : notHeldStyle} ${canHold ? 'cursor-pointer' : ''}`}
       onClick={canHold ? onToggleHold : undefined}
       role="button"
       aria-label={`${value}`}
     >
       {value}
-    </span>
+    </div>
   );
 };
 
@@ -171,26 +175,28 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   };
 
   return (
-    <div className="App">
-      <h1>Yahtzee!</h1>
-      <button className="action-button" onClick={rollDice} disabled={rollsLeft <= 0}>
+    <div className="App bg-gray-200 min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+    <h1 className="text-3xl md:text-4xl font-semibold mb-4">Yahtzee!</h1>
+    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
+      <button className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200" onClick={rollDice} disabled={rollsLeft <= 0}>
         Roll Dice (Rolls left: {rollsLeft})
       </button>
-      <button className="action-button" onClick={startNewRound}>
+      <button className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-green-600 text-white rounded hover:bg-green-700 focus:ring focus:ring-green-200" onClick={startNewRound}>
         Start New Round
       </button>
-      <button className="action-button" onClick={resetGame}>
+      <button className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200" onClick={resetGame}>
         Reset Game
       </button>
-      <h2>Current Score: {currentScore}</h2>
-      <h2>Total Score: {totalScore}</h2>
-      <h2>Score History</h2>
-      <ul className="history">
-        {scoreHistory.map((score, index) => (
-          <li key={index}>{score}</li>
-        ))}
-      </ul>
-      <div>
+    </div>
+    <h2 className="text-2xl mb-2">Current Score: {currentScore}</h2>
+    <h2 className="text-2xl mb-2">Total Score: {totalScore}</h2>
+    <h2 className="text-2xl mb-2">Score History</h2>
+    <ul className="list-decimal list-inside mb-6 text-blue-600">
+      {scoreHistory.map((score, index) => (
+        <li key={index}>{score}</li>
+      ))}
+    </ul>
+    <div className="flex flex-wrap justify-center space-x-2 space-y-4 mb-6">
       {dice.map((die, index) => (
         <Die
           key={index}
@@ -200,19 +206,17 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           onToggleHold={() => toggleHoldDie(index)}
         />
       ))}
-      </div>
-      <h2>Scores</h2>
-      <div className="scoreboard">Three of a Kind: {calculateScore('ThreeOfAKind')}</div>
-      <div className="scoreboard">Four of a Kind: {calculateScore('FourOfAKind')}</div>
-      <div className="scoreboard">Full House: {calculateFullHouse()}</div>
-      <div className="scoreboard">Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
-      <div className="scoreboard">Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
-      <div className="scoreboard">Yahtzee: {calculateScore('Yahtzee')}</div>
-      <div className="scoreboard">Chance: {calculateChance()}</div>
+    </div>
+      <h2 className="text-2xl mb-2">Scores</h2>
+      <div className="mb-1">Three of a Kind: {calculateScore('ThreeOfAKind')}</div>
+      <div className="mb-1">Four of a Kind: {calculateScore('FourOfAKind')}</div>
+      <div className="mb-1">Full House: {calculateFullHouse()}</div>
+      <div className="mb-1">Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
+      <div className="mb-1">Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
+      <div className="mb-1">Yahtzee: {calculateScore('Yahtzee')}</div>
+      <div className="mb-1">Chance: {calculateChance()}</div>
     </div>
   );
-  
-  
 };
 
 export default App;

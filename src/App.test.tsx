@@ -47,8 +47,8 @@ test('holding dice functionality', async () => {
   // Click a die to hold it
   fireEvent.click(diceElements[0]);
 
-  // Confirm that the die has received the 'held' class
-  expect(diceElements[0]).toHaveClass('held');
+  // Confirm that the die to have changed green
+  expect(diceElements[0]).toHaveClass('bg-green-500');
 });
 
 test('calculate Full House score with valid dice', () => {
