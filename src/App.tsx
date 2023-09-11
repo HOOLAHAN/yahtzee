@@ -176,15 +176,15 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
 
   return (
     <div className="App bg-gray-200 min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
-    <h1 className="text-3xl md:text-4xl font-semibold mb-4">Yahtzee!</h1>
+    <h1 className="text-4xl md:text-5xl font-semibold mb-4">Yahtzee!</h1>
     <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
-      <button className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200" onClick={rollDice} disabled={rollsLeft <= 0}>
+      <button className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2" onClick={rollDice} disabled={rollsLeft <= 0}>
         Roll Dice (Rolls left: {rollsLeft})
       </button>
-      <button className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-green-600 text-white rounded hover:bg-green-700 focus:ring focus:ring-green-200" onClick={startNewRound}>
+      <button className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-green-600 text-white rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2" onClick={startNewRound}>
         Start New Round
       </button>
-      <button className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200" onClick={resetGame}>
+      <button className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200 mb-2" onClick={resetGame}>
         Reset Game
       </button>
     </div>
@@ -196,7 +196,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         <li key={index}>{score}</li>
       ))}
     </ul>
-    <div className="flex flex-wrap justify-center space-x-2 space-y-4 mb-6">
+    <div className="flex flex-wrap justify-center space-x-4 space-y-4 mb-6">
       {dice.map((die, index) => (
         <Die
           key={index}
