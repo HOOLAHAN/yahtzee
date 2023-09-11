@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './tailwind.output.css';
+import Navbar from './components/Navbar'; 
 
 interface DieProps {
   value: number;
@@ -175,6 +176,8 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   };
 
   return (
+    <div className="App">
+    <Navbar />
     <div className="App bg-gray-200 min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
     <h1 className="text-4xl md:text-5xl font-semibold mb-4">Yahtzee!</h1>
     <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
@@ -215,6 +218,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       <div className="mb-1">Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
       <div className="mb-1">Yahtzee: {calculateScore('Yahtzee')}</div>
       <div className="mb-1">Chance: {calculateChance()}</div>
+      </div>
     </div>
   );
 };
