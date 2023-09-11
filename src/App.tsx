@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './tailwind.output.css';
+import './tailwind.css';
 import Navbar from './components/Navbar'; 
 
 interface DieProps {
