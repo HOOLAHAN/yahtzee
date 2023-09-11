@@ -2,16 +2,11 @@ import React, { useState } from 'react';
 import './tailwind.css';
 import Navbar from './components/Navbar';
 import Die from './components/Die';
+import { rollDie, calculateChance, isStraight } from './functions/utils';
 
 interface AppProps {
   initialDice?: number[];
 }
-
-type DieFace = 1 | 2 | 3 | 4 | 5 | 6;
-
-const rollDie = (): DieFace => {
-  return (Math.floor(Math.random() * 6) + 1) as DieFace;
-};
 
 const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [dice, setDice] = useState(initialDice);
@@ -36,7 +31,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           + (isStraight(dice, 4) ? 30 : 0)  // Small Straight: 30 points
           + (isStraight(dice, 5) ? 40 : 0)  // Large Straight: 40 points
           + (calculateScore('Yahtzee') ? 50 : 0)  // Yahtzee: 50 points
-          + calculateChance();  // Chance: Sum of all dice
+          + calculateChance(dice);  // Chance: Sum of all dice
         setCurrentScore(newCurrentScore);
 
         // If no more rolls are left, consider the round to be over and update score history.
@@ -149,28 +144,24 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   };
 
 
-  const isStraight = (dice: number[], minLength: number) => {
-    const uniqueSortedDice = Array.from(new Set(dice)).sort();
-    let consecutiveCount = 1;
+  // const isStraight = (dice: number[], minLength: number) => {
+  //   const uniqueSortedDice = Array.from(new Set(dice)).sort();
+  //   let consecutiveCount = 1;
     
-    for (let i = 1; i < uniqueSortedDice.length; i++) {
-      if (uniqueSortedDice[i] - uniqueSortedDice[i - 1] === 1) {
-        consecutiveCount++;
-        if (consecutiveCount >= minLength) {
-          return true;
-        }
-      } else {
-        consecutiveCount = 1;
-      }
-    }
+  //   for (let i = 1; i < uniqueSortedDice.length; i++) {
+  //     if (uniqueSortedDice[i] - uniqueSortedDice[i - 1] === 1) {
+  //       consecutiveCount++;
+  //       if (consecutiveCount >= minLength) {
+  //         return true;
+  //       }
+  //     } else {
+  //       consecutiveCount = 1;
+  //     }
+  //   }
     
-    return false;
-  };
+  //   return false;
+  // };
 
-  const calculateChance = () => {
-    return dice.reduce((acc, curr) => acc + curr, 0);
-  };
-  
   // Function to reset the game
   const resetGame = () => {
     setDice(initialDice);
@@ -257,7 +248,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       <div className="mb-1">Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
       <div className="mb-1">Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
       <div className="mb-1">Yahtzee: {calculateScore('Yahtzee')}</div>
-      <div className="mb-1">Chance: {calculateChance()}</div>
+      <div className="mb-1">Chance: {calculateChance(dice)}</div>
      </div>
     </div>
   );
