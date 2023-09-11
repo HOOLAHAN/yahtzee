@@ -25,7 +25,7 @@ const Navbar: React.FC = () => {
 
           {/* Text in the center */}
           <div className="flex-grow text-center">
-            <h1 className="text-2xl font-semibold">Yahtzee!</h1>
+            <h1 className="text-4xl font-semibold">Yahtzee!</h1>
           </div>
 
           {/* About button on the right */}
