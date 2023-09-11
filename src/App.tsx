@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './tailwind.css';
 import Navbar from './components/Navbar';
 import Die from './components/Die';
-import { rollDie, calculateChance, isStraight } from './functions/utils';
+import { rollDie, calculateChance, isStraight, calculateFullHouse } from './functions/utils';
 
 interface AppProps {
   initialDice?: number[];
@@ -27,7 +27,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       setRollsLeft(newRollsLeft);
 
       if (hasRolled) {
-        const newCurrentScore = calculateScore('ThreeOfAKind') + calculateScore('FourOfAKind') + calculateFullHouse()
+        const newCurrentScore = calculateScore('ThreeOfAKind') + calculateScore('FourOfAKind') + calculateFullHouse(dice)
           + (isStraight(dice, 4) ? 30 : 0)  // Small Straight: 30 points
           + (isStraight(dice, 5) ? 40 : 0)  // Large Straight: 40 points
           + (calculateScore('Yahtzee') ? 50 : 0)  // Yahtzee: 50 points
@@ -62,7 +62,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       case 'FourOfAKind':
         return calculateScore('FourOfAKind') > 0;
       case 'FullHouse':
-        return calculateFullHouse() > 0;
+        return calculateFullHouse(dice) > 0;
       default:
         return false;
     }
@@ -84,7 +84,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         shouldLockIn = newScore > 0;
         break;
       case 'FullHouse':
-        newScore = calculateFullHouse();
+        newScore = calculateFullHouse(dice);
         shouldLockIn = newScore === 25;
         break;
       default:
@@ -128,39 +128,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
     }
     return sum;
   };
-
-  const calculateFullHouse = () => {
-    const counts: { [key: number]: number } = {};
-    for (const die of dice) {
-      counts[die] = (counts[die] || 0) + 1;
-    }
-    let hasTwoOfAKind = false;
-    let hasThreeOfAKind = false;
-    for (const count of Object.values(counts)) {
-      if (count === 2) hasTwoOfAKind = true;
-      if (count === 3) hasThreeOfAKind = true;
-    }
-    return hasTwoOfAKind && hasThreeOfAKind ? 25 : 0;
-  };
-
-
-  // const isStraight = (dice: number[], minLength: number) => {
-  //   const uniqueSortedDice = Array.from(new Set(dice)).sort();
-  //   let consecutiveCount = 1;
-    
-  //   for (let i = 1; i < uniqueSortedDice.length; i++) {
-  //     if (uniqueSortedDice[i] - uniqueSortedDice[i - 1] === 1) {
-  //       consecutiveCount++;
-  //       if (consecutiveCount >= minLength) {
-  //         return true;
-  //       }
-  //     } else {
-  //       consecutiveCount = 1;
-  //     }
-  //   }
-    
-  //   return false;
-  // };
 
   // Function to reset the game
   const resetGame = () => {
@@ -244,7 +211,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       <h2 className="text-2xl mb-2">Scores</h2>
       <div className="mb-1">Three of a Kind: {calculateScore('ThreeOfAKind')}</div>
       <div className="mb-1">Four of a Kind: {calculateScore('FourOfAKind')}</div>
-      <div className="mb-1">Full House: {calculateFullHouse()}</div>
+      <div className="mb-1">Full House: {calculateFullHouse(dice)}</div>
       <div className="mb-1">Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
       <div className="mb-1">Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
       <div className="mb-1">Yahtzee: {calculateScore('Yahtzee')}</div>

@@ -28,3 +28,17 @@ export const isStraight = (dice: number[], minLength: number) => {
   
   return false;
 };
+
+export const calculateFullHouse = (dice: number[]) => {
+  const counts: { [key: number]: number } = {};
+  for (const die of dice) {
+    counts[die] = (counts[die] || 0) + 1;
+  }
+  let hasTwoOfAKind = false;
+  let hasThreeOfAKind = false;
+  for (const count of Object.values(counts)) {
+    if (count === 2) hasTwoOfAKind = true;
+    if (count === 3) hasThreeOfAKind = true;
+  }
+  return hasTwoOfAKind && hasThreeOfAKind ? 25 : 0;
+};
