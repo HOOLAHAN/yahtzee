@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import About from './About';
-import '../tailwind.output.css';
+import '../tailwind.css';
 
 const Navbar: React.FC = () => {
   const [showAbout, setShowAbout] = useState(false);
@@ -11,7 +11,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav className="bg-green-600 text-white p-4">
+      <nav className="bg-green-600 text-white p-2">
         <div className="container mx-auto flex items-center justify-between w-full">
 
           {/* Logo on the left */}
@@ -20,7 +20,6 @@ const Navbar: React.FC = () => {
               src={`${process.env.PUBLIC_URL}/yahtzee_logo.png`}
               alt="Yahtzee Logo"
               style={{ maxWidth: '70px', maxHeight: '70px' }}
-              className="border-2 border-white rounded"
             />
           </div>
 
