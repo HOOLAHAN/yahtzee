@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './tailwind.css';
 import Navbar from './components/Navbar';
 import Die from './components/Die';
-import { rollDie, calculateChance, isStraight, calculateFullHouse } from './functions/utils';
+import { rollDie, calculateChance, isStraight, calculateFullHouse, calculateScore } from './functions/utils';
 
 interface AppProps {
   initialDice?: number[];
@@ -25,15 +25,17 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       setDice(newDice);
       const newRollsLeft = rollsLeft - 1;
       setRollsLeft(newRollsLeft);
-
+  
       if (hasRolled) {
-        const newCurrentScore = calculateScore('ThreeOfAKind') + calculateScore('FourOfAKind') + calculateFullHouse(dice)
-          + (isStraight(dice, 4) ? 30 : 0)  // Small Straight: 30 points
-          + (isStraight(dice, 5) ? 40 : 0)  // Large Straight: 40 points
-          + (calculateScore('Yahtzee') ? 50 : 0)  // Yahtzee: 50 points
-          + calculateChance(dice);  // Chance: Sum of all dice
+        const newCurrentScore = calculateScore('ThreeOfAKind', newDice) 
+                               + calculateScore('FourOfAKind', newDice) 
+                               + calculateFullHouse(newDice)
+                               + (isStraight(newDice, 4) ? 30 : 0)  // Small Straight: 30 points
+                               + (isStraight(newDice, 5) ? 40 : 0)  // Large Straight: 40 points
+                               + (calculateScore('Yahtzee', newDice) ? 50 : 0)  // Yahtzee: 50 points
+                               + calculateChance(newDice);  // Chance: Sum of all dice
         setCurrentScore(newCurrentScore);
-
+  
         // If no more rolls are left, consider the round to be over and update score history.
         if (newRollsLeft === 0) {
           setScoreHistory([...scoreHistory, newCurrentScore]);
@@ -41,6 +43,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       }
     }
   };
+  
 
   const toggleHoldDie = (index: number) => {
     const newHeldDice = new Set(heldDice);
@@ -54,33 +57,35 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
 
   const canLockInScore = (category: string) => {
     if (!hasRolled) return false;
-
+  
     if (usedCategories.has(category)) return false;
+    
     switch (category) {
       case 'ThreeOfAKind':
-        return calculateScore('ThreeOfAKind') > 0;
+        return calculateScore('ThreeOfAKind', dice) > 0;
       case 'FourOfAKind':
-        return calculateScore('FourOfAKind') > 0;
+        return calculateScore('FourOfAKind', dice) > 0;
       case 'FullHouse':
         return calculateFullHouse(dice) > 0;
       default:
         return false;
     }
   };
+  
 
   const lockInScore = (category: string) => {
     if (usedCategories.has(category)) return;
-
+  
     let shouldLockIn = false;
     let newScore = 0;  // A variable to hold the score of the locked-in category
-
+  
     switch (category) {
       case 'ThreeOfAKind':
-        newScore = calculateScore('ThreeOfAKind');
+        newScore = calculateScore('ThreeOfAKind', dice);
         shouldLockIn = newScore > 0;
         break;
       case 'FourOfAKind':
-        newScore = calculateScore('FourOfAKind');
+        newScore = calculateScore('FourOfAKind', dice);
         shouldLockIn = newScore > 0;
         break;
       case 'FullHouse':
@@ -90,45 +95,19 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       default:
         break;
     }
-
+  
     if (!shouldLockIn) return;
-
+  
     const newUsedCategories = new Set(usedCategories);
     newUsedCategories.add(category);
     setUsedCategories(newUsedCategories);
-
+  
     // Update total score and score history
     setTotalScore(totalScore + newScore);
     setScoreHistory([...scoreHistory, newScore]);
     startNewRound();
   };
-
-
-
-  const calculateScore = (type: 'ThreeOfAKind' | 'FourOfAKind' | 'Yahtzee') => {
-    const counts: { [key: number]: number } = {};
-    for (const die of dice) {
-      counts[die] = (counts[die] || 0) + 1;
-    }
-    let sum = 0;
-    for (const [die, count] of Object.entries(counts)) {
-      if (type === 'ThreeOfAKind' && count >= 3) {
-        sum += parseInt(die) * 3;
-      }
-      if (type === 'FourOfAKind' && count >= 4) {
-        sum += parseInt(die) * 4;
-      }
-    }
-    if (type === 'Yahtzee') {
-      for (const count of Object.values(counts)) {
-        if (count === 5) {
-          return 50; // Yahtzee score
-        }
-      }
-    }
-    return sum;
-  };
-
+  
   // Function to reset the game
   const resetGame = () => {
     setDice(initialDice);
@@ -209,12 +188,12 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         ))}
       </div>
       <h2 className="text-2xl mb-2">Scores</h2>
-      <div className="mb-1">Three of a Kind: {calculateScore('ThreeOfAKind')}</div>
-      <div className="mb-1">Four of a Kind: {calculateScore('FourOfAKind')}</div>
+      <div className="mb-1">Three of a Kind: {calculateScore('ThreeOfAKind', dice)}</div>
+      <div className="mb-1">Four of a Kind: {calculateScore('FourOfAKind', dice)}</div>
       <div className="mb-1">Full House: {calculateFullHouse(dice)}</div>
       <div className="mb-1">Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
       <div className="mb-1">Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
-      <div className="mb-1">Yahtzee: {calculateScore('Yahtzee')}</div>
+      <div className="mb-1">Yahtzee: {calculateScore('Yahtzee', dice)}</div>
       <div className="mb-1">Chance: {calculateChance(dice)}</div>
      </div>
     </div>

@@ -42,3 +42,27 @@ export const calculateFullHouse = (dice: number[]) => {
   }
   return hasTwoOfAKind && hasThreeOfAKind ? 25 : 0;
 };
+
+export const calculateScore = (type: 'ThreeOfAKind' | 'FourOfAKind' | 'Yahtzee', dice: number[]) => {
+  const counts: { [key: number]: number } = {};
+  for (const die of dice) {
+    counts[die] = (counts[die] || 0) + 1;
+  }
+  let sum = 0;
+  for (const [die, count] of Object.entries(counts)) {
+    if (type === 'ThreeOfAKind' && count >= 3) {
+      sum += parseInt(die) * 3;
+    }
+    if (type === 'FourOfAKind' && count >= 4) {
+      sum += parseInt(die) * 4;
+    }
+  }
+  if (type === 'Yahtzee') {
+    for (const count of Object.values(counts)) {
+      if (count === 5) {
+        return 50; // Yahtzee score
+      }
+    }
+  }
+  return sum;
+};
