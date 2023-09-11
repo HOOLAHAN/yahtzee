@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/extend-expect';
 import App from './App';
 
 test('renders Yahtzee title', () => {
@@ -16,20 +16,47 @@ test('initial roll count is 3', () => {
 });
 
 test('score for Three of a Kind starts at 0', () => {
+  // Render the component with an initial dice array
   render(<App initialDice={[1, 1, 2, 3, 4]} />);
-  const threeOfAKindScore = screen.getByText(/Three of a Kind/i);
+
+  // Use getAllByText to get all elements containing the text "Three of a Kind"
+  const allThreeOfAKindScores = screen.getAllByText(/Three of a Kind/i);
+
+  // Filter out the element that contains the specific text we're looking for
+  const threeOfAKindScore = allThreeOfAKindScores.find(el => el.textContent === 'Three of a Kind: 0');
+
+  // Ensure the element is not null and contains the correct text
+  expect(threeOfAKindScore).not.toBeNull();
   expect(threeOfAKindScore).toHaveTextContent('Three of a Kind: 0');
 });
 
 test('score for Four of a Kind starts at 0', () => {
+  // Render the component with an initial dice array
   render(<App initialDice={[1, 1, 2, 3, 4]} />);
-  const fourOfAKindScore = screen.getByText(/Four of a Kind/i);
+
+  // Use getAllByText to get all elements containing the text "Four of a Kind"
+  const allFourOfAKindScores = screen.getAllByText(/Four of a Kind/i);
+
+  // Filter out the element that contains the specific text we're looking for
+  const fourOfAKindScore = allFourOfAKindScores.find(el => el.textContent === 'Four of a Kind: 0');
+
+  // Ensure the element is not null and contains the correct text
+  expect(fourOfAKindScore).not.toBeNull();
   expect(fourOfAKindScore).toHaveTextContent('Four of a Kind: 0');
 });
 
 test('initial Full House score starts at 0', () => {
+  // Render the component with an initial dice array
   render(<App initialDice={[1, 1, 2, 3, 4]} />);
-  const fullHouseScore = screen.getByText(/Full House/i);
+
+  // Use getAllByText to get all elements containing the text "Full House"
+  const allFullHouseScores = screen.getAllByText(/Full House/i);
+
+  // Filter out the element that contains the specific text we're looking for
+  const fullHouseScore = allFullHouseScores.find(el => el.textContent === 'Full House: 0');
+
+  // Ensure the element is not null and contains the correct text
+  expect(fullHouseScore).not.toBeNull();
   expect(fullHouseScore).toHaveTextContent('Full House: 0');
 });
 
@@ -52,14 +79,32 @@ test('holding dice functionality', async () => {
 });
 
 test('calculate Full House score with valid dice', () => {
+  // Render the component with initial dice array
   render(<App initialDice={[1, 1, 1, 2, 2]} />);
-  const fullHouseScore = screen.getByText(/Full House/i);
-  expect(fullHouseScore).toHaveTextContent('Full House: 7');
+
+  // Use getAllByText to get all elements containing the text "Full House"
+  const allFullHouseScores = screen.getAllByText(/Full House/i);
+
+  // Filter out the element that contains the specific text we're looking for
+  const fullHouseScore = allFullHouseScores.find(el => el.textContent === 'Full House: 25');
+
+  // Ensure the element is not null and contains the correct text
+  expect(fullHouseScore).not.toBeNull();
+  expect(fullHouseScore).toHaveTextContent('Full House: 25');
 });
 
 test('calculate Full House score with invalid dice', () => {
+  // Render the component with initial dice array
   render(<App initialDice={[1, 1, 1, 1, 1]} />);
-  const fullHouseScore = screen.getByText(/Full House/i);
+
+  // Use getAllByText to get all elements containing the text "Full House"
+  const allFullHouseScores = screen.getAllByText(/Full House/i);
+
+  // Filter out the element that contains the specific text we're looking for
+  const fullHouseScore = allFullHouseScores.find(el => el.textContent === 'Full House: 0');
+
+  // Ensure the element is not null and contains the correct text
+  expect(fullHouseScore).not.toBeNull();
   expect(fullHouseScore).toHaveTextContent('Full House: 0');
 });
 
