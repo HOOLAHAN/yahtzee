@@ -76,55 +76,16 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         ))}
       </div>
       <div className="flex space-x-2">
-        <button
-          className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('ThreeOfAKind', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
-          onClick={() => lockInScore('ThreeOfAKind', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
-          disabled={!canLockInScore('ThreeOfAKind', hasRolled, usedCategories, dice)}
-        >
-          Lock in Three of a Kind
-        </button>
-        <button
-          className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('FourOfAKind', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
-          onClick={() => lockInScore('FourOfAKind', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
-          disabled={!canLockInScore('FourOfAKind', hasRolled, usedCategories, dice)}
-        >
-          Lock in Four of a Kind
-        </button>
-        <button
-          className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('FullHouse', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2`}
-          onClick={() => lockInScore('FullHouse', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
-          disabled={!canLockInScore('FullHouse', hasRolled, usedCategories, dice)}
-        >
-          Lock in Full House
-        </button>
-        <button
-          className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('SmallStraight', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
-          onClick={() => lockInScore('SmallStraight', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
-          disabled={!canLockInScore('SmallStraight', hasRolled, usedCategories, dice)}
-        >
-          Lock in Small Straight
-        </button>
-        <button
-          className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('LargeStraight', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
-          onClick={() => lockInScore('LargeStraight', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
-          disabled={!canLockInScore('LargeStraight', hasRolled, usedCategories, dice)}
-        >
-          Lock in Large Straight
-        </button>
-        <button
-          className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('Yahtzee', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
-          onClick={() => lockInScore('Yahtzee', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
-          disabled={!canLockInScore('Yahtzee', hasRolled, usedCategories, dice)}
-        >
-          Lock in Yahtzee
-        </button>
-        <button
-          className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('Chance', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
-          onClick={() => lockInScore('Chance', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
-          disabled={!canLockInScore('Chance', hasRolled, usedCategories, dice)}
-        >
-          Lock in Chance
-        </button>
+        {['ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => (
+          <button
+            key={category}
+            className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore(category, hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
+            onClick={() => lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
+            disabled={!canLockInScore(category, hasRolled, usedCategories, dice)}
+          >
+            Lock in {category.replace(/([A-Z])/g, ' $1').trim()}
+          </button>
+        ))}
       </div>
       <h2 className="text-2xl mb-2">Scores</h2>
       <div className="mb-1">Three of a Kind: {calculateScore('ThreeOfAKind', dice)}</div>
