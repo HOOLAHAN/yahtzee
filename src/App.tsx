@@ -15,6 +15,12 @@ import {
   lockInScore
  } from './functions/utils';
 
+ interface ScoreEntry {
+  dice: number[];
+  scoreType: string;
+  total: number;
+}
+
 interface AppProps {
   initialDice?: number[];
 }
@@ -23,7 +29,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [dice, setDice] = useState(initialDice);
   const [heldDice, setHeldDice] = useState(new Set<number>());
   const [currentScore, setCurrentScore] = useState(0);
-  const [scoreHistory, setScoreHistory] = useState<number[]>([]);
+  const [scoreHistory, setScoreHistory] = useState<ScoreEntry[]>([]);
   const [rollsLeft, setRollsLeft] = useState(3);
   const [totalScore, setTotalScore] = useState(0);
   const [hasRolled, setHasRolled] = useState(false);
@@ -52,10 +58,12 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       <h2 className="text-2xl mb-2">Total Score: {totalScore}</h2>
       <h2 className="text-2xl mb-2">Score History</h2>
       <ul className="list-decimal list-inside mb-6 text-blue-600">
-        {scoreHistory.map((score, index) => (
-          <li key={index}>{score}</li>
-        ))}
-      </ul>
+      {scoreHistory.map((entry, index) => (
+        <li key={index}>
+          Dice: [{entry.dice.join(', ')}], Score Type: {entry.scoreType}, Total: {entry.total}
+        </li>
+      ))}
+    </ul>
       <div className="flex flex-wrap justify-center space-x-4 space-y-4 mb-6">
         {dice.map((die, index) => (
           <Die
@@ -88,6 +96,20 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           disabled={!canLockInScore('FullHouse', hasRolled, usedCategories, dice)}
         >
           Lock in Full House
+        </button>
+        <button
+          className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('SmallStraight', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
+          onClick={() => lockInScore('SmallStraight', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
+          disabled={!canLockInScore('SmallStraight', hasRolled, usedCategories, dice)}
+        >
+          Lock in Small Straight
+        </button>
+        <button
+          className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('LargeStraight', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
+          onClick={() => lockInScore('LargeStraight', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
+          disabled={!canLockInScore('LargeStraight', hasRolled, usedCategories, dice)}
+        >
+          Lock in Large Straight
         </button>
       </div>
       <h2 className="text-2xl mb-2">Scores</h2>

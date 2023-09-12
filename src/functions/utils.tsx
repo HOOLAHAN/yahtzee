@@ -1,5 +1,11 @@
 // utils.tsx
 
+interface ScoreEntry {
+  dice: number[];
+  scoreType: string;
+  total: number;
+}
+
 type DieFace = 1 | 2 | 3 | 4 | 5 | 6;
 
 export const calculateChance = (dice: number[]): number => {
@@ -75,8 +81,8 @@ export const rollDice = (
   setRollsLeft: React.Dispatch<React.SetStateAction<number>>,
   setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>,
   setCurrentScore: React.Dispatch<React.SetStateAction<number>>,
-  setScoreHistory: React.Dispatch<React.SetStateAction<number[]>>,
-  scoreHistory: number[],
+  setScoreHistory: React.Dispatch<React.SetStateAction<ScoreEntry[]>>,
+  scoreHistory: ScoreEntry[],
   setTotalScore: React.Dispatch<React.SetStateAction<number>>,
   totalScore: number,
   currentScore: number
@@ -99,7 +105,7 @@ export const rollDice = (
 
     // If no more rolls are left, consider the round to be over.
     if (newRollsLeft === 0) {
-      setScoreHistory([...scoreHistory, newCurrentScore]);
+      setScoreHistory([...scoreHistory, { dice: newDice, scoreType: 'SomeType', total: newCurrentScore }]);
       startNewRound(
         setDice,
         setRollsLeft,
@@ -120,7 +126,7 @@ export const rollDice = (
     setRollsLeft: React.Dispatch<React.SetStateAction<number>>, 
     setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>, 
     setCurrentScore: React.Dispatch<React.SetStateAction<number>>, 
-    setScoreHistory: React.Dispatch<React.SetStateAction<number[]>>, 
+    setScoreHistory: React.Dispatch<React.SetStateAction<ScoreEntry[]>>,
     setHasRolled: React.Dispatch<React.SetStateAction<boolean>>, 
     setTotalScore: React.Dispatch<React.SetStateAction<number>>, 
     initialDice: number[]
@@ -166,7 +172,12 @@ export const rollDice = (
       setHeldDice(newHeldDice);
     };
 
-    export const canLockInScore = (category: string, hasRolled: boolean, usedCategories: Set<string>, dice: number[]) => {
+    export const canLockInScore = (
+      category: string, 
+      hasRolled: boolean, 
+      usedCategories: Set<string>, 
+      dice: number[]
+    ) => {
       if (!hasRolled) return false;
     
       if (usedCategories.has(category)) return false;
@@ -178,10 +189,14 @@ export const rollDice = (
           return calculateScore('FourOfAKind', dice) > 0;
         case 'FullHouse':
           return calculateFullHouse(dice) > 0;
+        case 'SmallStraight':
+          return isStraight(dice, 4);
+        case 'LargeStraight':
+          return isStraight(dice, 5);
         default:
           return false;
       }
-    };
+    };    
 
     export const lockInScore = (
       category: string,
@@ -191,7 +206,7 @@ export const rollDice = (
       setTotalScore: Function,
       totalScore: number,
       setScoreHistory: Function,
-      scoreHistory: number[],
+      scoreHistory: ScoreEntry[],
       startNewRound: Function,
       setCurrentScore: Function,
       setHasRolled: Function,
@@ -219,6 +234,14 @@ export const rollDice = (
           newScore = calculateFullHouse(dice);
           shouldLockIn = newScore > 0;
           break;
+        case 'SmallStraight':
+          newScore = isStraight(dice, 4) ? 30 : 0;
+          shouldLockIn = newScore > 0;
+          break;
+        case 'LargeStraight':
+          newScore = isStraight(dice, 5) ? 40 : 0;
+          shouldLockIn = newScore > 0;
+          break;
         default:
           break;
       }
@@ -229,7 +252,14 @@ export const rollDice = (
       newUsedCategories.add(category);
       setUsedCategories(newUsedCategories);
       setTotalScore(totalScore + newScore);
-      setScoreHistory([...scoreHistory, newScore]);
+      setScoreHistory([
+        ...scoreHistory,
+        {
+          dice: [...dice],
+          scoreType: category,
+          total: totalScore + newScore,
+        },
+      ]);
       startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore);
     };
     
