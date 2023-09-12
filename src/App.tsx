@@ -3,12 +3,13 @@ import './tailwind.css';
 import Navbar from './components/Navbar';
 import Die from './components/Die';
 import { 
-  // rollDie, 
   calculateChance, 
   isStraight, 
   calculateFullHouse, 
   calculateScore, 
-  rollDice } from './functions/utils';
+  rollDice,
+  resetGame
+ } from './functions/utils';
 
 interface AppProps {
   initialDice?: number[];
@@ -86,17 +87,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
     setScoreHistory([...scoreHistory, newScore]);
     startNewRound();
   };
-  
-  // Function to reset the game
-  const resetGame = () => {
-    setDice(initialDice);
-    setRollsLeft(3);
-    setHeldDice(new Set());
-    setCurrentScore(0);
-    setScoreHistory([]);
-    setHasRolled(false);
-    setTotalScore(0);
-  };
 
   const startNewRound = () => {
     // Reset state for the new round
@@ -120,7 +110,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           <button className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-green-600 text-white rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2" onClick={startNewRound}>
             Start New Round
           </button>
-          <button className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200 mb-2" onClick={resetGame}>
+          <button onClick={() => resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice)}>
             Reset Game
           </button>
         </div>

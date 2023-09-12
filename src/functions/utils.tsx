@@ -22,7 +22,6 @@ export const isStraight = (dice: number[], minLength: number) => {
       consecutiveCount = 1;
     }
   }
-  
   return false;
 };
 
@@ -64,31 +63,6 @@ export const calculateScore = (type: 'ThreeOfAKind' | 'FourOfAKind' | 'Yahtzee',
   return sum;
 };
 
-// export const rollDice = () => {
-//   if (rollsLeft > 0) {
-//     setHasRolled(true);
-//     const newDice = dice.map((d, i) => (heldDice.has(i) ? d : rollDie()));
-//     setDice(newDice);
-//     const newRollsLeft = rollsLeft - 1;
-//     setRollsLeft(newRollsLeft);
-    
-//     if (hasRolled) {
-//       const newCurrentScore = calculateScore('ThreeOfAKind', newDice) 
-//       + calculateScore('FourOfAKind', newDice) 
-//       + calculateFullHouse(newDice)
-//       + (isStraight(newDice, 4) ? 30 : 0)  // Small Straight: 30 points
-//       + (isStraight(newDice, 5) ? 40 : 0)  // Large Straight: 40 points
-//       + (calculateScore('Yahtzee', newDice) ? 50 : 0)  // Yahtzee: 50 points
-//       + calculateChance(newDice);  // Chance: Sum of all dice
-//       setCurrentScore(newCurrentScore);
-      
-//       // If no more rolls are left, consider the round to be over and update score history.
-//       if (newRollsLeft === 0) {
-//         setScoreHistory([...scoreHistory, newCurrentScore]);
-//       }
-//     }
-//   }
-
 const rollDie = (): DieFace => {
   return (Math.floor(Math.random() * 6) + 1) as DieFace;
 };
@@ -105,7 +79,6 @@ export const rollDice = (
   setScoreHistory: React.Dispatch<React.SetStateAction<number[]>>,
   scoreHistory: number[]
 ) => {
-  // Your existing logic
   if (rollsLeft > 0) {
     setHasRolled(true);
     const newDice = dice.map((d, i) => (heldDice.has(i) ? d : rollDie()));
@@ -130,3 +103,33 @@ export const rollDice = (
     }
   }
 };
+
+  // Function to reset the game
+  // export const resetGame = () => {
+  //   setDice(initialDice);
+  //   setRollsLeft(3);
+  //   setHeldDice(new Set());
+  //   setCurrentScore(0);
+  //   setScoreHistory([]);
+  //   setHasRolled(false);
+  //   setTotalScore(0);
+  // };
+
+  export const resetGame = (
+    setDice: React.Dispatch<React.SetStateAction<number[]>>, 
+    setRollsLeft: React.Dispatch<React.SetStateAction<number>>, 
+    setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>, 
+    setCurrentScore: React.Dispatch<React.SetStateAction<number>>, 
+    setScoreHistory: React.Dispatch<React.SetStateAction<number[]>>, 
+    setHasRolled: React.Dispatch<React.SetStateAction<boolean>>, 
+    setTotalScore: React.Dispatch<React.SetStateAction<number>>, 
+    initialDice: number[]) => {
+    setDice(initialDice);
+    setRollsLeft(3);
+    setHeldDice(new Set());
+    setCurrentScore(0);
+    setScoreHistory([]);
+    setHasRolled(false);
+    setTotalScore(0);
+  };
+  
