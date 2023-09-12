@@ -73,9 +73,13 @@ export const rollDice = (
   setHasRolled: React.Dispatch<React.SetStateAction<boolean>>,
   setDice: React.Dispatch<React.SetStateAction<number[]>>,
   setRollsLeft: React.Dispatch<React.SetStateAction<number>>,
+  setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>,
   setCurrentScore: React.Dispatch<React.SetStateAction<number>>,
   setScoreHistory: React.Dispatch<React.SetStateAction<number[]>>,
-  scoreHistory: number[]
+  scoreHistory: number[],
+  setTotalScore: React.Dispatch<React.SetStateAction<number>>,
+  totalScore: number,
+  currentScore: number
 ) => {
   if (rollsLeft > 0) {
     setHasRolled(true);
@@ -83,21 +87,30 @@ export const rollDice = (
     setDice(newDice);
     const newRollsLeft = rollsLeft - 1;
     setRollsLeft(newRollsLeft);
-    
-    if (hasRolled) {
-      const newCurrentScore = calculateScore('ThreeOfAKind', newDice) 
-      + calculateScore('FourOfAKind', newDice) 
-      + calculateFullHouse(newDice)
-      + (isStraight(newDice, 4) ? 30 : 0)  // Small Straight: 30 points
-      + (isStraight(newDice, 5) ? 40 : 0)  // Large Straight: 40 points
-      + (calculateScore('Yahtzee', newDice) ? 50 : 0)  // Yahtzee: 50 points
-      + calculateChance(newDice);  // Chance: Sum of all dice
-      setCurrentScore(newCurrentScore);
-      
-      // If no more rolls are left, consider the round to be over and update score history.
-      if (newRollsLeft === 0) {
-        setScoreHistory([...scoreHistory, newCurrentScore]);
-      }
+
+    const newCurrentScore = calculateScore('ThreeOfAKind', newDice) 
+    + calculateScore('FourOfAKind', newDice) 
+    + calculateFullHouse(newDice)
+    + (isStraight(newDice, 4) ? 30 : 0)
+    + (isStraight(newDice, 5) ? 40 : 0)
+    + (calculateScore('Yahtzee', newDice) ? 50 : 0)
+    + calculateChance(newDice);
+    setCurrentScore(newCurrentScore);
+
+    // If no more rolls are left, consider the round to be over.
+    if (newRollsLeft === 0) {
+      setScoreHistory([...scoreHistory, newCurrentScore]);
+      startNewRound(
+        setDice,
+        setRollsLeft,
+        setHeldDice,
+        setCurrentScore,
+        setHasRolled,
+        setTotalScore,
+        dice,  // or any initial dice state you'd like to start with
+        totalScore,
+        newCurrentScore
+      );
     }
   }
 };
