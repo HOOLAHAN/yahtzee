@@ -152,3 +152,20 @@ export const rollDice = (
       }
       setHeldDice(newHeldDice);
     };
+
+    export const canLockInScore = (category: string, hasRolled: boolean, usedCategories: Set<string>, dice: number[]) => {
+      if (!hasRolled) return false;
+    
+      if (usedCategories.has(category)) return false;
+      
+      switch (category) {
+        case 'ThreeOfAKind':
+          return calculateScore('ThreeOfAKind', dice) > 0;
+        case 'FourOfAKind':
+          return calculateScore('FourOfAKind', dice) > 0;
+        case 'FullHouse':
+          return calculateFullHouse(dice) > 0;
+        default:
+          return false;
+      }
+    };

@@ -10,7 +10,8 @@ import {
   rollDice,
   resetGame,
   startNewRound,
-  toggleHoldDie
+  toggleHoldDie,
+  canLockInScore
  } from './functions/utils';
 
 interface AppProps {
@@ -26,34 +27,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [totalScore, setTotalScore] = useState(0);
   const [hasRolled, setHasRolled] = useState(false);
   const [usedCategories, setUsedCategories] = useState(new Set<string>());
-
-  // const toggleHoldDie = (index: number) => {
-  //   const newHeldDice = new Set(heldDice);
-  //   if (newHeldDice.has(index)) {
-  //     newHeldDice.delete(index);
-  //   } else {
-  //     newHeldDice.add(index);
-  //   }
-  //   setHeldDice(newHeldDice);
-  // };
-
-  const canLockInScore = (category: string) => {
-    if (!hasRolled) return false;
-  
-    if (usedCategories.has(category)) return false;
-    
-    switch (category) {
-      case 'ThreeOfAKind':
-        return calculateScore('ThreeOfAKind', dice) > 0;
-      case 'FourOfAKind':
-        return calculateScore('FourOfAKind', dice) > 0;
-      case 'FullHouse':
-        return calculateFullHouse(dice) > 0;
-      default:
-        return false;
-    }
-  };
-  
 
   const lockInScore = (category: string) => {
     if (usedCategories.has(category)) return;
@@ -117,23 +90,23 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         </div>
         <div className="flex space-x-2">
           <button
-            className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('ThreeOfAKind') ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
+            className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('ThreeOfAKind', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
             onClick={() => lockInScore('ThreeOfAKind')}
-            disabled={!canLockInScore('ThreeOfAKind')}
+            disabled={!canLockInScore('ThreeOfAKind', hasRolled, usedCategories, dice)}
           >
             Lock in Three of a Kind
           </button>
           <button
-            className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('FourOfAKind') ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
+            className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('FourOfAKind', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
             onClick={() => lockInScore('FourOfAKind')}
-            disabled={!canLockInScore('FourOfAKind')}
+            disabled={!canLockInScore('FourOfAKind', hasRolled, usedCategories, dice)}
           >
             Lock in Four of a Kind
           </button>
           <button
-            className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('FullHouse') ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2`}
+            className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('FullHouse', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2`}
             onClick={() => lockInScore('FullHouse')}
-            disabled={!canLockInScore('FullHouse')}
+            disabled={!canLockInScore('FullHouse', hasRolled, usedCategories, dice)}
           >
             Lock in Full House
           </button>
