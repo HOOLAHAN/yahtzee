@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import './tailwind.css';
 import Navbar from './components/Navbar';
 import Die from './components/Die';
-import { rollDie, calculateChance, isStraight, calculateFullHouse, calculateScore } from './functions/utils';
+import { 
+  // rollDie, 
+  calculateChance, 
+  isStraight, 
+  calculateFullHouse, 
+  calculateScore, 
+  rollDice } from './functions/utils';
 
 interface AppProps {
   initialDice?: number[];
@@ -17,33 +23,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [totalScore, setTotalScore] = useState(0);
   const [hasRolled, setHasRolled] = useState(false);
   const [usedCategories, setUsedCategories] = useState(new Set<string>());
-
-  const rollDice = () => {
-    if (rollsLeft > 0) {
-      setHasRolled(true);
-      const newDice = dice.map((d, i) => (heldDice.has(i) ? d : rollDie()));
-      setDice(newDice);
-      const newRollsLeft = rollsLeft - 1;
-      setRollsLeft(newRollsLeft);
-  
-      if (hasRolled) {
-        const newCurrentScore = calculateScore('ThreeOfAKind', newDice) 
-                               + calculateScore('FourOfAKind', newDice) 
-                               + calculateFullHouse(newDice)
-                               + (isStraight(newDice, 4) ? 30 : 0)  // Small Straight: 30 points
-                               + (isStraight(newDice, 5) ? 40 : 0)  // Large Straight: 40 points
-                               + (calculateScore('Yahtzee', newDice) ? 50 : 0)  // Yahtzee: 50 points
-                               + calculateChance(newDice);  // Chance: Sum of all dice
-        setCurrentScore(newCurrentScore);
-  
-        // If no more rolls are left, consider the round to be over and update score history.
-        if (newRollsLeft === 0) {
-          setScoreHistory([...scoreHistory, newCurrentScore]);
-        }
-      }
-    }
-  };
-  
 
   const toggleHoldDie = (index: number) => {
     const newHeldDice = new Set(heldDice);
@@ -135,7 +114,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       <Navbar />
       <div className="bg-gray-200 min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
         <div className="flex space-x-2">
-          <button className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2" onClick={rollDice} disabled={rollsLeft <= 0}>
+          <button onClick={() => rollDice(rollsLeft, dice, heldDice, hasRolled, setHasRolled, setDice, setRollsLeft, setCurrentScore, setScoreHistory, scoreHistory)} >
             Roll Dice (Rolls left: {rollsLeft})
           </button>
           <button className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-green-600 text-white rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2" onClick={startNewRound}>
