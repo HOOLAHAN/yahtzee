@@ -181,6 +181,9 @@ export const rollDice = (
       if (!hasRolled) return false;
     
       if (usedCategories.has(category)) return false;
+
+      let newScore = 0;
+      let shouldLockIn = false;
       
       switch (category) {
         case 'ThreeOfAKind':
@@ -193,9 +196,18 @@ export const rollDice = (
           return isStraight(dice, 4);
         case 'LargeStraight':
           return isStraight(dice, 5);
+        case 'Yahtzee':
+          newScore = calculateScore('Yahtzee', dice);
+          shouldLockIn = newScore > 0;
+          break;
+        case 'Chance':
+          newScore = calculateChance(dice);
+          shouldLockIn = true; // You can always take a Chance score.
+          break;
         default:
           return false;
       }
+      return shouldLockIn;
     };    
 
     export const lockInScore = (
@@ -241,6 +253,14 @@ export const rollDice = (
         case 'LargeStraight':
           newScore = isStraight(dice, 5) ? 40 : 0;
           shouldLockIn = newScore > 0;
+          break;
+        case 'Yahtzee':
+          newScore = calculateScore('Yahtzee', dice);
+          shouldLockIn = newScore > 0;
+          break;
+        case 'Chance':
+          newScore = calculateChance(dice);
+          shouldLockIn = true; // You can always take a Chance score.
           break;
         default:
           break;
