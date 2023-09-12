@@ -142,3 +142,13 @@ export const rollDice = (
       // Add the score from the last round to the total score
       setTotalScore(totalScore + currentScore);
     };
+
+    export const toggleHoldDie = (index: number, heldDice: Set<number>, setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>) => {
+      const newHeldDice = new Set(heldDice);
+      if (newHeldDice.has(index)) {
+        newHeldDice.delete(index);
+      } else {
+        newHeldDice.add(index);
+      }
+      setHeldDice(newHeldDice);
+    };

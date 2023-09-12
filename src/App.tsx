@@ -9,7 +9,8 @@ import {
   calculateScore, 
   rollDice,
   resetGame,
-  startNewRound
+  startNewRound,
+  toggleHoldDie
  } from './functions/utils';
 
 interface AppProps {
@@ -26,15 +27,15 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [hasRolled, setHasRolled] = useState(false);
   const [usedCategories, setUsedCategories] = useState(new Set<string>());
 
-  const toggleHoldDie = (index: number) => {
-    const newHeldDice = new Set(heldDice);
-    if (newHeldDice.has(index)) {
-      newHeldDice.delete(index);
-    } else {
-      newHeldDice.add(index);
-    }
-    setHeldDice(newHeldDice);
-  };
+  // const toggleHoldDie = (index: number) => {
+  //   const newHeldDice = new Set(heldDice);
+  //   if (newHeldDice.has(index)) {
+  //     newHeldDice.delete(index);
+  //   } else {
+  //     newHeldDice.add(index);
+  //   }
+  //   setHeldDice(newHeldDice);
+  // };
 
   const canLockInScore = (category: string) => {
     if (!hasRolled) return false;
@@ -152,7 +153,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
             value={die}
             canHold={rollsLeft > 0 && hasRolled}
             isHeld={heldDice.has(index)}
-            onToggleHold={() => toggleHoldDie(index)}
+            onToggleHold={() => toggleHoldDie(index, heldDice, setHeldDice)}
           />
         ))}
       </div>
