@@ -8,7 +8,8 @@ import {
   calculateFullHouse, 
   calculateScore, 
   rollDice,
-  resetGame
+  resetGame,
+  startNewRound
  } from './functions/utils';
 
 interface AppProps {
@@ -85,18 +86,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
     // Update total score and score history
     setTotalScore(totalScore + newScore);
     setScoreHistory([...scoreHistory, newScore]);
-    startNewRound();
-  };
-
-  const startNewRound = () => {
-    // Reset state for the new round
-    setDice(initialDice);
-    setRollsLeft(3);
-    setHeldDice(new Set());
-    setCurrentScore(0);
-    setHasRolled(false);
-    // Add the score from the last round to the total score
-    setTotalScore(totalScore + currentScore);
+    startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore);
   };
 
   return (
@@ -107,7 +97,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           <button onClick={() => rollDice(rollsLeft, dice, heldDice, hasRolled, setHasRolled, setDice, setRollsLeft, setCurrentScore, setScoreHistory, scoreHistory)} >
             Roll Dice (Rolls left: {rollsLeft})
           </button>
-          <button className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-green-600 text-white rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2" onClick={startNewRound}>
+          <button onClick={() => startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore)}>
             Start New Round
           </button>
           <button onClick={() => resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice)}>

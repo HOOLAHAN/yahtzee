@@ -2,8 +2,6 @@
 
 type DieFace = 1 | 2 | 3 | 4 | 5 | 6;
 
-
-
 export const calculateChance = (dice: number[]): number => {
   return dice.reduce((acc: number, curr: number) => acc + curr, 0);
 };
@@ -104,17 +102,6 @@ export const rollDice = (
   }
 };
 
-  // Function to reset the game
-  // export const resetGame = () => {
-  //   setDice(initialDice);
-  //   setRollsLeft(3);
-  //   setHeldDice(new Set());
-  //   setCurrentScore(0);
-  //   setScoreHistory([]);
-  //   setHasRolled(false);
-  //   setTotalScore(0);
-  // };
-
   export const resetGame = (
     setDice: React.Dispatch<React.SetStateAction<number[]>>, 
     setRollsLeft: React.Dispatch<React.SetStateAction<number>>, 
@@ -123,7 +110,8 @@ export const rollDice = (
     setScoreHistory: React.Dispatch<React.SetStateAction<number[]>>, 
     setHasRolled: React.Dispatch<React.SetStateAction<boolean>>, 
     setTotalScore: React.Dispatch<React.SetStateAction<number>>, 
-    initialDice: number[]) => {
+    initialDice: number[]
+    ) => {
     setDice(initialDice);
     setRollsLeft(3);
     setHeldDice(new Set());
@@ -133,3 +121,24 @@ export const rollDice = (
     setTotalScore(0);
   };
   
+
+  export const startNewRound = (
+    setDice: React.Dispatch<React.SetStateAction<number[]>>, 
+    setRollsLeft: React.Dispatch<React.SetStateAction<number>>, 
+    setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>, 
+    setCurrentScore: React.Dispatch<React.SetStateAction<number>>, 
+    setHasRolled: React.Dispatch<React.SetStateAction<boolean>>, 
+    setTotalScore: React.Dispatch<React.SetStateAction<number>>, 
+    initialDice: number[], 
+    totalScore: number, 
+    currentScore: number
+    ) => {
+      // Reset state for the new round
+      setDice(initialDice);
+      setRollsLeft(3);
+      setHeldDice(new Set());
+      setCurrentScore(0);
+      setHasRolled(false);
+      // Add the score from the last round to the total score
+      setTotalScore(totalScore + currentScore);
+    };
