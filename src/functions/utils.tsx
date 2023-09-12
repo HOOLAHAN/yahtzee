@@ -169,3 +169,54 @@ export const rollDice = (
           return false;
       }
     };
+
+    export const lockInScore = (
+      category: string,
+      usedCategories: Set<string>,
+      setUsedCategories: Function,
+      dice: number[],
+      setTotalScore: Function,
+      totalScore: number,
+      setScoreHistory: Function,
+      scoreHistory: number[],
+      startNewRound: Function,
+      setCurrentScore: Function,
+      setHasRolled: Function,
+      setDice: Function,
+      setRollsLeft: Function,
+      setHeldDice: Function,
+      initialDice: number[],
+      currentScore: number
+    ) => {
+      if (usedCategories.has(category)) return;
+    
+      let shouldLockIn = false;
+      let newScore = 0;
+    
+      switch (category) {
+        case 'ThreeOfAKind':
+          newScore = calculateScore('ThreeOfAKind', dice);
+          shouldLockIn = newScore > 0;
+          break;
+        case 'FourOfAKind':
+          newScore = calculateScore('FourOfAKind', dice);
+          shouldLockIn = newScore > 0;
+          break;
+        case 'FullHouse':
+          newScore = calculateFullHouse(dice);
+          shouldLockIn = newScore > 0;
+          break;
+        default:
+          break;
+      }
+    
+      if (!shouldLockIn) return;
+    
+      const newUsedCategories = new Set(usedCategories);
+      newUsedCategories.add(category);
+      setUsedCategories(newUsedCategories);
+      setTotalScore(totalScore + newScore);
+      setScoreHistory([...scoreHistory, newScore]);
+      startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore);
+    };
+    

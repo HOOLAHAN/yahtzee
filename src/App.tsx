@@ -11,7 +11,8 @@ import {
   resetGame,
   startNewRound,
   toggleHoldDie,
-  canLockInScore
+  canLockInScore,
+  lockInScore
  } from './functions/utils';
 
 interface AppProps {
@@ -27,41 +28,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [totalScore, setTotalScore] = useState(0);
   const [hasRolled, setHasRolled] = useState(false);
   const [usedCategories, setUsedCategories] = useState(new Set<string>());
-
-  const lockInScore = (category: string) => {
-    if (usedCategories.has(category)) return;
-  
-    let shouldLockIn = false;
-    let newScore = 0;  // A variable to hold the score of the locked-in category
-  
-    switch (category) {
-      case 'ThreeOfAKind':
-        newScore = calculateScore('ThreeOfAKind', dice);
-        shouldLockIn = newScore > 0;
-        break;
-      case 'FourOfAKind':
-        newScore = calculateScore('FourOfAKind', dice);
-        shouldLockIn = newScore > 0;
-        break;
-      case 'FullHouse':
-        newScore = calculateFullHouse(dice);
-        shouldLockIn = newScore === 25;
-        break;
-      default:
-        break;
-    }
-  
-    if (!shouldLockIn) return;
-  
-    const newUsedCategories = new Set(usedCategories);
-    newUsedCategories.add(category);
-    setUsedCategories(newUsedCategories);
-  
-    // Update total score and score history
-    setTotalScore(totalScore + newScore);
-    setScoreHistory([...scoreHistory, newScore]);
-    startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore);
-  };
 
   return (
     <div className="App">
@@ -91,21 +57,21 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         <div className="flex space-x-2">
           <button
             className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('ThreeOfAKind', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
-            onClick={() => lockInScore('ThreeOfAKind')}
+            onClick={() => lockInScore('ThreeOfAKind', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
             disabled={!canLockInScore('ThreeOfAKind', hasRolled, usedCategories, dice)}
           >
             Lock in Three of a Kind
           </button>
           <button
             className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('FourOfAKind', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
-            onClick={() => lockInScore('FourOfAKind')}
+            onClick={() => lockInScore('FourOfAKind', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
             disabled={!canLockInScore('FourOfAKind', hasRolled, usedCategories, dice)}
           >
             Lock in Four of a Kind
           </button>
           <button
             className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore('FullHouse', hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2`}
-            onClick={() => lockInScore('FullHouse')}
+            onClick={() => lockInScore('FullHouse', usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
             disabled={!canLockInScore('FullHouse', hasRolled, usedCategories, dice)}
           >
             Lock in Full House
