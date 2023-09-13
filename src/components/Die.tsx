@@ -1,3 +1,5 @@
+// Die.tsx
+
 interface DieProps {
   value: number;
   canHold: boolean;

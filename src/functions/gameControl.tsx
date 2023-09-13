@@ -1,3 +1,5 @@
+// gameControl.tsx
+
 import { calculateScore, calculateFullHouse, isStraight, calculateChance } from "./scoreCalculator";
 import { ScoreEntry } from "./types";
 

@@ -1,3 +1,5 @@
+// types.tsx
+
 export type ScoreType = 'Placeholder' | 'One' | 'Two' | 'Three' | 'Four' | 'Five' | 'Six' | 'ThreeOfAKind' | 'FourOfAKind' | 'Yahtzee' | 'FullHouse' | 'SmallStraight' | 'LargeStraight' | 'Chance';
 export type DieFace = 1 | 2 | 3 | 4 | 5 | 6;
 

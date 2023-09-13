@@ -1,3 +1,5 @@
+// diceLogic.tsx 
+
 import { DieFace, ScoreEntry } from "./types";
 import { calculateScore, calculateChance, calculateFullHouse, isStraight } from "./scoreCalculator";
 import { startNewRound } from "./gameControl";

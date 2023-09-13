@@ -1,3 +1,5 @@
+// App.tsx
+
 import React, { useState } from 'react';
 import './tailwind.css';
 import Navbar from './components/Navbar';

@@ -1,3 +1,5 @@
+// scoreCalculator.tsx
+
 export const calculateFullHouse = (dice: number[]) => {
   const counts: { [key: number]: number } = {};
   for (const die of dice) {
