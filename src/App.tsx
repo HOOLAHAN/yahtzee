@@ -8,7 +8,8 @@ import {
   calculateChance, 
   isStraight, 
   calculateFullHouse, 
-  calculateScore, 
+  calculateScore,
+  calculateNumberScore
  } from './functions/scoreCalculator';
  import { ScoreEntry } from './functions/types';
  import { rollDice, toggleHoldDie } from './functions/diceLogic';
@@ -93,7 +94,14 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
             <button
               key={category}
               className={buttonClass}
-              onClick={() => lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
+              onClick={() => {
+                if (['One', 'Two', 'Three', 'Four', 'Five', 'Six'].includes(category)) {
+                  const score = calculateNumberScore(category, dice);
+                  lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore + score, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, score);
+                } else {
+                  lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore);
+                }
+              }}
               disabled={!canLock || isUsed}
             >
               {category.replace(/([A-Z])/g, ' $1').trim()}
