@@ -1,6 +1,6 @@
 // gameControl.tsx
 
-import { calculateScore, calculateFullHouse, isStraight, calculateChance } from "./scoreCalculator";
+import { calculateScore, calculateFullHouse, isStraight, calculateChance, calculateNumberScore } from "./scoreCalculator";
 import { ScoreEntry } from "./types";
 
 export const canLockInScore = (
@@ -43,9 +43,7 @@ export const canLockInScore = (
     case 'Fours':
     case 'Fives':
     case 'Sixes':
-      const numValue = parseInt(category.charAt(0)); // Extract the number value from the string.
-      newScore = dice.reduce((acc, curr) => curr === numValue ? acc + curr : acc, 0);
-      return newScore > 0;
+      return calculateNumberScore(category, dice) > 0;
     default:
       return false;
   }
@@ -102,7 +100,7 @@ export const lockInScore = (
       break;
     case 'Chance':
       newScore = calculateChance(dice);
-      shouldLockIn = true; // You can always take a Chance score.
+      shouldLockIn = true;
       break;
     case 'Ones':
     case 'Twos':
@@ -110,8 +108,7 @@ export const lockInScore = (
     case 'Fours':
     case 'Fives':
     case 'Sixes':
-      const numValue = parseInt(category);
-      newScore = dice.reduce((acc, curr) => curr === numValue ? acc + curr : acc, 0);
+      newScore = calculateNumberScore(category, dice);
       shouldLockIn = newScore > 0;
       break;
     default:
@@ -122,7 +119,6 @@ export const lockInScore = (
 
   const newUsedCategories = new Set(usedCategories);
   newUsedCategories.add(category);
-  // setUsedCategories(newUsedCategories);
   setUsedCategories(new Set(usedCategories).add(category));
   setTotalScore(totalScore + newScore);
   setScoreHistory([
