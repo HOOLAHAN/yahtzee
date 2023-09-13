@@ -44,7 +44,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           </button>
           <button 
           className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200 mb-2"
-          onClick={() => resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice)}
+          onClick={() => resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice, setUsedCategories)}
           >
             Reset Game
           </button>

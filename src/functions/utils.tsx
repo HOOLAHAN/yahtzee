@@ -128,26 +128,6 @@ export const rollDice = (
   }
 };
 
-  export const resetGame = (
-    setDice: React.Dispatch<React.SetStateAction<number[]>>, 
-    setRollsLeft: React.Dispatch<React.SetStateAction<number>>, 
-    setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>, 
-    setCurrentScore: React.Dispatch<React.SetStateAction<number>>, 
-    setScoreHistory: React.Dispatch<React.SetStateAction<ScoreEntry[]>>,
-    setHasRolled: React.Dispatch<React.SetStateAction<boolean>>, 
-    setTotalScore: React.Dispatch<React.SetStateAction<number>>, 
-    initialDice: number[]
-    ) => {
-    setDice(initialDice);
-    setRollsLeft(3);
-    setHeldDice(new Set());
-    setCurrentScore(0);
-    setScoreHistory([]);
-    setHasRolled(false);
-    setTotalScore(0);
-  };
-  
-
   export const startNewRound = (
     setDice: React.Dispatch<React.SetStateAction<number[]>>, 
     setRollsLeft: React.Dispatch<React.SetStateAction<number>>, 
@@ -187,7 +167,9 @@ export const rollDice = (
   ) => {
     if (!hasRolled) return false;
   
-    if (usedCategories.has(category)) return false;
+    if (usedCategories.has(category)) {
+      return false;
+    }
 
     let newScore = 0;
     let shouldLockIn = false;
@@ -242,7 +224,7 @@ export const rollDice = (
     setRollsLeft: Function,
     setHeldDice: Function,
     initialDice: number[],
-    currentScore: number
+    currentScore: number,
   ) => {
     if (usedCategories.has(category)) return;
   
@@ -296,7 +278,8 @@ export const rollDice = (
   
     const newUsedCategories = new Set(usedCategories);
     newUsedCategories.add(category);
-    setUsedCategories(newUsedCategories);
+    // setUsedCategories(newUsedCategories);
+    setUsedCategories(new Set(usedCategories).add(category));
     setTotalScore(totalScore + newScore);
     setScoreHistory([
       ...scoreHistory,
@@ -309,3 +292,23 @@ export const rollDice = (
     startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore);
   };
     
+  export const resetGame = (
+    setDice: React.Dispatch<React.SetStateAction<number[]>>, 
+    setRollsLeft: React.Dispatch<React.SetStateAction<number>>, 
+    setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>, 
+    setCurrentScore: React.Dispatch<React.SetStateAction<number>>, 
+    setScoreHistory: React.Dispatch<React.SetStateAction<ScoreEntry[]>>,
+    setHasRolled: React.Dispatch<React.SetStateAction<boolean>>, 
+    setTotalScore: React.Dispatch<React.SetStateAction<number>>, 
+    initialDice: number[],
+    setUsedCategories: React.Dispatch<React.SetStateAction<Set<string>>>,
+    ) => {
+    setDice(initialDice);
+    setRollsLeft(3);
+    setHeldDice(new Set());
+    setCurrentScore(0);
+    setScoreHistory([]);
+    setHasRolled(false);
+    setTotalScore(0);
+    setUsedCategories(new Set<string>());
+  };
