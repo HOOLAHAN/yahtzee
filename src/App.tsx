@@ -7,14 +7,14 @@ import {
   isStraight, 
   calculateFullHouse, 
   calculateScore, 
-  rollDice,
-  resetGame,
-  startNewRound,
-  toggleHoldDie,
-  canLockInScore,
-  lockInScore,
-  ScoreEntry
- } from './functions/utils';
+ } from './functions/scoreCalculator';
+ import { ScoreEntry } from './functions/types';
+ import { rollDice, toggleHoldDie } from './functions/diceLogic';
+  import { resetGame,  
+    startNewRound,
+    canLockInScore,
+    lockInScore
+  } from './functions/gameControl';
 
 interface AppProps {
   initialDice?: number[];
