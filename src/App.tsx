@@ -12,14 +12,9 @@ import {
   startNewRound,
   toggleHoldDie,
   canLockInScore,
-  lockInScore
+  lockInScore,
+  ScoreEntry
  } from './functions/utils';
-
- interface ScoreEntry {
-  dice: number[];
-  scoreType: string;
-  total: number;
-}
 
 interface AppProps {
   initialDice?: number[];
@@ -75,15 +70,16 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           />
         ))}
       </div>
+      <h2 className="text-2xl mb-2">Lock In Score:</h2>
       <div className="flex space-x-2">
-        {['ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => (
+        {['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => (
           <button
             key={category}
             className={`transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto ${canLockInScore(category, hasRolled, usedCategories, dice) ? 'bg-green-600 text-white' : 'bg-gray-400 text-white cursor-not-allowed'} rounded hover:bg-green-700 focus:ring focus:ring-green-200 mb-2 mr-2`}
             onClick={() => lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore)}
             disabled={!canLockInScore(category, hasRolled, usedCategories, dice)}
           >
-            Lock in {category.replace(/([A-Z])/g, ' $1').trim()}
+            {category.replace(/([A-Z])/g, ' $1').trim()}
           </button>
         ))}
       </div>

@@ -1,12 +1,19 @@
 // utils.tsx
 
-interface ScoreEntry {
+type ScoreType = 'Placeholder' | 'One' | 'Two' | 'Three' | 'Four' | 'Five' | 'Six' | 'ThreeOfAKind' | 'FourOfAKind' | 'Yahtzee' | 'FullHouse' | 'SmallStraight' | 'LargeStraight' | 'Chance';
+
+export interface ScoreEntry {
   dice: number[];
-  scoreType: string;
+  scoreType: ScoreType;
   total: number;
 }
 
 type DieFace = 1 | 2 | 3 | 4 | 5 | 6;
+
+export const calculateSumOfDice = (dice: number[], targetNumber: number): number => {
+  return dice.filter(d => d === targetNumber).reduce((acc, curr) => acc + curr, 0);
+};
+
 
 export const calculateChance = (dice: number[]): number => {
   return dice.reduce((acc: number, curr: number) => acc + curr, 0);
@@ -105,7 +112,7 @@ export const rollDice = (
 
     // If no more rolls are left, consider the round to be over.
     if (newRollsLeft === 0) {
-      setScoreHistory([...scoreHistory, { dice: newDice, scoreType: 'SomeType', total: newCurrentScore }]);
+      setScoreHistory([...scoreHistory, { dice: newDice, scoreType: 'Placeholder', total: newCurrentScore }]);
       startNewRound(
         setDice,
         setRollsLeft,
@@ -162,124 +169,143 @@ export const rollDice = (
       setTotalScore(totalScore + currentScore);
     };
 
-    export const toggleHoldDie = (index: number, heldDice: Set<number>, setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>) => {
-      const newHeldDice = new Set(heldDice);
-      if (newHeldDice.has(index)) {
-        newHeldDice.delete(index);
-      } else {
-        newHeldDice.add(index);
-      }
-      setHeldDice(newHeldDice);
-    };
+  export const toggleHoldDie = (index: number, heldDice: Set<number>, setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>) => {
+    const newHeldDice = new Set(heldDice);
+    if (newHeldDice.has(index)) {
+      newHeldDice.delete(index);
+    } else {
+      newHeldDice.add(index);
+    }
+    setHeldDice(newHeldDice);
+  };
 
-    export const canLockInScore = (
-      category: string, 
-      hasRolled: boolean, 
-      usedCategories: Set<string>, 
-      dice: number[]
-    ) => {
-      if (!hasRolled) return false;
-    
-      if (usedCategories.has(category)) return false;
+  export const canLockInScore = (
+    category: string, 
+    hasRolled: boolean, 
+    usedCategories: Set<string>, 
+    dice: number[]
+  ) => {
+    if (!hasRolled) return false;
+  
+    if (usedCategories.has(category)) return false;
 
-      let newScore = 0;
-      let shouldLockIn = false;
-      
-      switch (category) {
-        case 'ThreeOfAKind':
-          return calculateScore('ThreeOfAKind', dice) > 0;
-        case 'FourOfAKind':
-          return calculateScore('FourOfAKind', dice) > 0;
-        case 'FullHouse':
-          return calculateFullHouse(dice) > 0;
-        case 'SmallStraight':
-          return isStraight(dice, 4);
-        case 'LargeStraight':
-          return isStraight(dice, 5);
-        case 'Yahtzee':
-          newScore = calculateScore('Yahtzee', dice);
-          shouldLockIn = newScore > 0;
-          break;
-        case 'Chance':
-          newScore = calculateChance(dice);
-          shouldLockIn = true; // You can always take a Chance score.
-          break;
-        default:
-          return false;
-      }
-      return shouldLockIn;
-    };    
+    let newScore = 0;
+    let shouldLockIn = false;
+    
+    switch (category) {
+      case 'ThreeOfAKind':
+        return calculateScore('ThreeOfAKind', dice) > 0;
+      case 'FourOfAKind':
+        return calculateScore('FourOfAKind', dice) > 0;
+      case 'FullHouse':
+        return calculateFullHouse(dice) > 0;
+      case 'SmallStraight':
+        return isStraight(dice, 4);
+      case 'LargeStraight':
+        return isStraight(dice, 5);
+      case 'Yahtzee':
+        newScore = calculateScore('Yahtzee', dice);
+        shouldLockIn = newScore > 0;
+        break;
+      case 'Chance':
+        newScore = calculateChance(dice);
+        shouldLockIn = true; // You can always take a Chance score.
+        break;
+      case 'Ones':
+      case 'Twos':
+      case 'Threes':
+      case 'Fours':
+      case 'Fives':
+      case 'Sixes':
+        const numValue = parseInt(category.charAt(0)); // Extract the number value from the string.
+        newScore = dice.reduce((acc, curr) => curr === numValue ? acc + curr : acc, 0);
+        return newScore > 0;
+      default:
+        return false;
+    }
+    return shouldLockIn;
+  };    
 
-    export const lockInScore = (
-      category: string,
-      usedCategories: Set<string>,
-      setUsedCategories: Function,
-      dice: number[],
-      setTotalScore: Function,
-      totalScore: number,
-      setScoreHistory: Function,
-      scoreHistory: ScoreEntry[],
-      startNewRound: Function,
-      setCurrentScore: Function,
-      setHasRolled: Function,
-      setDice: Function,
-      setRollsLeft: Function,
-      setHeldDice: Function,
-      initialDice: number[],
-      currentScore: number
-    ) => {
-      if (usedCategories.has(category)) return;
-    
-      let shouldLockIn = false;
-      let newScore = 0;
-    
-      switch (category) {
-        case 'ThreeOfAKind':
-          newScore = calculateScore('ThreeOfAKind', dice);
-          shouldLockIn = newScore > 0;
-          break;
-        case 'FourOfAKind':
-          newScore = calculateScore('FourOfAKind', dice);
-          shouldLockIn = newScore > 0;
-          break;
-        case 'FullHouse':
-          newScore = calculateFullHouse(dice);
-          shouldLockIn = newScore > 0;
-          break;
-        case 'SmallStraight':
-          newScore = isStraight(dice, 4) ? 30 : 0;
-          shouldLockIn = newScore > 0;
-          break;
-        case 'LargeStraight':
-          newScore = isStraight(dice, 5) ? 40 : 0;
-          shouldLockIn = newScore > 0;
-          break;
-        case 'Yahtzee':
-          newScore = calculateScore('Yahtzee', dice);
-          shouldLockIn = newScore > 0;
-          break;
-        case 'Chance':
-          newScore = calculateChance(dice);
-          shouldLockIn = true; // You can always take a Chance score.
-          break;
-        default:
-          break;
-      }
-    
-      if (!shouldLockIn) return;
-    
-      const newUsedCategories = new Set(usedCategories);
-      newUsedCategories.add(category);
-      setUsedCategories(newUsedCategories);
-      setTotalScore(totalScore + newScore);
-      setScoreHistory([
-        ...scoreHistory,
-        {
-          dice: [...dice],
-          scoreType: category,
-          total: totalScore + newScore,
-        },
-      ]);
-      startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore);
-    };
+  export const lockInScore = (
+    category: string,
+    usedCategories: Set<string>,
+    setUsedCategories: Function,
+    dice: number[],
+    setTotalScore: Function,
+    totalScore: number,
+    setScoreHistory: Function,
+    scoreHistory: ScoreEntry[],
+    startNewRound: Function,
+    setCurrentScore: Function,
+    setHasRolled: Function,
+    setDice: Function,
+    setRollsLeft: Function,
+    setHeldDice: Function,
+    initialDice: number[],
+    currentScore: number
+  ) => {
+    if (usedCategories.has(category)) return;
+  
+    let shouldLockIn = false;
+    let newScore = 0;
+  
+    switch (category) {
+      case 'ThreeOfAKind':
+        newScore = calculateScore('ThreeOfAKind', dice);
+        shouldLockIn = newScore > 0;
+        break;
+      case 'FourOfAKind':
+        newScore = calculateScore('FourOfAKind', dice);
+        shouldLockIn = newScore > 0;
+        break;
+      case 'FullHouse':
+        newScore = calculateFullHouse(dice);
+        shouldLockIn = newScore > 0;
+        break;
+      case 'SmallStraight':
+        newScore = isStraight(dice, 4) ? 30 : 0;
+        shouldLockIn = newScore > 0;
+        break;
+      case 'LargeStraight':
+        newScore = isStraight(dice, 5) ? 40 : 0;
+        shouldLockIn = newScore > 0;
+        break;
+      case 'Yahtzee':
+        newScore = calculateScore('Yahtzee', dice);
+        shouldLockIn = newScore > 0;
+        break;
+      case 'Chance':
+        newScore = calculateChance(dice);
+        shouldLockIn = true; // You can always take a Chance score.
+        break;
+      case 'Ones':
+      case 'Twos':
+      case 'Threes':
+      case 'Fours':
+      case 'Fives':
+      case 'Sixes':
+        const numValue = parseInt(category);
+        newScore = dice.reduce((acc, curr) => curr === numValue ? acc + curr : acc, 0);
+        shouldLockIn = newScore > 0;
+        break;
+      default:
+        break;
+    }
+  
+    if (!shouldLockIn) return;
+  
+    const newUsedCategories = new Set(usedCategories);
+    newUsedCategories.add(category);
+    setUsedCategories(newUsedCategories);
+    setTotalScore(totalScore + newScore);
+    setScoreHistory([
+      ...scoreHistory,
+      {
+        dice: [...dice],
+        scoreType: category,
+        total: totalScore + newScore,
+      },
+    ]);
+    startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore);
+  };
     
