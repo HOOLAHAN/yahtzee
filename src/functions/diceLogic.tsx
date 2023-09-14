@@ -1,6 +1,6 @@
 // diceLogic.tsx 
 
-import { DieFace, ScoreEntry } from "./types";
+import { DieFace } from "./types";
 import { calculateScore, calculateChance, calculateFullHouse, isStraight } from "./scoreCalculator";
 
 export const rollDie = (): DieFace => {
@@ -11,17 +11,10 @@ export const rollDice = (
   rollsLeft: number,
   dice: number[],
   heldDice: Set<number>,
-  hasRolled: boolean,
   setHasRolled: React.Dispatch<React.SetStateAction<boolean>>,
   setDice: React.Dispatch<React.SetStateAction<number[]>>,
   setRollsLeft: React.Dispatch<React.SetStateAction<number>>,
-  setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>,
   setCurrentScore: React.Dispatch<React.SetStateAction<number>>,
-  setScoreHistory: React.Dispatch<React.SetStateAction<ScoreEntry[]>>,
-  scoreHistory: ScoreEntry[],
-  setTotalScore: React.Dispatch<React.SetStateAction<number>>,
-  totalScore: number,
-  currentScore: number
 ) => {
   if (rollsLeft > 0) {
     setHasRolled(true);

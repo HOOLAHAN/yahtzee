@@ -7,7 +7,7 @@ export const canLockInScore = (
   hasRolled: boolean,
   usedCategories: Set<string>,
   dice: number[],
-  calculateScoreFunction: Function  // <-- add this parameter
+  calculateScoreFunction: Function
 ) => {
   if (!hasRolled) return false;
 
