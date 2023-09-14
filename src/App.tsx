@@ -83,7 +83,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       </div>
       <h2 className="text-2xl mb-2">Lock In Score:</h2>
       <div className="flex space-x-2">
-        {['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
+        {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
           
           const canLock = canLockInScore(category, hasRolled, usedCategories, dice, calculateScoreFunction);
           const isUsed = usedCategories.has(category);
