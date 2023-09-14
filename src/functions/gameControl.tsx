@@ -6,8 +6,6 @@ export const canLockInScore = (
   category: string,
   hasRolled: boolean,
   usedCategories: Set<string>,
-  dice: number[],
-  calculateScoreFunction: Function
 ) => {
   if (!hasRolled) return false;
 
@@ -15,23 +13,9 @@ export const canLockInScore = (
     return false;
   }
 
-  let newScore = 0;
-  let shouldLockIn = false;
-
-  // Use the passed-in calculateScoreFunction to calculate the new score.
-  newScore = calculateScoreFunction(category, dice);
-
-  switch (category) {
-    case 'Chance':
-      shouldLockIn = true; // You can always take a Chance score.
-      break;
-    default:
-      shouldLockIn = newScore > 0;
-      break;
-  }
-
-  return shouldLockIn;
+  return true;
 };
+
 
 export const lockInScore = (
   category: string,

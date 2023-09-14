@@ -85,7 +85,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       <div className="flex space-x-2">
         {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
           
-          const canLock = canLockInScore(category, hasRolled, usedCategories, dice, calculateScoreFunction);
+          const canLock = canLockInScore(category, hasRolled, usedCategories );
           const isUsed = usedCategories.has(category);
           if (!canLock || isUsed) return null;
           let buttonClass = "transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto rounded mb-2 mr-2";
