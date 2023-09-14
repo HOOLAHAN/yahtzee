@@ -87,7 +87,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           
           const canLock = canLockInScore(category, hasRolled, usedCategories, dice, calculateScoreFunction);
           const isUsed = usedCategories.has(category);
-
+          if (!canLock || isUsed) return null;
           let buttonClass = "transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto rounded mb-2 mr-2";
           
           if (isUsed) {
