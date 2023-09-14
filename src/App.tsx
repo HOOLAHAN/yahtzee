@@ -110,7 +110,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         <h2 className="text-2xl mb-2">Current Score: {currentScore}</h2>
         {/* Lock In Score and Buttons */}
         <h2 className="text-2xl mb-2">Lock In Score:</h2>
-        <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto">
+        <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto justify-center">
           {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
             
             const canLock = canLockInScore(category, hasRolled, usedCategories );
