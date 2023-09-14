@@ -43,9 +43,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
     <div className="App">
       <Navbar />
       <div className="bg-gray-200 min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
-        {/* Total Score */}
         <h2 className="text-2xl mb-2">Total Score: {totalScore}</h2>  
-        {/* Score History */}
         <h2 className="text-2xl mb-4">Score History:</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           {scoreHistory.map((entry, index) => (
@@ -72,7 +70,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
             </div>
           ))}
         </div>
-        {/* Dice and Roll Dice Button */}
         <h2 className="text-2xl mb-2">Dice:</h2>
         <div className="flex flex-wrap justify-center mb-4">
           {dice.map((die, index) => (
@@ -88,7 +85,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         </div>
         <h2 className="text-l mb-2">Toggle to hold dice</h2>
         <div className="flex space-x-2">
-          {/* Roll Dice and Reset Game buttons */}
           <button 
             className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
             onClick={() => rollDice(
@@ -105,9 +101,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
               Roll Dice (Rolls left: {rollsLeft})
             </button>
         </div>  
-        {/* Current Score */}
         <h2 className="text-2xl mb-2">Current Score: {currentScore}</h2>
-        {/* Lock In Score and Buttons */}
         <h2 className="text-2xl mb-2">Lock In Score:</h2>
         <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto justify-center">
           {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
@@ -134,7 +128,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           );
         })}
         </div>
-        {/* Scores */}
         <h2 className="text-2xl mb-2">Scores</h2>
         <div className="flex justify-between">
           <div className='mr-10'>
