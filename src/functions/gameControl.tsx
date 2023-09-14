@@ -16,7 +16,6 @@ export const canLockInScore = (
   return true;
 };
 
-
 export const lockInScore = (
   category: string,
   usedCategories: Set<string>,
@@ -118,7 +117,5 @@ export const startNewRound = (
     setHeldDice(new Set());
     setCurrentScore(0);
     setHasRolled(false);
-    // Add the score from the last round to the total score
-    setTotalScore(totalScore + currentScore);
   };
 

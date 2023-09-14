@@ -10,7 +10,8 @@ import {
   calculateFullHouse, 
   calculateScore,
   calculateScoreFunction,
-  calculateNumberScore
+  calculateNumberScore,
+  calculateCurrentCategoryScore
  } from './functions/scoreCalculator';
  import { ScoreEntry } from './functions/types';
  import { rollDice, toggleHoldDie } from './functions/diceLogic';
@@ -33,6 +34,10 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [totalScore, setTotalScore] = useState(0);
   const [hasRolled, setHasRolled] = useState(false);
   const [usedCategories, setUsedCategories] = useState(new Set<string>());
+
+  const getButtonClass = (score: number) => score === 0
+  ? "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-200 text-white hover:bg-green-300 focus:ring focus:ring-green-100"
+  : "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-600 text-white hover:bg-green-700 focus:ring focus:ring-green-200";
 
   return (
     <div className="App">
@@ -112,24 +117,28 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         <h2 className="text-2xl mb-2">Lock In Score:</h2>
         <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto justify-center">
           {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
-            
-            const canLock = canLockInScore(category, hasRolled, usedCategories );
-            const isUsed = usedCategories.has(category);
-            if (!canLock || isUsed) return null;
-            let buttonClass = "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-600 text-white hover:bg-green-700 focus:ring focus:ring-green-200";
-            return (
-              <button
-                key={category}
-                className={buttonClass}
-                onClick={() => {
-                  lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore, calculateScoreFunction);
-                }}
-                disabled={!canLock || isUsed}
-              >
-                {category.replace(/([A-Z])/g, ' $1').trim()}
-              </button>
-            );
-          })}
+    
+          const canLock = canLockInScore(category, hasRolled, usedCategories);
+          const isUsed = usedCategories.has(category);
+
+          if (!canLock || isUsed) return null;
+
+          const currentCategoryScore = calculateCurrentCategoryScore(category, dice);
+          const buttonClass = getButtonClass(currentCategoryScore);
+
+          return (
+            <button
+              key={category}
+              className={buttonClass}
+              onClick={() => {
+                lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore, calculateScoreFunction);
+              }}
+              disabled={!canLock || isUsed}
+            >
+              {category.replace(/([A-Z])/g, ' $1').trim()}
+            </button>
+          );
+        })}
         </div>
         {/* Scores */}
         <h2 className="text-2xl mb-2">Scores</h2>

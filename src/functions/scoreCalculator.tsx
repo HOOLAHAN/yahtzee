@@ -102,3 +102,22 @@ export const calculateScoreFunction = (category: string, dice: number[]) => {
       return 0;
   }
 };
+
+export const calculateCurrentCategoryScore = (category: string, dice: number[]) => {
+  if (['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes'].includes(category)) {
+    return calculateNumberScore(category, dice);
+  }
+  if (['FullHouse'].includes(category)) {
+    return calculateFullHouse(dice);
+  }
+  if (['SmallStraight'].includes(category)) {
+    return isStraight(dice, 4) ? 30 : 0;
+  }
+  if (['LargeStraight'].includes(category)) {
+    return isStraight(dice, 5) ? 40 : 0;
+  }
+  if (['Chance'].includes(category)) {
+    return calculateChance(dice);
+  }
+  return calculateScore(category as "ThreeOfAKind" | "FourOfAKind" | "Yahtzee", dice);
+};
