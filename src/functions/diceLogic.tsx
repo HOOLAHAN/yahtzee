@@ -2,7 +2,6 @@
 
 import { DieFace, ScoreEntry } from "./types";
 import { calculateScore, calculateChance, calculateFullHouse, isStraight } from "./scoreCalculator";
-import { startNewRound } from "./gameControl";
 
 export const rollDie = (): DieFace => {
   return (Math.floor(Math.random() * 6) + 1) as DieFace;
@@ -39,22 +38,6 @@ export const rollDice = (
     + (calculateScore('Yahtzee', newDice) ? 50 : 0)
     + calculateChance(newDice);
     setCurrentScore(newCurrentScore);
-
-    // If no more rolls are left, consider the round to be over.
-    if (newRollsLeft === 0) {
-      setScoreHistory([...scoreHistory, { dice: newDice, category: 'Placeholder', roundScore: newCurrentScore }]);
-      startNewRound(
-        setDice,
-        setRollsLeft,
-        setHeldDice,
-        setCurrentScore,
-        setHasRolled,
-        setTotalScore,
-        dice,  // or any initial dice state you'd like to start with
-        totalScore,
-        newCurrentScore
-      );
-    }
   }
 };
 
