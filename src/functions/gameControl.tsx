@@ -1,13 +1,13 @@
 // gameControl.tsx
 
-import { calculateScore, calculateFullHouse, isStraight, calculateChance, calculateNumberScore } from "./scoreCalculator";
 import { ScoreEntry } from "./types";
 
 export const canLockInScore = (
-  category: string, 
-  hasRolled: boolean, 
-  usedCategories: Set<string>, 
-  dice: number[]
+  category: string,
+  hasRolled: boolean,
+  usedCategories: Set<string>,
+  dice: number[],
+  calculateScoreFunction: Function  // <-- add this parameter
 ) => {
   if (!hasRolled) return false;
 
@@ -17,38 +17,21 @@ export const canLockInScore = (
 
   let newScore = 0;
   let shouldLockIn = false;
-  
+
+  // Use the passed-in calculateScoreFunction to calculate the new score.
+  newScore = calculateScoreFunction(category, dice);
+
   switch (category) {
-    case 'ThreeOfAKind':
-      return calculateScore('ThreeOfAKind', dice) > 0;
-    case 'FourOfAKind':
-      return calculateScore('FourOfAKind', dice) > 0;
-    case 'FullHouse':
-      return calculateFullHouse(dice) > 0;
-    case 'SmallStraight':
-      return isStraight(dice, 4);
-    case 'LargeStraight':
-      return isStraight(dice, 5);
-    case 'Yahtzee':
-      newScore = calculateScore('Yahtzee', dice);
-      shouldLockIn = newScore > 0;
-      break;
     case 'Chance':
-      newScore = calculateChance(dice);
       shouldLockIn = true; // You can always take a Chance score.
       break;
-    case 'Ones':
-    case 'Twos':
-    case 'Threes':
-    case 'Fours':
-    case 'Fives':
-    case 'Sixes':
-      return calculateNumberScore(category, dice) > 0;
     default:
-      return false;
+      shouldLockIn = newScore > 0;
+      break;
   }
+
   return shouldLockIn;
-};    
+};
 
 export const lockInScore = (
   category: string,
