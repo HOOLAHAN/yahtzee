@@ -69,7 +69,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         </div>
         {/* Dice and Roll Dice Button */}
         <h2 className="text-2xl mb-2">Dice:</h2>
-        <div className="flex flex-wrap justify-center space-x-4 space-y-4 mb-4">
+        <div className="flex flex-wrap justify-center mb-4">
           {dice.map((die, index) => (
             <Die
               key={index}
@@ -77,6 +77,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
               canHold={rollsLeft > 0 && hasRolled}
               isHeld={heldDice.has(index)}
               onToggleHold={() => toggleHoldDie(index, heldDice, setHeldDice)}
+              className="m-4"
             />
           ))}
         </div>
