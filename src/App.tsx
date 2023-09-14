@@ -9,7 +9,7 @@ import {
   isStraight, 
   calculateFullHouse, 
   calculateScore,
-  calculateNumberScore
+  calculateScoreFunction
  } from './functions/scoreCalculator';
  import { ScoreEntry } from './functions/types';
  import { rollDice, toggleHoldDie } from './functions/diceLogic';
@@ -32,15 +32,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [totalScore, setTotalScore] = useState(0);
   const [hasRolled, setHasRolled] = useState(false);
   const [usedCategories, setUsedCategories] = useState(new Set<string>());
-
-  const lockInNumberScore = (category: string) => {
-    const score = calculateNumberScore(category, dice);
-    lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore + score, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, score);
-  };
-  
-  const lockInOtherScore = (category: string) => {
-    lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore);
-  };
 
   return (
     <div className="App">
@@ -101,19 +92,15 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
 
           return (
             <button
-            key={category}
-            className={buttonClass}
-            onClick={() => {
-              if (['One', 'Two', 'Three', 'Four', 'Five', 'Six'].includes(category)) {
-                lockInNumberScore(category);
-              } else {
-                lockInOtherScore(category);
-              }
-            }}
-            disabled={!canLock || isUsed}
-          >
-            {category.replace(/([A-Z])/g, ' $1').trim()}
-          </button>
+              key={category}
+              className={buttonClass}
+              onClick={() => {
+                lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore, calculateScoreFunction);
+              }}
+              disabled={!canLock || isUsed}
+            >
+              {category.replace(/([A-Z])/g, ' $1').trim()}
+            </button>
           );
         })}
       </div>

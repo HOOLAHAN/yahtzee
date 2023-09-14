@@ -75,3 +75,30 @@ export const calculateNumberScore = (category: string, dice: number[]): number =
   if (number === undefined) return 0;
   return dice.reduce((acc, die) => acc + (die === number ? die : 0), 0);
 };
+
+// Unified function that delegates the scoring logic to specific functions based on category
+export const calculateScoreFunction = (category: string, dice: number[]) => {
+  switch (category) {
+    case 'ThreeOfAKind':
+    case 'FourOfAKind':
+    case 'Yahtzee':
+      return calculateScore(category, dice);
+    case 'FullHouse':
+      return calculateFullHouse(dice);
+    case 'SmallStraight':
+      return isStraight(dice, 4) ? 30 : 0;
+    case 'LargeStraight':
+      return isStraight(dice, 5) ? 40 : 0;
+    case 'Chance':
+      return calculateChance(dice);
+    case 'Ones':
+    case 'Twos':
+    case 'Threes':
+    case 'Fours':
+    case 'Fives':
+    case 'Sixes':
+      return calculateNumberScore(category, dice);
+    default:
+      return 0;
+  }
+};

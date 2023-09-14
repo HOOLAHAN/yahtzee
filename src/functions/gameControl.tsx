@@ -67,70 +67,55 @@ export const lockInScore = (
   setHeldDice: Function,
   initialDice: number[],
   currentScore: number,
+  calculateScoreFunction: Function
 ) => {
+  // Check if the category has already been used
   if (usedCategories.has(category)) return;
 
-  let shouldLockIn = false;
-  let newScore = 0;
+  // Calculate the score using the passed-in calculateScoreFunction
+  const newScore = calculateScoreFunction(category, dice);
 
-  switch (category) {
-    case 'ThreeOfAKind':
-      newScore = calculateScore('ThreeOfAKind', dice);
-      shouldLockIn = newScore > 0;
-      break;
-    case 'FourOfAKind':
-      newScore = calculateScore('FourOfAKind', dice);
-      shouldLockIn = newScore > 0;
-      break;
-    case 'FullHouse':
-      newScore = calculateFullHouse(dice);
-      shouldLockIn = newScore > 0;
-      break;
-    case 'SmallStraight':
-      newScore = isStraight(dice, 4) ? 30 : 0;
-      shouldLockIn = newScore > 0;
-      break;
-    case 'LargeStraight':
-      newScore = isStraight(dice, 5) ? 40 : 0;
-      shouldLockIn = newScore > 0;
-      break;
-    case 'Yahtzee':
-      newScore = calculateScore('Yahtzee', dice);
-      shouldLockIn = newScore > 0;
-      break;
-    case 'Chance':
-      newScore = calculateChance(dice);
-      shouldLockIn = true;
-      break;
-    case 'Ones':
-    case 'Twos':
-    case 'Threes':
-    case 'Fours':
-    case 'Fives':
-    case 'Sixes':
-      newScore = calculateNumberScore(category, dice);
-      shouldLockIn = newScore > 0;
-      break;
-    default:
-      break;
+  // Validate if the calculated score makes it eligible to lock in
+  let shouldLockIn = newScore > 0;
+
+  if (category === 'Chance') {
+    shouldLockIn = true; // For 'Chance', we can lock in even a score of 0
   }
 
   if (!shouldLockIn) return;
 
+  // Update the set of used categories
   const newUsedCategories = new Set(usedCategories);
   newUsedCategories.add(category);
-  setUsedCategories(new Set(usedCategories).add(category));
+  setUsedCategories(newUsedCategories);
+
+  // Update the total score
   setTotalScore(totalScore + newScore);
+
+  // Update the score history
   setScoreHistory([
     ...scoreHistory,
     {
       dice: [...dice],
-      category: category,
+      category,
       roundScore: newScore,
     },
   ]);
-  startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore);
+
+  // Start a new round
+  startNewRound(
+    setDice,
+    setRollsLeft,
+    setHeldDice,
+    setCurrentScore,
+    setHasRolled,
+    setTotalScore,
+    initialDice,
+    totalScore,
+    currentScore
+  );
 };
+
 
 export const resetGame = (
   setDice: React.Dispatch<React.SetStateAction<number[]>>, 
