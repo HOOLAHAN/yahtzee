@@ -11,7 +11,8 @@ import {
   calculateScore,
   calculateScoreFunction,
   calculateNumberScore,
-  calculateCurrentCategoryScore
+  calculateCurrentCategoryScore,
+  calculateMaximumScore
  } from './functions/scoreCalculator';
  import { ScoreEntry } from './functions/types';
  import { rollDice, toggleHoldDie } from './functions/diceLogic';
@@ -101,7 +102,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
               Roll Dice (Rolls left: {rollsLeft})
             </button>
         </div>  
-        <h2 className="text-2xl mb-2">Current Score: {currentScore}</h2>
+        <h2 className="text-2xl mb-2">Current Score: {calculateMaximumScore(dice, hasRolled, usedCategories)}</h2>
         <h2 className="text-2xl mb-2">Lock In Score:</h2>
         <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto justify-center">
           {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {

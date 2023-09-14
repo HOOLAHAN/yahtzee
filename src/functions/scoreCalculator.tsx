@@ -121,3 +121,27 @@ export const calculateCurrentCategoryScore = (category: string, dice: number[]) 
   }
   return calculateScore(category as "ThreeOfAKind" | "FourOfAKind" | "Yahtzee", dice);
 };
+
+export const calculateMaximumScore = (dice: number[], hasRolled: boolean, usedCategories: Set<string>): number => {
+  if (!hasRolled) return 0;
+  
+  const categories = [
+    'ThreeOfAKind', 
+    'FourOfAKind', 
+    'Yahtzee', 
+    'FullHouse', 
+    'SmallStraight', 
+    'LargeStraight', 
+    'Chance',
+    'Ones', 
+    'Twos', 
+    'Threes', 
+    'Fours', 
+    'Fives', 
+    'Sixes'
+  ].filter(category => !usedCategories.has(category)); // Filter out the used categories
+  
+  const scores = categories.map(category => calculateCurrentCategoryScore(category, dice));
+  
+  return Math.max(...scores);
+};
