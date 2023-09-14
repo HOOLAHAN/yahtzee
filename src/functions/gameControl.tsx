@@ -43,11 +43,7 @@ export const lockInScore = (
   const newScore = calculateScoreFunction(category, dice);
 
   // Validate if the calculated score makes it eligible to lock in
-  let shouldLockIn = newScore > 0;
-
-  if (category === 'Chance') {
-    shouldLockIn = true; // For 'Chance', we can lock in even a score of 0
-  }
+  let shouldLockIn = true;
 
   if (!shouldLockIn) return;
 
