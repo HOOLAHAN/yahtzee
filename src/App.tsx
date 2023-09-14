@@ -9,7 +9,8 @@ import {
   isStraight, 
   calculateFullHouse, 
   calculateScore,
-  calculateScoreFunction
+  calculateScoreFunction,
+  calculateNumberScore
  } from './functions/scoreCalculator';
  import { ScoreEntry } from './functions/types';
  import { rollDice, toggleHoldDie } from './functions/diceLogic';
@@ -62,7 +63,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         </div>
       <h2 className="text-2xl mb-2">Current Score: {currentScore}</h2>
       <h2 className="text-2xl mb-2">Total Score: {totalScore}</h2>
-      <h2 className="text-2xl mb-2">Score History</h2>
+      <h2 className="text-2xl mb-2">Score History:</h2>
       <ul className="list-decimal list-inside mb-6 text-blue-600">
       {scoreHistory.map((entry, index) => (
         <li key={index}>
@@ -70,6 +71,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         </li>
       ))}
     </ul>
+    <h2 className="text-2xl mb-2">Dice:</h2>
       <div className="flex flex-wrap justify-center space-x-4 space-y-4 mb-6">
         {dice.map((die, index) => (
           <Die
@@ -82,22 +84,13 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         ))}
       </div>
       <h2 className="text-2xl mb-2">Lock In Score:</h2>
-      <div className="flex space-x-2">
+      <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto">
         {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
           
           const canLock = canLockInScore(category, hasRolled, usedCategories );
           const isUsed = usedCategories.has(category);
           if (!canLock || isUsed) return null;
-          let buttonClass = "transition duration-300 ease-in-out transform py-2 px-4 w-full md:w-auto rounded mb-2 mr-2";
-          
-          if (isUsed) {
-            buttonClass += " bg-gray-400 text-white cursor-not-allowed";
-          } else if (canLock) {
-            buttonClass += " bg-green-600 text-white hover:bg-green-700 focus:ring focus:ring-green-200";
-          } else {
-            buttonClass += " bg-gray-300 text-white cursor-not-allowed";
-          }
-
+          let buttonClass = "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-600 text-white hover:bg-green-700 focus:ring focus:ring-green-200";
           return (
             <button
               key={category}
@@ -113,13 +106,25 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         })}
       </div>
       <h2 className="text-2xl mb-2">Scores</h2>
-      <div className="mb-1">Three of a Kind: {calculateScore('ThreeOfAKind', dice)}</div>
-      <div className="mb-1">Four of a Kind: {calculateScore('FourOfAKind', dice)}</div>
-      <div className="mb-1">Full House: {calculateFullHouse(dice)}</div>
-      <div className="mb-1">Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
-      <div className="mb-1">Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
-      <div className="mb-1">Yahtzee: {calculateScore('Yahtzee', dice)}</div>
-      <div className="mb-1">Chance: {calculateChance(dice)}</div>
+      <div className="flex justify-between">
+        <div className='mr-10'>
+          <div className="mb-1">Ones: {calculateNumberScore('Ones', dice)}</div>
+          <div className="mb-1">Twos: {calculateNumberScore('Twos', dice)}</div>
+          <div className="mb-1">Threes: {calculateNumberScore('Threes', dice)}</div>
+          <div className="mb-1">Fours: {calculateNumberScore('Fours', dice)}</div>
+          <div className="mb-1">Fives: {calculateNumberScore('Fives', dice)}</div>
+          <div className="mb-1">Sixes: {calculateNumberScore('Sixes', dice)}</div>
+        </div>
+        <div>
+          <div className="mb-1">Three of a Kind: {calculateScore('ThreeOfAKind', dice)}</div>
+          <div className="mb-1">Four of a Kind: {calculateScore('FourOfAKind', dice)}</div>
+          <div className="mb-1">Full House: {calculateFullHouse(dice)}</div>
+          <div className="mb-1">Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
+          <div className="mb-1">Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
+          <div className="mb-1">Chance: {calculateChance(dice)}</div>
+          <div className="mb-1">Yahtzee: {calculateScore('Yahtzee', dice)}</div>
+        </div>
+      </div>
      </div>
     </div>
   );
