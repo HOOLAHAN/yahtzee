@@ -63,14 +63,32 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         </div>
       <h2 className="text-2xl mb-2">Current Score: {currentScore}</h2>
       <h2 className="text-2xl mb-2">Total Score: {totalScore}</h2>
-      <h2 className="text-2xl mb-2">Score History:</h2>
-      <ul className="list-decimal list-inside mb-6 text-blue-600">
+    <h2 className="text-2xl mb-4">Score History:</h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       {scoreHistory.map((entry, index) => (
-        <li key={index}>
-          Dice: [{entry.dice.join(', ')}], Score Category: {entry.category}, Round Score: {entry.roundScore}
-        </li>
+        <div
+          key={index}
+          className="bg-white p-4 rounded-lg shadow-lg flex flex-col justify-between space-y-2"
+        >
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-gray-600">Round</span>
+            <span className="text-gray-800">{index + 1}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-blue-600">Dice</span>
+            <span className="text-blue-800">{entry.dice.join(", ")}</span> {/* Removed array brackets */}
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-green-600">Category</span>
+            <span className="text-green-800">{entry.category}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-red-600">Round Score</span>
+            <span className="text-red-800">{entry.roundScore}</span>
+          </div>
+        </div>
       ))}
-    </ul>
+    </div>
     <h2 className="text-2xl mb-2">Dice:</h2>
       <div className="flex flex-wrap justify-center space-x-4 space-y-4 mb-6">
         {dice.map((die, index) => (
