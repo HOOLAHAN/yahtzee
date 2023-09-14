@@ -104,12 +104,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
             >
               Roll Dice (Rolls left: {rollsLeft})
             </button>
-            <button 
-            className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200 mb-2"
-            onClick={() => resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice, setUsedCategories)}
-            >
-              Reset Game
-          </button>
         </div>  
         {/* Current Score */}
         <h2 className="text-2xl mb-2">Current Score: {currentScore}</h2>
@@ -161,6 +155,14 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
             <div className="mb-1">Yahtzee: {calculateScore('Yahtzee', dice)}</div>
           </div>
         </div>
+          <div className="flex space-x-2">
+            <button 
+              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200 mb-2"
+              onClick={() => resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice, setUsedCategories)}
+              >
+                Reset Game
+            </button>
+          </div>
       </div>
     </div>
   );
