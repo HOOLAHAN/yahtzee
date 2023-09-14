@@ -61,8 +61,17 @@ export const isStraight = (dice: number[], minLength: number) => {
   return false;
 };
 
-// Calculate the sum of dice for number categories.
+const categoryToNumber: { [key: string]: number } = {
+  'Ones': 1,
+  'Twos': 2,
+  'Threes': 3,
+  'Fours': 4,
+  'Fives': 5,
+  'Sixes': 6,
+};
+
 export const calculateNumberScore = (category: string, dice: number[]): number => {
-  const number = parseInt(category);
+  const number = categoryToNumber[category];
+  if (number === undefined) return 0;
   return dice.reduce((acc, die) => acc + (die === number ? die : 0), 0);
 };
