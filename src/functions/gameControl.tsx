@@ -125,8 +125,8 @@ export const lockInScore = (
     ...scoreHistory,
     {
       dice: [...dice],
-      scoreType: category,
-      total: totalScore + newScore,
+      category: category,
+      roundScore: newScore,
     },
   ]);
   startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore);

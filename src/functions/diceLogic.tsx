@@ -42,7 +42,7 @@ export const rollDice = (
 
     // If no more rolls are left, consider the round to be over.
     if (newRollsLeft === 0) {
-      setScoreHistory([...scoreHistory, { dice: newDice, scoreType: 'Placeholder', total: newCurrentScore }]);
+      setScoreHistory([...scoreHistory, { dice: newDice, category: 'Placeholder', roundScore: newCurrentScore }]);
       startNewRound(
         setDice,
         setRollsLeft,

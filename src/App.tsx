@@ -67,7 +67,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       <ul className="list-decimal list-inside mb-6 text-blue-600">
       {scoreHistory.map((entry, index) => (
         <li key={index}>
-          Dice: [{entry.dice.join(', ')}], Score Type: {entry.scoreType}, Total: {entry.total}
+          Dice: [{entry.dice.join(', ')}], Score Category: {entry.category}, Round Score: {entry.roundScore}
         </li>
       ))}
     </ul>

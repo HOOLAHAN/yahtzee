@@ -19,24 +19,21 @@ export const calculateScore = (type: 'ThreeOfAKind' | 'FourOfAKind' | 'Yahtzee',
   for (const die of dice) {
     counts[die] = (counts[die] || 0) + 1;
   }
-  let sum = 0;
-  for (const [die, count] of Object.entries(counts)) {
-    if (type === 'ThreeOfAKind' && count >= 3) {
-      sum += parseInt(die) * 3;
-    }
-    if (type === 'FourOfAKind' && count >= 4) {
-      sum += parseInt(die) * 4;
-    }
-  }
+  
   if (type === 'Yahtzee') {
-    for (const count of Object.values(counts)) {
-      if (count === 5) {
-        return 50; // Yahtzee score
-      }
+    return Object.values(counts).includes(5) ? 50 : 0;
+  }
+  
+  const minCount = (type === 'ThreeOfAKind') ? 3 : 4;
+  for (const count of Object.values(counts)) {
+    if (count >= minCount) {
+      return dice.reduce((acc, curr) => acc + curr, 0); // Sum of all dice
     }
   }
-  return sum;
+  
+  return 0;
 };
+
 
 export const calculateSumOfDice = (dice: number[], targetNumber: number): number => {
   return dice.filter(d => d === targetNumber).reduce((acc, curr) => acc + curr, 0);
