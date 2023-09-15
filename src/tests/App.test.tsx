@@ -75,7 +75,7 @@ test('holding dice functionality', async () => {
 
   // Wait for the class to be added
   await waitFor(() => {
-    expect(diceElements[0]).toHaveClass('transition-colors duration-300 ease-in-out flex items-center justify-center h-16 w-16 cursor-pointer');
+    expect(diceElements[0]).toHaveClass('transition-colors duration-300 ease-in-out flex items-center justify-center m-2 md:m-4 lg:m-6 cursor-pointer');
   });
 });
 

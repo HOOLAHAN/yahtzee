@@ -1,9 +1,10 @@
 // App.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './tailwind.css';
 import Navbar from './components/Navbar';
 import Die from './components/Die';
+import ScoreCard from './components/ScoreCard';
 import { 
   calculateChance, 
   isStraight, 
@@ -36,10 +37,46 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [hasRolled, setHasRolled] = useState(false);
   const [usedCategories, setUsedCategories] = useState(new Set<string>());
   const [shouldShake, setShouldShake] = useState(false);
+  const [showScoreCard, setShowScoreCard] = useState(false);
 
   const getButtonClass = (score: number) => score === 0
   ? "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-200 text-white hover:bg-green-300 focus:ring focus:ring-green-100"
   : "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-600 text-white hover:bg-green-700 focus:ring focus:ring-green-200";
+
+  React.useEffect(() => {
+    if (scoreHistory.length > 0) {
+      setShowScoreCard(true);
+    } else {
+      setShowScoreCard(false);
+    }
+  }, [scoreHistory]);
+
+  const useWindowSize = () => {
+    const [windowSize, setWindowSize] = useState(window.innerWidth);
+  
+    useEffect(() => {
+      const handleResize = () => {
+        setWindowSize(window.innerWidth);
+      };
+      window.addEventListener('resize', handleResize);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
+  
+    return windowSize;
+  };
+
+  const windowSize = useWindowSize();
+  let dieSize: 'xs' | 'lg' | 'sm' | '1x' | '2x' | '3x' | '4x' | '5x' | '6x' | '7x' | '8x' | '9x' | '10x';
+
+  if (windowSize < 640) {
+    dieSize = '3x';
+  } else if (windowSize >= 640 && windowSize < 1024) {
+    dieSize = '4x';
+  } else {
+    dieSize = '5x';
+  }
 
   return (
     <div className="App">
@@ -54,8 +91,9 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
               canHold={rollsLeft > 0 && hasRolled}
               isHeld={heldDice.has(index)}
               onToggleHold={() => toggleHoldDie(index, heldDice, setHeldDice)}
-              className="m-4"
+              className="m-2 md:m-4 lg:m-6"
               shake={shouldShake}
+              size={dieSize}
             />
           ))}
         </div>
@@ -88,9 +126,10 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         >
           Roll Dice (Rolls left: {rollsLeft})
         </button>
-        </div>  
+        </div>
         <h2 className="text-2xl mb-2">Current Score: {calculateMaximumScore(dice, hasRolled, usedCategories)}</h2>
-        <h2 className="text-2xl mb-2">Lock In Score:</h2>
+        <h2 className="text-2xl mb-2">Current Total: {totalScore}</h2>
+        { hasRolled && <h2 className="text-2xl mb-2">Lock In Score:</h2> }
         <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto justify-center">
           {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
     
@@ -136,41 +175,18 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
             <div className="mb-1">Yahtzee: { hasRolled ? calculateScore('Yahtzee', dice) : 0}</div>
           </div>
         </div>
-        <h2 className="text-2xl mb-2">Total Score: {totalScore}</h2>  
-        <h2 className="text-2xl mb-4">Score History:</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          {scoreHistory.map((entry, index) => (
-            <div
-              key={index}
-              className="bg-white p-4 rounded-lg shadow-lg flex flex-col justify-between space-y-2"
-            >
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-gray-600">Round</span>
-                <span className="text-gray-800">{index + 1}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-blue-600">Dice</span>
-                <span className="text-blue-800">{entry.dice.join(", ")}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-green-600">Category</span>
-                <span className="text-green-800">{entry.category}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-red-600">Round Score</span>
-                <span className="text-red-800">{entry.roundScore}</span>
-              </div>
-            </div>
-          ))}
+        { showScoreCard && <h2 className="text-2xl mb-2">Score Card:</h2> }
+        <div className="flex space-x-2">
+        { showScoreCard && <ScoreCard scoreHistory={scoreHistory} totalScore={totalScore}/> }
         </div>
-          <div className="flex space-x-2">
-            <button 
-              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200 mb-2"
-              onClick={() => resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice, setUsedCategories)}
-              >
-                Reset Game
-            </button>
-          </div>
+        <div className="flex space-x-2 mt-4">
+          <button 
+            className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200 mb-2"
+            onClick={() => resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice, setUsedCategories)}
+            >
+              Reset Game
+          </button>
+        </div>
       </div>
     </div>
   );

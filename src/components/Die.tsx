@@ -7,10 +7,11 @@ interface DieProps {
   onToggleHold: () => void;
   isHeld: boolean;
   className?: string;
+  size?: 'xs' | 'lg' | 'sm' | '1x' | '2x' | '3x' | '4x' | '5x' | '6x' | '7x' | '8x' | '9x' | '10x';
   shake: boolean;
 }
 
-const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, isHeld, shake }) => {
+const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, isHeld, shake, size, className }) => {
   // Function to return the corresponding dice icon based on the die value
   const diceIcon = () => {
     switch (value) {
@@ -36,12 +37,12 @@ const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, isHeld, shake }
 
   return (
     <div
-      className={`transition-colors duration-300 ease-in-out flex items-center justify-center h-16 w-16 ${canHold ? 'cursor-pointer' : ''}`}
+      className={`transition-colors duration-300 ease-in-out flex items-center justify-center ${className || 'h-16 w-16'} ${canHold ? 'cursor-pointer' : ''}`}
       onClick={canHold ? onToggleHold : undefined}
       role="button"
       aria-label={`${value}`}
     >
-      <FontAwesomeIcon icon={diceIcon()} size="3x" style={{ color: isHeld ? "#22c65f" : "#888888" }} spinPulse={shouldShake} />
+      <FontAwesomeIcon icon={diceIcon()} size={size || '3x'} style={{ color: isHeld ? "#22c65f" : "#888888" }} spinPulse={shouldShake} />
     </div>
   );
 };
