@@ -84,7 +84,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
               }, 800);
             }
           }}
-          disabled={rollsLeft <= 0}
+          disabled={rollsLeft <= 0 || usedCategories.size === 13}
         >
           Roll Dice (Rolls left: {rollsLeft})
         </button>
