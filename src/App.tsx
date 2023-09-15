@@ -15,13 +15,17 @@ import {
   calculateCurrentCategoryScore,
   calculateMaximumScore
  } from './functions/scoreCalculator';
- import { ScoreEntry } from './functions/types';
- import { rollDice, toggleHoldDie } from './functions/diceLogic';
+import { ScoreEntry } from './functions/types';
+import { rollDice, toggleHoldDie } from './functions/diceLogic';
   import { resetGame,  
     startNewRound,
     canLockInScore,
     lockInScore
   } from './functions/gameControl';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface AppProps {
   initialDice?: number[];
@@ -77,6 +81,36 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   } else {
     dieSize = '5x';
   }
+
+  const printDocument = () => {
+    const input = document.getElementById('pdf-div');
+    if (!input) return;
+  
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Calculate the ratio
+      const imgWidth = 100;  // img width in mm (A4)
+      const pageHeight = 295;  // page height in mm (A4)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      
+      const pdf = new jsPDF('p', 'mm', 'a4'); // A4 size page of PDF
+      let position = 0;
+  
+      pdf.addImage(imgData, 'PNG', 50, position + 30, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+  
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 50, position +30, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+  
+      pdf.save('score-card.pdf');
+    });
+  };
 
   return (
     <div className="App">
@@ -179,6 +213,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         <div className="flex space-x-2">
         { showScoreCard && <ScoreCard scoreHistory={scoreHistory} totalScore={totalScore}/> }
         </div>
+        { scoreHistory.length > 0 &&
         <div className="flex space-x-2 mt-4">
           <button 
             className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200 mb-2"
@@ -186,7 +221,15 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
             >
               Reset Game
           </button>
+          <button 
+            className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
+            onClick={printDocument}
+          >
+            <FontAwesomeIcon icon={faFilePdf} className="mr-2" />
+            Save as PDF
+          </button> 
         </div>
+        }
       </div>
     </div>
   );

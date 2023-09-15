@@ -10,8 +10,10 @@ interface ScoreCardProps {
 }
 
 const ScoreCard: React.FC<ScoreCardProps> = ({ scoreHistory, totalScore }) => {
+
   return (
     <div className="w-full">
+    <div id="pdf-div">
     <table className="min-w-full bg-white">
       <thead>
         <tr>
@@ -53,6 +55,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({ scoreHistory, totalScore }) => {
           </tr>
         </tfoot>
     </table>
+    </div>
     </div>
   );
 };
