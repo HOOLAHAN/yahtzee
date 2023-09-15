@@ -44,34 +44,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   return (
     <div className="App">
       <Navbar />
-      <div className="bg-gray-200 min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
-        <h2 className="text-2xl mb-2">Total Score: {totalScore}</h2>  
-        <h2 className="text-2xl mb-4">Score History:</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          {scoreHistory.map((entry, index) => (
-            <div
-              key={index}
-              className="bg-white p-4 rounded-lg shadow-lg flex flex-col justify-between space-y-2"
-            >
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-gray-600">Round</span>
-                <span className="text-gray-800">{index + 1}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-blue-600">Dice</span>
-                <span className="text-blue-800">{entry.dice.join(", ")}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-green-600">Category</span>
-                <span className="text-green-800">{entry.category}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-red-600">Round Score</span>
-                <span className="text-red-800">{entry.roundScore}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="bg-gray-200 min-h-screen flex flex-col items-center justify-start p-4 md:p-8">
         <h2 className="text-2xl mb-2">Dice:</h2>
         <div className="flex flex-wrap justify-center mb-4">
           {dice.map((die, index) => (
@@ -146,22 +119,49 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         <h2 className="text-2xl mb-2">Scores</h2>
         <div className="flex justify-between">
           <div className='mr-10'>
-            <div className="mb-1">Ones: {calculateNumberScore('Ones', dice)}</div>
-            <div className="mb-1">Twos: {calculateNumberScore('Twos', dice)}</div>
-            <div className="mb-1">Threes: {calculateNumberScore('Threes', dice)}</div>
-            <div className="mb-1">Fours: {calculateNumberScore('Fours', dice)}</div>
-            <div className="mb-1">Fives: {calculateNumberScore('Fives', dice)}</div>
-            <div className="mb-1">Sixes: {calculateNumberScore('Sixes', dice)}</div>
+            <div className="mb-1">Ones: { hasRolled ? calculateNumberScore('Ones', dice) : 0}</div>
+            <div className="mb-1">Twos: { hasRolled ? calculateNumberScore('Twos', dice) : 0}</div>
+            <div className="mb-1">Threes: { hasRolled ? calculateNumberScore('Threes', dice) : 0}</div>
+            <div className="mb-1">Fours: { hasRolled ? calculateNumberScore('Fours', dice) : 0}</div>
+            <div className="mb-1">Fives: { hasRolled ? calculateNumberScore('Fives', dice) : 0}</div>
+            <div className="mb-1">Sixes: { hasRolled ? calculateNumberScore('Sixes', dice) : 0}</div>
           </div>
           <div>
-            <div className="mb-1">Three of a Kind: {calculateScore('ThreeOfAKind', dice)}</div>
-            <div className="mb-1">Four of a Kind: {calculateScore('FourOfAKind', dice)}</div>
-            <div className="mb-1">Full House: {calculateFullHouse(dice)}</div>
-            <div className="mb-1">Small Straight: {isStraight(dice, 4) ? 30 : 0}</div>
-            <div className="mb-1">Large Straight: {isStraight(dice, 5) ? 40 : 0}</div>
-            <div className="mb-1">Chance: {calculateChance(dice)}</div>
-            <div className="mb-1">Yahtzee: {calculateScore('Yahtzee', dice)}</div>
+            <div className="mb-1">Three of a Kind: { hasRolled ? calculateScore('ThreeOfAKind', dice) : 0}</div>
+            <div className="mb-1">Four of a Kind: { hasRolled ? calculateScore('FourOfAKind', dice) : 0}</div>
+            <div className="mb-1">Full House: { hasRolled ? calculateFullHouse(dice) : 0}</div>
+            <div className="mb-1">Small Straight: { hasRolled ? (isStraight(dice, 4) ? 30 : 0) : 0}</div>
+            <div className="mb-1">Large Straight: { hasRolled ? (isStraight(dice, 5) ? 40 : 0) : 0}</div>
+            <div className="mb-1">Chance: { hasRolled ? calculateChance(dice) : 0}</div>
+            <div className="mb-1">Yahtzee: { hasRolled ? calculateScore('Yahtzee', dice) : 0}</div>
           </div>
+        </div>
+        <h2 className="text-2xl mb-2">Total Score: {totalScore}</h2>  
+        <h2 className="text-2xl mb-4">Score History:</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          {scoreHistory.map((entry, index) => (
+            <div
+              key={index}
+              className="bg-white p-4 rounded-lg shadow-lg flex flex-col justify-between space-y-2"
+            >
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-gray-600">Round</span>
+                <span className="text-gray-800">{index + 1}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-blue-600">Dice</span>
+                <span className="text-blue-800">{entry.dice.join(", ")}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-green-600">Category</span>
+                <span className="text-green-800">{entry.category}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-red-600">Round Score</span>
+                <span className="text-red-800">{entry.roundScore}</span>
+              </div>
+            </div>
+          ))}
         </div>
           <div className="flex space-x-2">
             <button 
