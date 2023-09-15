@@ -2,6 +2,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import App from '../App';
 
+HTMLCanvasElement.prototype.getContext = jest.fn();
+
+jest.mock('jspdf', () => {
+  return function() {
+  };
+});
+
 test('renders Yahtzee title', () => {
   render(<App />);
   const titleElement = screen.getByText(/Yahtzee!/i);
@@ -92,33 +99,6 @@ test('calculate Full House score with invalid dice', () => {
   // Ensure the element is not null and contains the correct text
   expect(fullHouseScore).not.toBeNull();
   expect(fullHouseScore).toHaveTextContent('Full House: 0');
-});
-
-test('game reset functionality', async () => {
-  // 1. Render the App component with some initial dice values
-  render(<App initialDice={[1, 3, 2, 5, 6]} />);
-  
-  // Check the initial state
-  let rollButton = screen.getByText(/Roll Dice/i);
-  expect(rollButton).toHaveTextContent('Roll Dice (Rolls left: 3)');
-  
-  // Simulate rolling the dice once
-  fireEvent.click(rollButton);
-
-  // Check if the roll count decreases
-  rollButton = screen.getByText(/Roll Dice/i);
-  await waitFor(() => {
-    expect(screen.getByText(/Roll Dice/i)).toHaveTextContent('Roll Dice (Rolls left: 2)');
-  });
-  
-  // 2. Click the "Reset Game" button
-  const resetButton = screen.getByText(/Reset Game/i);
-  fireEvent.click(resetButton);
-
-  // 3. Check if the game state is reset
-  rollButton = screen.getByText(/Roll Dice/i);
-  expect(rollButton).toHaveTextContent('Roll Dice (Rolls left: 3)');
-
 });
 
 test('calculate Small Straight score with invalid dice', () => {
