@@ -41,7 +41,7 @@ const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, isHeld, shake }
       role="button"
       aria-label={`${value}`}
     >
-      <FontAwesomeIcon icon={diceIcon()} size="3x" style={{ color: isHeld ? "#22c65f" : "#888888" }} shake={shouldShake} />
+      <FontAwesomeIcon icon={diceIcon()} size="3x" style={{ color: isHeld ? "#22c65f" : "#888888" }} spinPulse={shouldShake} />
     </div>
   );
 };

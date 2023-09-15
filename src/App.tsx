@@ -88,11 +88,17 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         </div>
         <h2 className="text-l mb-2">Toggle to hold dice</h2>
         <div className="flex space-x-2">
-          <button
-            className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
-            onClick={() => {
-              if (rollsLeft > 0) {
-                setShouldShake(true);
+        <button
+          className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
+          onClick={() => {
+            if (rollsLeft > 0) {
+              // Start shaking the dice
+              setShouldShake(true);
+              // Wait until the shaking animation is complete
+              setTimeout(() => {
+                // Stop shaking the dice
+                setShouldShake(false);
+                // Change the value of the dice
                 rollDice(
                   rollsLeft,
                   dice,
@@ -102,13 +108,13 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
                   setRollsLeft,
                   setCurrentScore,
                 );
-                setTimeout(() => setShouldShake(false), 1000);
-              }
-            }}
-            disabled={rollsLeft <= 0}
-          >
-            Roll Dice (Rolls left: {rollsLeft})
-          </button>
+              }, 800);
+            }
+          }}
+          disabled={rollsLeft <= 0}
+        >
+          Roll Dice (Rolls left: {rollsLeft})
+        </button>
         </div>  
         <h2 className="text-2xl mb-2">Current Score: {calculateMaximumScore(dice, hasRolled, usedCategories)}</h2>
         <h2 className="text-2xl mb-2">Lock In Score:</h2>
