@@ -7,9 +7,10 @@ interface DieProps {
   onToggleHold: () => void;
   isHeld: boolean;
   className?: string;
+  shake: boolean;
 }
 
-const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, isHeld }) => {
+const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, isHeld, shake }) => {
   // Function to return the corresponding dice icon based on the die value
   const diceIcon = () => {
     switch (value) {
@@ -30,6 +31,9 @@ const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, isHeld }) => {
     }
   };
 
+  // Only shake the die if it is not held
+  const shouldShake = shake && !isHeld;
+
   return (
     <div
       className={`transition-colors duration-300 ease-in-out flex items-center justify-center h-16 w-16 ${canHold ? 'cursor-pointer' : ''}`}
@@ -37,7 +41,7 @@ const Die: React.FC<DieProps> = ({ value, canHold, onToggleHold, isHeld }) => {
       role="button"
       aria-label={`${value}`}
     >
-      <FontAwesomeIcon icon={diceIcon()} size="3x" style={{ color: isHeld ? "#22c65f" : "#888888" }} />
+      <FontAwesomeIcon icon={diceIcon()} size="3x" style={{ color: isHeld ? "#22c65f" : "#888888" }} shake={shouldShake} />
     </div>
   );
 };

@@ -35,6 +35,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [totalScore, setTotalScore] = useState(0);
   const [hasRolled, setHasRolled] = useState(false);
   const [usedCategories, setUsedCategories] = useState(new Set<string>());
+  const [shouldShake, setShouldShake] = useState(false);
 
   const getButtonClass = (score: number) => score === 0
   ? "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-200 text-white hover:bg-green-300 focus:ring focus:ring-green-100"
@@ -81,26 +82,33 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
               isHeld={heldDice.has(index)}
               onToggleHold={() => toggleHoldDie(index, heldDice, setHeldDice)}
               className="m-4"
+              shake={shouldShake}
             />
           ))}
         </div>
         <h2 className="text-l mb-2">Toggle to hold dice</h2>
         <div className="flex space-x-2">
-          <button 
+          <button
             className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
-            onClick={() => rollDice(
-              rollsLeft, 
-              dice, 
-              heldDice, 
-              setHasRolled, 
-              setDice, 
-              setRollsLeft, 
-              setCurrentScore, 
-              )}
+            onClick={() => {
+              if (rollsLeft > 0) {
+                setShouldShake(true);
+                rollDice(
+                  rollsLeft,
+                  dice,
+                  heldDice,
+                  setHasRolled,
+                  setDice,
+                  setRollsLeft,
+                  setCurrentScore,
+                );
+                setTimeout(() => setShouldShake(false), 1000);
+              }
+            }}
             disabled={rollsLeft <= 0}
-            >
-              Roll Dice (Rolls left: {rollsLeft})
-            </button>
+          >
+            Roll Dice (Rolls left: {rollsLeft})
+          </button>
         </div>  
         <h2 className="text-2xl mb-2">Current Score: {calculateMaximumScore(dice, hasRolled, usedCategories)}</h2>
         <h2 className="text-2xl mb-2">Lock In Score:</h2>
