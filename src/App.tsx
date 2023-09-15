@@ -188,14 +188,14 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
             className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 w-full md:w-auto bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-200 mb-2"
             onClick={() => resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice, setUsedCategories)}
             >
-              Reset Game
+              { windowSize < 640 ? "Reset" : "Reset Game" }
           </button>
           <button 
             className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
             onClick={printDocument}
           >
             <FontAwesomeIcon icon={faFilePdf} className="mr-2" />
-              Score Card
+            { windowSize < 640 ? "" : "Score Card" }
           </button> 
         </div>
         }
