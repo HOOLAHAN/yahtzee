@@ -5,6 +5,7 @@ import './tailwind.css';
 import Navbar from './components/Navbar';
 import Die from './components/Die';
 import ScoreCard from './components/ScoreCard';
+import ScoreFlash from './components/ScoreFlash';
 import { 
   calculateChance, 
   isStraight, 
@@ -41,6 +42,8 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [usedCategories, setUsedCategories] = useState(new Set<string>());
   const [shouldShake, setShouldShake] = useState(false);
   const [showScoreCard, setShowScoreCard] = useState(false);
+  const [showFlash, setShowFlash] = useState(false);
+  const [flashCategory, setFlashCategory] = useState('');
 
   const getButtonClass = (score: number) => score === 0
   ? "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-200 text-white hover:bg-green-300 focus:ring focus:ring-green-100"
@@ -138,18 +141,20 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
     
           const canLock = canLockInScore(category, hasRolled, usedCategories);
           const isUsed = usedCategories.has(category);
-
+          
           if (!canLock || isUsed) return null;
-
+          
           const currentCategoryScore = calculateCurrentCategoryScore(category, dice);
           const buttonClass = getButtonClass(currentCategoryScore);
-
+          
           return (
             <button
               key={category}
               className={buttonClass}
               onClick={() => {
                 lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore, calculateScoreFunction);
+                setFlashCategory(category);
+                setShowFlash(true);
               }}
               disabled={!canLock || isUsed}
             >
@@ -158,6 +163,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           );
         })}
         </div>
+        <ScoreFlash category={flashCategory} show={showFlash} onEnd={() => setShowFlash(false)} />
         <h2 className="text-2xl mb-2">Scores</h2>
         <div className="flex justify-between">
           <div className='mr-10'>
