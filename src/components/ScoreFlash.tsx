@@ -9,7 +9,7 @@ interface ScoreFlashProps {
   onEnd: () => void;
 }
 
-const ScoreFlash: React.FC<ScoreFlashProps> = ({ category, duration = 2000, show, onEnd }) => {
+const ScoreFlash: React.FC<ScoreFlashProps> = ({ category, duration = 1000, show, onEnd }) => {
   const [isVisible, setIsVisible] = useState(show);
 
   useEffect(() => {
@@ -25,8 +25,10 @@ const ScoreFlash: React.FC<ScoreFlashProps> = ({ category, duration = 2000, show
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white text-2xl p-4 rounded shadow-lg">
-      {category.replace(/([A-Z])/g, ' $1').trim()}
+    <div className="fixed inset-0 flex items-center justify-center">
+        <div className="bg-white text-2xl p-4 rounded shadow-lg animate-fadeInScaleUp">
+            {category.replace(/([A-Z])/g, ' $1').trim()}
+        </div>
     </div>
   );
 };
