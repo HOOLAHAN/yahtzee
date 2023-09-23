@@ -1,34 +1,34 @@
 // App.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './tailwind.css';
 import Navbar from './components/Navbar';
 import Die from './components/Die';
 import ScoreCard from './components/ScoreCard';
 import ScoreFlash from './components/ScoreFlash';
-import { 
-  calculateChance, 
-  isStraight, 
-  calculateFullHouse, 
-  calculateScore,
-  calculateScoreFunction,
-  calculateNumberScore,
-  calculateCurrentCategoryScore,
-  calculateMaximumScore
- } from './functions/scoreCalculator';
-import { ScoreEntry } from './functions/types';
-import { rollDice, toggleHoldDie } from './functions/diceLogic';
-  import { resetGame,  
-    startNewRound,
-    canLockInScore,
-    lockInScore
-  } from './functions/gameControl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
-import { printDocument } from './functions/utils'
+import { 
+  calculateChance, isStraight, calculateFullHouse, calculateScore,
+  calculateScoreFunction, calculateNumberScore, calculateCurrentCategoryScore,
+  calculateMaximumScore 
+} from './functions/scoreCalculator';
+import { rollDice, toggleHoldDie } from './functions/diceLogic';
+import { 
+  resetGame, startNewRound, canLockInScore, lockInScore 
+} from './functions/gameControl';
+import { ScoreEntry } from './functions/types';
+import { printDocument } from './functions/utils';
+import { useWindowSize } from './hooks/useWindowSize';
 
 interface AppProps {
   initialDice?: number[];
+}
+
+const getDieSize = (windowSize: number) => {
+  if (windowSize < 640) return '3x';
+  if (windowSize >= 640 && windowSize < 1024) return '4x';
+  return '5x';
 }
 
 const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
@@ -44,7 +44,10 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [showScoreCard, setShowScoreCard] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [flashCategory, setFlashCategory] = useState('');
-
+  
+  const windowSize = useWindowSize();
+  const dieSize = getDieSize(windowSize);
+  
   const getButtonClass = (score: number) => score === 0
   ? "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-200 text-white hover:bg-green-300 focus:ring focus:ring-green-100"
   : "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-600 text-white hover:bg-green-700 focus:ring focus:ring-green-200";
@@ -56,33 +59,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       setShowScoreCard(false);
     }
   }, [scoreHistory]);
-
-  const useWindowSize = () => {
-    const [windowSize, setWindowSize] = useState(window.innerWidth);
-  
-    useEffect(() => {
-      const handleResize = () => {
-        setWindowSize(window.innerWidth);
-      };
-      window.addEventListener('resize', handleResize);
-      return () => {
-        window.removeEventListener('resize', handleResize);
-      };
-    }, []);
-  
-    return windowSize;
-  };
-
-  const windowSize = useWindowSize();
-  let dieSize: 'xs' | 'lg' | 'sm' | '1x' | '2x' | '3x' | '4x' | '5x' | '6x' | '7x' | '8x' | '9x' | '10x';
-
-  if (windowSize < 640) {
-    dieSize = '3x';
-  } else if (windowSize >= 640 && windowSize < 1024) {
-    dieSize = '4x';
-  } else {
-    dieSize = '5x';
-  }
 
   return (
     <div className="App">
