@@ -29,3 +29,13 @@ export const printDocument = () => {
     pdf.save('score-card.pdf');
   });
 };
+
+export const getButtonClass = (score: number) => score === 0
+  ? "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-200 text-white hover:bg-green-300 focus:ring focus:ring-green-100"
+  : "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-600 text-white hover:bg-green-700 focus:ring focus:ring-green-200";
+
+export const getDieSize = (windowSize: number) => {
+  if (windowSize < 640) return '3x';
+  if (windowSize >= 640 && windowSize < 1024) return '4x';
+  return '5x';
+}

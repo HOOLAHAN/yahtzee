@@ -18,17 +18,11 @@ import {
   resetGame, startNewRound, canLockInScore, lockInScore 
 } from './functions/gameControl';
 import { ScoreEntry } from './functions/types';
-import { printDocument } from './functions/utils';
+import { printDocument, getButtonClass, getDieSize } from './functions/utils';
 import { useWindowSize } from './hooks/useWindowSize';
 
 interface AppProps {
   initialDice?: number[];
-}
-
-const getDieSize = (windowSize: number) => {
-  if (windowSize < 640) return '3x';
-  if (windowSize >= 640 && windowSize < 1024) return '4x';
-  return '5x';
 }
 
 const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
@@ -48,10 +42,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const windowSize = useWindowSize();
   const dieSize = getDieSize(windowSize);
   
-  const getButtonClass = (score: number) => score === 0
-  ? "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-200 text-white hover:bg-green-300 focus:ring focus:ring-green-100"
-  : "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-600 text-white hover:bg-green-700 focus:ring focus:ring-green-200";
-
   React.useEffect(() => {
     if (scoreHistory.length > 0) {
       setShowScoreCard(true);
@@ -85,13 +75,9 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
           onClick={() => {
             if (rollsLeft > 0) {
-              // Start shaking the dice
               setShouldShake(true);
-              // Wait until the shaking animation is complete
               setTimeout(() => {
-                // Stop shaking the dice
                 setShouldShake(false);
-                // Change the value of the dice
                 rollDice(
                   rollsLeft,
                   dice,
