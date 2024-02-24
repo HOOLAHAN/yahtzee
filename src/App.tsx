@@ -3,19 +3,14 @@
 import React, { useState } from 'react';
 import './tailwind.css';
 import Navbar from './components/Navbar';
-// import DiceDisplay from './components/DiceDisplay';
 import ScoreCard from './components/ScoreCard';
 import ScoreFlash from './components/ScoreFlash';
 import GameControlButtons from './components/GameControlButtons';
-// import RollDiceButton from './components/RollDiceButton';
 import ScoreDisplay from './components/ScoreDisplay';
 import CategoryButtons from './components/CategoryButtons';
 import DiceControl from './components/DiceControl';
-import { 
-  calculateChance, isStraight, calculateFullHouse, calculateScore,
-  calculateNumberScore, calculateCurrentCategoryScore,
-  calculateMaximumScore 
-} from './functions/scoreCalculator';
+import ScoresSection from './components/ScoresSection';
+import { calculateCurrentCategoryScore, calculateMaximumScore } from './functions/scoreCalculator';
 import { rollDice, toggleHoldDie } from './functions/diceLogic';
 import { resetGame, startNewRound } from './functions/gameControl';
 import { ScoreEntry } from './functions/types';
@@ -124,25 +119,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         />
         <ScoreFlash category={flashCategory} show={showFlash} onEnd={() => setShowFlash(false)} />
         <h2 className="text-2xl mb-2">Scores</h2>
-        <div className="flex justify-between">
-          <div className='mr-10'>
-            <div className="mb-1">Ones: { hasRolled ? calculateNumberScore('Ones', dice) : 0}</div>
-            <div className="mb-1">Twos: { hasRolled ? calculateNumberScore('Twos', dice) : 0}</div>
-            <div className="mb-1">Threes: { hasRolled ? calculateNumberScore('Threes', dice) : 0}</div>
-            <div className="mb-1">Fours: { hasRolled ? calculateNumberScore('Fours', dice) : 0}</div>
-            <div className="mb-1">Fives: { hasRolled ? calculateNumberScore('Fives', dice) : 0}</div>
-            <div className="mb-1">Sixes: { hasRolled ? calculateNumberScore('Sixes', dice) : 0}</div>
-          </div>
-          <div>
-            <div className="mb-1">Three of a Kind: { hasRolled ? calculateScore('ThreeOfAKind', dice) : 0}</div>
-            <div className="mb-1">Four of a Kind: { hasRolled ? calculateScore('FourOfAKind', dice) : 0}</div>
-            <div className="mb-1">Full House: { hasRolled ? calculateFullHouse(dice) : 0}</div>
-            <div className="mb-1">Small Straight: { hasRolled ? (isStraight(dice, 4) ? 30 : 0) : 0}</div>
-            <div className="mb-1">Large Straight: { hasRolled ? (isStraight(dice, 5) ? 40 : 0) : 0}</div>
-            <div className="mb-1">Chance: { hasRolled ? calculateChance(dice) : 0}</div>
-            <div className="mb-1">Yahtzee: { hasRolled ? calculateScore('Yahtzee', dice) : 0}</div>
-          </div>
-        </div>
+        <ScoresSection dice={dice} hasRolled={hasRolled} />
         { showScoreCard && <h2 className="text-2xl mb-2">Score Card:</h2> }
         <div className="flex space-x-2">
         { showScoreCard && <ScoreCard scoreHistory={scoreHistory} totalScore={totalScore}/> }
