@@ -11,11 +11,12 @@ import CategoryButtons from './components/CategoryButtons';
 import DiceControl from './components/DiceControl';
 import ScoresSection from './components/ScoresSection';
 import { calculateCurrentCategoryScore, calculateMaximumScore } from './functions/scoreCalculator';
-import { rollDice, toggleHoldDie } from './functions/diceLogic';
+import { toggleHoldDie } from './functions/diceLogic';
 import { resetGame, startNewRound } from './functions/gameControl';
 import { ScoreEntry } from './functions/types';
 import { printDocument, getDieSize } from './functions/utils';
 import { useWindowSize } from './hooks/useWindowSize';
+import { handleRollDice} from './functions/handleRollDice';
 
 interface AppProps {
   initialDice?: number[];
@@ -73,23 +74,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           shouldShake={shouldShake}
           dieSize={dieSize}
           usedCategoriesSize={usedCategories.size}
-          onRollDice={() => {
-            if (rollsLeft > 0) {
-              setShouldShake(true);
-              setTimeout(() => {
-                setShouldShake(false);
-                rollDice(
-                  rollsLeft,
-                  dice,
-                  heldDice,
-                  setHasRolled,
-                  setDice,
-                  setRollsLeft,
-                  setCurrentScore,
-                );
-              }, 800);
-            }
-          }}
+          onRollDice={() => handleRollDice(rollsLeft, dice, heldDice, setShouldShake, setHasRolled, setDice, setRollsLeft, setCurrentScore)}
         />
         <ScoreDisplay
           currentScore={calculateMaximumScore(dice, hasRolled, usedCategories)}
