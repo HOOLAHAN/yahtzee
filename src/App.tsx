@@ -7,6 +7,7 @@ import DiceDisplay from './components/DiceDisplay';
 import ScoreCard from './components/ScoreCard';
 import ScoreFlash from './components/ScoreFlash';
 import GameControlButtons from './components/GameControlButtons';
+import RollDiceButton from './components/RollDiceButton';
 import { 
   calculateChance, isStraight, calculateFullHouse, calculateScore,
   calculateScoreFunction, calculateNumberScore, calculateCurrentCategoryScore,
@@ -65,9 +66,10 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         />
         <h2 className="text-l mb-2">Toggle to hold dice</h2>
         <div className="flex space-x-2">
-        <button
-          className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
-          onClick={() => {
+        <RollDiceButton
+          rollsLeft={rollsLeft}
+          usedCategoriesSize={usedCategories.size}
+          onRollDice={() => {
             if (rollsLeft > 0) {
               setShouldShake(true);
               setTimeout(() => {
@@ -84,10 +86,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
               }, 800);
             }
           }}
-          disabled={rollsLeft <= 0 || usedCategories.size === 13}
-        >
-          Roll Dice (Rolls left: {rollsLeft})
-        </button>
+        />
         </div>
         <h2 className="text-2xl mb-2">Current Score: {calculateMaximumScore(dice, hasRolled, usedCategories)}</h2>
         <h2 className="text-2xl mb-2">Current Total: {totalScore}</h2>
