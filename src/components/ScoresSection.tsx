@@ -16,7 +16,9 @@ interface ScoresSectionProps {
 const ScoresSection: React.FC<ScoresSectionProps> = ({ dice, hasRolled }) => {
   return (
     <div className="scores-section">
-      <h2 className="text-2xl mb-2">Scores</h2>
+      <div className="w-full text-center">
+        <h2 className="text-2xl mb-2 inline-block">Scores: </h2>
+      </div>
       <div className="flex justify-between">
         <div className='mr-10'>
           <div className="mb-1">Ones: { hasRolled ? calculateNumberScore('Ones', dice) : 0}</div>

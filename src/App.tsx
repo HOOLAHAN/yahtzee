@@ -103,7 +103,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           setShowFlash={setShowFlash}
         />
         <ScoreFlash category={flashCategory} show={showFlash} onEnd={() => setShowFlash(false)} />
-        <h2 className="text-2xl mb-2">Scores</h2>
         <ScoresSection dice={dice} hasRolled={hasRolled} />
         { showScoreCard && <h2 className="text-2xl mb-2">Score Card:</h2> }
         <div className="flex space-x-2">
