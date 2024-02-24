@@ -3,13 +3,14 @@
 import React, { useState } from 'react';
 import './tailwind.css';
 import Navbar from './components/Navbar';
-import DiceDisplay from './components/DiceDisplay';
+// import DiceDisplay from './components/DiceDisplay';
 import ScoreCard from './components/ScoreCard';
 import ScoreFlash from './components/ScoreFlash';
 import GameControlButtons from './components/GameControlButtons';
-import RollDiceButton from './components/RollDiceButton';
+// import RollDiceButton from './components/RollDiceButton';
 import ScoreDisplay from './components/ScoreDisplay';
 import CategoryButtons from './components/CategoryButtons';
+import DiceControl from './components/DiceControl';
 import { 
   calculateChance, isStraight, calculateFullHouse, calculateScore,
   calculateNumberScore, calculateCurrentCategoryScore,
@@ -68,8 +69,7 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
     <div className="App">
       <Navbar />
       <div className="bg-gray-200 min-h-screen flex flex-col items-center justify-start p-4 md:p-8">
-        <h2 className="text-2xl mb-2">Dice:</h2>
-        <DiceDisplay
+        <DiceControl
           dice={dice}
           heldDice={heldDice}
           toggleHoldDie={(index: number) => toggleHoldDie(index, heldDice, setHeldDice)}
@@ -77,11 +77,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           hasRolled={hasRolled}
           shouldShake={shouldShake}
           dieSize={dieSize}
-        />
-        <h2 className="text-l mb-2">Toggle to hold dice</h2>
-        <div className="flex space-x-2">
-        <RollDiceButton
-          rollsLeft={rollsLeft}
           usedCategoriesSize={usedCategories.size}
           onRollDice={() => {
             if (rollsLeft > 0) {
@@ -101,7 +96,6 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
             }
           }}
         />
-        </div>
         <ScoreDisplay
           currentScore={calculateMaximumScore(dice, hasRolled, usedCategories)}
           totalScore={totalScore}
