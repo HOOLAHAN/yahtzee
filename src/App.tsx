@@ -8,6 +8,7 @@ import ScoreCard from './components/ScoreCard';
 import ScoreFlash from './components/ScoreFlash';
 import GameControlButtons from './components/GameControlButtons';
 import RollDiceButton from './components/RollDiceButton';
+import ScoreDisplay from './components/ScoreDisplay';
 import { 
   calculateChance, isStraight, calculateFullHouse, calculateScore,
   calculateScoreFunction, calculateNumberScore, calculateCurrentCategoryScore,
@@ -88,8 +89,10 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           }}
         />
         </div>
-        <h2 className="text-2xl mb-2">Current Score: {calculateMaximumScore(dice, hasRolled, usedCategories)}</h2>
-        <h2 className="text-2xl mb-2">Current Total: {totalScore}</h2>
+        <ScoreDisplay
+          currentScore={calculateMaximumScore(dice, hasRolled, usedCategories)}
+          totalScore={totalScore}
+        />
         { hasRolled && <h2 className="text-2xl mb-2">Lock In Score:</h2> }
         <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto justify-center">
           {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
