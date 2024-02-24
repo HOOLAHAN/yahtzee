@@ -9,17 +9,16 @@ import ScoreFlash from './components/ScoreFlash';
 import GameControlButtons from './components/GameControlButtons';
 import RollDiceButton from './components/RollDiceButton';
 import ScoreDisplay from './components/ScoreDisplay';
+import CategoryButtons from './components/CategoryButtons';
 import { 
   calculateChance, isStraight, calculateFullHouse, calculateScore,
-  calculateScoreFunction, calculateNumberScore, calculateCurrentCategoryScore,
+  calculateNumberScore, calculateCurrentCategoryScore,
   calculateMaximumScore 
 } from './functions/scoreCalculator';
 import { rollDice, toggleHoldDie } from './functions/diceLogic';
-import { 
-  resetGame, startNewRound, canLockInScore, lockInScore 
-} from './functions/gameControl';
+import { resetGame, startNewRound } from './functions/gameControl';
 import { ScoreEntry } from './functions/types';
-import { printDocument, getButtonClass, getDieSize } from './functions/utils';
+import { printDocument, getDieSize } from './functions/utils';
 import { useWindowSize } from './hooks/useWindowSize';
 
 interface AppProps {
@@ -51,6 +50,20 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
     }
   }, [scoreHistory]);
 
+  const handleStartNewRound = () => {
+    startNewRound(
+      setDice, 
+      setRollsLeft, 
+      setHeldDice, 
+      setCurrentScore, 
+      setHasRolled, 
+      setTotalScore, 
+      initialDice, 
+      totalScore, 
+      currentScore
+    );
+  };
+  
   return (
     <div className="App">
       <Navbar />
@@ -94,33 +107,27 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
           totalScore={totalScore}
         />
         { hasRolled && <h2 className="text-2xl mb-2">Lock In Score:</h2> }
-        <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto justify-center">
-          {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
-    
-          const canLock = canLockInScore(category, hasRolled, usedCategories);
-          const isUsed = usedCategories.has(category);
-          
-          if (!canLock || isUsed) return null;
-          
-          const currentCategoryScore = calculateCurrentCategoryScore(category, dice);
-          const buttonClass = getButtonClass(currentCategoryScore);
-          
-          return (
-            <button
-              key={category}
-              className={buttonClass}
-              onClick={() => {
-                lockInScore(category, usedCategories, setUsedCategories, dice, setTotalScore, totalScore, setScoreHistory, scoreHistory, startNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore, calculateScoreFunction);
-                setFlashCategory(category);
-                setShowFlash(true);
-              }}
-              disabled={!canLock || isUsed}
-            >
-              {category.replace(/([A-Z])/g, ' $1').trim()}
-            </button>
-          );
-        })}
-        </div>
+        <CategoryButtons
+          dice={dice}
+          hasRolled={hasRolled}
+          usedCategories={usedCategories}
+          setUsedCategories={setUsedCategories}
+          setTotalScore={setTotalScore}
+          totalScore={totalScore}
+          setScoreHistory={setScoreHistory}
+          scoreHistory={scoreHistory}
+          startNewRound={handleStartNewRound}
+          setCurrentScore={setCurrentScore}
+          setHasRolled={setHasRolled}
+          setDice={setDice}
+          setRollsLeft={setRollsLeft}
+          setHeldDice={setHeldDice}
+          initialDice={initialDice}
+          currentScore={currentScore}
+          calculateScoreFunction={calculateCurrentCategoryScore}
+          setFlashCategory={setFlashCategory}
+          setShowFlash={setShowFlash}
+        />
         <ScoreFlash category={flashCategory} show={showFlash} onEnd={() => setShowFlash(false)} />
         <h2 className="text-2xl mb-2">Scores</h2>
         <div className="flex justify-between">
