@@ -1,18 +1,40 @@
 import React, { useState } from 'react';
+import { userPool } from '../awsConfig';
+import { CognitoUserAttribute } from 'amazon-cognito-identity-js';
 
 const SignUpForm: React.FC<{ onSwitch: () => void, onClose: () => void }> = ({ onSwitch, onClose }) => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    console.log('Sign up with:', email, username, password);
-    // Add sign-up logic here
-  };
+    
+    const attributeList = [
+        new CognitoUserAttribute({
+            Name: 'email',
+            Value: email,
+        }),
+        new CognitoUserAttribute({
+            Name: 'preferred_username',
+            Value: username,
+        }),
+    ];
+
+    userPool.signUp(email, password, attributeList, [], (err, result) => {
+      if (err) {
+          console.error(err.message || JSON.stringify(err));
+          return;
+      }
+      console.log('Sign-up successful', result);
+      onClose(); // Close the modal on successful sign-up
+      // Redirect user or update UI as necessary
+  });
+  
+};
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <form onSubmit={handleSignUp} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
       <h2 className="block text-gray-700 text-lg font-bold mb-2">Sign Up</h2>
       <div className="mb-4">
         <label htmlFor="signUpEmail" className="block text-gray-700 text-sm font-bold mb-2">
