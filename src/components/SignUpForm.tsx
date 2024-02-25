@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { userPool } from '../awsConfig';
 import { CognitoUserAttribute } from 'amazon-cognito-identity-js';
 
-const SignUpForm: React.FC<{ onSwitch: () => void, onClose: () => void }> = ({ onSwitch, onClose }) => {
+interface SignUpFormProps {
+  onSwitch: () => void;
+  onClose: () => void;
+  onSignUpSuccess: (email: string) => void;
+}
+
+const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onClose, onSignUpSuccess }) => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -21,16 +27,16 @@ const SignUpForm: React.FC<{ onSwitch: () => void, onClose: () => void }> = ({ o
         }),
     ];
 
+    // Inside SignUpForm component
     userPool.signUp(email, password, attributeList, [], (err, result) => {
       if (err) {
-          console.error(err.message || JSON.stringify(err));
-          return;
+        console.error(err.message || JSON.stringify(err));
+        return;
       }
       console.log('Sign-up successful', result);
-      onClose(); // Close the modal on successful sign-up
-      // Redirect user or update UI as necessary
-  });
-  
+      onSignUpSuccess(email); // Ensure this line is correctly executed
+    });
+
 };
 
   return (

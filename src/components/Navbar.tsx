@@ -3,29 +3,15 @@
 import React, { useState } from 'react';
 import About from './About';
 import '../tailwind.css';
-import LoginForm from './LoginForm';
-import SignUpForm from './SignUpForm';
+import AuthenticationManager from './AuthenticationManager';
 
 const Navbar: React.FC = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isLoginView, setIsLoginView] = useState(true);
 
-  const toggleAbout = () => {
-    setShowAbout(!showAbout);
-  };
+  const toggleAbout = () => setShowAbout(!showAbout);
+  const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
 
-  const toggleAuthModal = () => {
-    setShowAuthModal(!showAuthModal);
-  };
-
-  const switchAuthForm = () => {
-    setIsLoginView(!isLoginView);
-  };
-
-  const closeAuthModal = () => {
-    setShowAuthModal(false);
-  };
 
   return (
     <>
@@ -55,10 +41,10 @@ const Navbar: React.FC = () => {
               About
             </button>
             <button
-            onClick={toggleAuthModal}
-            className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
+              onClick={toggleAuthModal}
+              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
             >
-              Login
+              Login / Sign Up
             </button>
           </div>
 
@@ -69,16 +55,13 @@ const Navbar: React.FC = () => {
       {showAbout && (
         <About />
       )}
+
       {/* Authentication Modal */}
       {showAuthModal && (
         <div className="absolute top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-clear p-4 rounded relative">
-            {isLoginView ? (
-              <LoginForm onSwitch={switchAuthForm} onClose={closeAuthModal} />
-            ) : (
-              <SignUpForm onSwitch={switchAuthForm} onClose={closeAuthModal} />
-            )}
-            <button onClick={closeAuthModal} className="absolute top-2 right-3 mt-4 mr-4 text-gray-600 hover:text-gray-900">
+          <div className="bg-white p-4 rounded-lg">
+            <AuthenticationManager onClose={toggleAuthModal} />
+            <button onClick={toggleAuthModal} className="absolute top-0 right-0 mt-4 mr-4 text-gray-600 hover:text-gray-900">
               &times;
             </button>
           </div>
