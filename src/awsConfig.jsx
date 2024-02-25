@@ -1,4 +1,4 @@
-// awsConfig.js
+// awsConfig.tsx
 import { CognitoUserPool } from 'amazon-cognito-identity-js';
 
 const poolData = {
