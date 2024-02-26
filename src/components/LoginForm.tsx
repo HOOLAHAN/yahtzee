@@ -8,9 +8,8 @@ const LoginForm: React.FC<{ onSwitch: () => void, onClose: () => void }> = ({ on
 
   const handleSignIn = async () => {
     try {
-      await signIn({ username: email, password }); // Use context's signIn
-      console.log('login success');
-      onClose(); // Close the modal on successful login
+      await signIn({ username: email, password });
+      onClose();
     } catch (error) {
       console.error('error signing in', error);
       // Handle login errors here

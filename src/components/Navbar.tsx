@@ -18,7 +18,6 @@ const Navbar = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      console.log('signed out')
     } catch (error) {
       console.log('error signing out:', error);
     }
@@ -66,7 +65,7 @@ const Navbar = () => {
                 onClick={handleSignOut}
                 className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
               >
-                Sign Out
+                Log Out
               </button>
             )}
           </div>
