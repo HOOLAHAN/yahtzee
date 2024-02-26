@@ -3,20 +3,17 @@
 import './tailwind.css';
 import Navbar from './components/Navbar';
 import Game from './components/Game';
-import config from './aws-exports';
-import { Amplify } from 'aws-amplify';
-import { withAuthenticator } from '@aws-amplify/ui-react';
-
-Amplify.configure(config);
+import { AuthProvider } from './context/AuthContext'
 
 const App = () => {
-
   return (
-    <div className="App">
-      <Navbar />
-      <Game />
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <Navbar />
+        <Game />
+      </div>
+    </AuthProvider>
   );
 };
 
-export default withAuthenticator(App);
+export default App;
