@@ -1,6 +1,6 @@
 // Navbar.tsx
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import About from './About';
 import '../tailwind.css';
 import AuthenticationManager from './AuthenticationManager';
@@ -10,14 +10,12 @@ import { useAuth } from '../context/AuthContext';
 const Navbar = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  
-  // Destructure isUserSignedIn and signOut from useAuth
+
   const { isUserSignedIn, signOut } = useAuth();
-  
+
   const toggleAbout = () => setShowAbout(!showAbout);
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
   
-  // Use the signOut method from useAuth
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -26,8 +24,6 @@ const Navbar = () => {
       console.log('error signing out:', error);
     }
   };
-
-  console.log("User signed in state:", isUserSignedIn);
 
   return (
     <>

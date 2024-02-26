@@ -7,9 +7,9 @@ interface SignUpFormProps {
   onSignUpSuccess: (email: string) => void;
 }
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onClose, onSignUpSuccess }) => {
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
+const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) => {
+  const [username, setEmail] = useState('');
+  const [preferred_username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { signUp } = useAuth();
 
@@ -17,10 +17,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onClose, onSignUpSucc
     e.preventDefault();
 
     try {
-      await signUp({ username, password, email });
+      await signUp({ username, password, preferred_username });
       console.log('Sign-up successful');
-      onSignUpSuccess(email);
-      onClose(); 
+      onSignUpSuccess(username);
     } catch (error) {
       console.error('Error during sign-up:', error);
     }
@@ -36,7 +35,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onClose, onSignUpSucc
         <input
           id="signUpEmail"
           type="email"
-          value={email}
+          value={username}
           onChange={(e) => setEmail(e.target.value)}
           required
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -49,7 +48,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onClose, onSignUpSucc
         <input
           id="username"
           type="text"
-          value={username}
+          value={preferred_username}
           onChange={(e) => setUsername(e.target.value)}
           required
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"

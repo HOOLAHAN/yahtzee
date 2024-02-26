@@ -6,7 +6,7 @@ import { signIn as amplifySignIn } from 'aws-amplify/auth';
 type SignUpParameters = {
   username: string;
   password: string;
-  email: string;
+  preferred_username: string
 };
 
 interface AuthContextType {
@@ -14,9 +14,11 @@ interface AuthContextType {
   signIn: (signInInput: SignInInput) => Promise<void>;
   signUp: (signUpParameters: SignUpParameters) => Promise<void>;
   confirmSignUp: (confirmSignUpInput: ConfirmSignUpInput) => Promise<void>;
+  confirmEmail: ({ username, confirmationCode }: ConfirmSignUpInput) => Promise<void>;
   signOut: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -60,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signUp = async ({
     username,
     password,
-    email,
+    preferred_username,
   }: SignUpParameters) => {
     try {
       await amplifySignUp({
@@ -68,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         password,
         options: {
           userAttributes: {
-            email
+            preferred_username
           },
           autoSignIn: { enabled: true }
         }
@@ -94,6 +96,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const confirmEmail = async ({ username, confirmationCode }: ConfirmSignUpInput) => {
+    try {
+      await confirmSignUp({
+        username,
+        confirmationCode,
+      });
+      console.log("Email verification successful");
+    } catch (error) {
+      console.error("Error confirming sign up:", error);
+      throw error; 
+    }
+  };
+  
   const signOut = async () => {
     try {
       await amplifySignOut();
@@ -104,7 +119,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isUserSignedIn, signIn, signUp, confirmSignUp, signOut, checkAuthStatus }}>
+    <AuthContext.Provider value={{ isUserSignedIn, signIn, signUp, confirmSignUp, confirmEmail, signOut, checkAuthStatus }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,30 +1,22 @@
 import React, { useState } from 'react';
-import { CognitoUser } from 'amazon-cognito-identity-js';
-import { userPool } from '../awsConfig';
+import { useAuth } from '../context/AuthContext';
 
 const EmailVerificationForm: React.FC<{ userEmail: string; onVerified: () => void }> = ({ userEmail, onVerified }) => {
   const [verificationCode, setVerificationCode] = useState('');
+  const { confirmEmail } = useAuth(); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const cognitoUser = new CognitoUser({
-      Username: userEmail,
-      Pool: userPool,
-    });
-
-    console.log('userEmail: ', userEmail)
-
-    cognitoUser.confirmRegistration(verificationCode, true, (err, result) => {
-      if (err) {
-        console.error("Verification error:", err);
-        alert(err.message || JSON.stringify(err));
-        return;
-      }
-      console.log("Email verification successful:", result);
+    try {
+      await confirmEmail({ username: userEmail, confirmationCode: verificationCode });
       alert("Email verified successfully!");
       onVerified();
-    });
+    } catch (error) {
+      const e = error as Error;
+      console.error("Verification error:", e);
+      alert(e.message || JSON.stringify(e));
+    }
   };
 
   return (

@@ -15,15 +15,12 @@ const AuthenticationManager: React.FC<AuthenticationManagerProps> = ({ onClose }
     setUserEmail(email);
     setCurrentForm('verifyEmail');
   };
-  
 
   const handleLoginSuccess = () => {
-    console.log("Login successful");
     onClose();
   };
 
   const handleVerificationSuccess = () => {
-    console.log("Verification successful");
     onClose();
   };
 
