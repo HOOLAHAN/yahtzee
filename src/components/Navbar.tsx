@@ -75,9 +75,9 @@ const Navbar = () => {
       {/* Authentication Modal */}
       {showAuthModal && (
         <div className="absolute top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-4 rounded-lg">
+          <div className="relative p-4 rounded-lg">
             <AuthenticationManager onClose={toggleAuthModal} />
-            <button onClick={toggleAuthModal} className="absolute top-0 right-0 mt-4 mr-4 text-gray-600 hover:text-gray-900">
+            <button onClick={toggleAuthModal} className="absolute top-2 right-3 mt-4 mr-4 text-gray-600 hover:text-gray-900">
               &times;
             </button>
           </div>
