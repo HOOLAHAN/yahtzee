@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { userPool } from '../awsConfig';
-import { CognitoUserAttribute } from 'amazon-cognito-identity-js';
+import { useAuth } from '../context/AuthContext';
 
 interface SignUpFormProps {
   onSwitch: () => void;
@@ -12,32 +11,20 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onClose, onSignUpSucc
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const { signUp } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    
-    const attributeList = [
-        new CognitoUserAttribute({
-            Name: 'email',
-            Value: email,
-        }),
-        new CognitoUserAttribute({
-            Name: 'preferred_username',
-            Value: username,
-        }),
-    ];
 
-    // Inside SignUpForm component
-    userPool.signUp(email, password, attributeList, [], (err, result) => {
-      if (err) {
-        console.error(err.message || JSON.stringify(err));
-        return;
-      }
-      console.log('Sign-up successful', result);
-      onSignUpSuccess(email); // Ensure this line is correctly executed
-    });
-
-};
+    try {
+      await signUp({ username, password, email });
+      console.log('Sign-up successful');
+      onSignUpSuccess(email);
+      onClose(); 
+    } catch (error) {
+      console.error('Error during sign-up:', error);
+    }
+  };
 
   return (
     <form onSubmit={handleSignUp} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
