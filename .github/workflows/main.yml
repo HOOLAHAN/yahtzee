@@ -29,11 +29,19 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Generate aws-exports.js
+        run: |
+          cat <<EOF > src/aws-exports.js
+          const awsmobile = {
+            "aws_project_region": "${{ secrets.REACT_APP_AWS_REGION }}",
+            "aws_user_pools_id": "${{ secrets.REACT_APP_CLIENT_ID }}",
+            "aws_user_pools_web_client_id": "${{ secrets.REACT_APP_USER_POOL_ID }}"
+          };
+
+          export default awsmobile;
+          EOF
+
       - name: Build Project
-        env:
-          REACT_APP_AWS_REGION: ${{ secrets.REACT_APP_AWS_REGION }}
-          REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
-          REACT_APP_USER_POOL_ID: ${{ secrets.REACT_APP_USER_POOL_ID }}
         run: npm run build
 
       - name: Configure AWS Credentials
