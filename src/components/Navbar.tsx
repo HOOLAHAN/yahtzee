@@ -10,7 +10,6 @@ import { useAuth } from '../context/AuthContext';
 const Navbar = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-
   const { isUserSignedIn, signOut } = useAuth();
 
   const toggleAbout = () => setShowAbout(!showAbout);
@@ -28,41 +27,41 @@ const Navbar = () => {
   return (
     <>
       <nav className="bg-green-600 text-white p-2">
-        <div className="container mx-auto flex items-center justify-between w-full">
-          <div className="flex-none">
+        <div className="container mx-auto flex items-center justify-between">
+          <div className="flex-none w-16 h-16 sm:w-12 sm:h-12 md:w-20 md:h-20">
             <img
               src={`${process.env.PUBLIC_URL}/yahtzee_logo.png`}
               alt="Yahtzee Logo"
-              style={{ maxWidth: '70px', maxHeight: '70px' }}
+              className="w-full h-full object-contain"
             />
           </div>
 
           <div className="flex-grow text-center">
-            <h1 className="text-4xl font-semibold">Yahtzee!</h1>
+            <h1 className="text-2xl sm:text-xl md:text-4xl font-semibold">Yahtzee!</h1>
           </div>
 
           <div className="flex-none">
             <button
               onClick={toggleAbout}
-              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-4"
+              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-2"
             >
               About
             </button>
             {!isUserSignedIn ? (
               <button
                 onClick={toggleAuthModal}
-                className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-4"
+                className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
               >
-                Login / Sign Up
+                Login
               </button>
-             ) : ( 
+            ) : (
               <button
                 onClick={handleSignOut}
-                className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
+                className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
               >
                 Sign Out
               </button>
-            )} 
+            )}
           </div>
         </div>
       </nav>
