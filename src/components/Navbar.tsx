@@ -4,21 +4,35 @@ import React, { useState } from 'react';
 import About from './About';
 import '../tailwind.css';
 import AuthenticationManager from './AuthenticationManager';
+import { useAuth } from '../context/AuthContext';
 
-const Navbar: React.FC = () => {
+
+const Navbar = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-
+  
+  // Destructure isUserSignedIn and signOut from useAuth
+  const { isUserSignedIn, signOut } = useAuth();
+  
   const toggleAbout = () => setShowAbout(!showAbout);
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
+  
+  // Use the signOut method from useAuth
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      console.log('signed out')
+    } catch (error) {
+      console.log('error signing out:', error);
+    }
+  };
 
+  console.log("User signed in state:", isUserSignedIn);
 
   return (
     <>
       <nav className="bg-green-600 text-white p-2">
         <div className="container mx-auto flex items-center justify-between w-full">
-
-          {/* Logo on the left */}
           <div className="flex-none">
             <img
               src={`${process.env.PUBLIC_URL}/yahtzee_logo.png`}
@@ -27,12 +41,10 @@ const Navbar: React.FC = () => {
             />
           </div>
 
-          {/* Text in the center */}
           <div className="flex-grow text-center">
             <h1 className="text-4xl font-semibold">Yahtzee!</h1>
           </div>
 
-          {/* About button on the right */}
           <div className="flex-none">
             <button
               onClick={toggleAbout}
@@ -40,14 +52,22 @@ const Navbar: React.FC = () => {
             >
               About
             </button>
-            <button
-              onClick={toggleAuthModal}
-              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
-            >
-              Login / Sign Up
-            </button>
+            {!isUserSignedIn ? (
+              <button
+                onClick={toggleAuthModal}
+                className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-4"
+              >
+                Login / Sign Up
+              </button>
+             ) : ( 
+              <button
+                onClick={handleSignOut}
+                className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
+              >
+                Sign Out
+              </button>
+            )} 
           </div>
-
         </div>
       </nav>
 

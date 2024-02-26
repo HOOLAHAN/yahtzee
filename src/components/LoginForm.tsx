@@ -1,38 +1,26 @@
 import React, { useState } from 'react';
-import { AuthenticationDetails, CognitoUser } from 'amazon-cognito-identity-js';
-import { userPool } from '../awsConfig';
+import { useAuth } from '../context/AuthContext';
 
 const LoginForm: React.FC<{ onSwitch: () => void, onClose: () => void }> = ({ onSwitch, onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { signIn } = useAuth();
+
+  const handleSignIn = async () => {
+    try {
+      await signIn({ username: email, password }); // Use context's signIn
+      console.log('login success');
+      onClose(); // Close the modal on successful login
+    } catch (error) {
+      console.error('error signing in', error);
+      // Handle login errors here
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const authenticationData = {
-      Username: email,
-      Password: password,
-    };
-    const authenticationDetails = new AuthenticationDetails(authenticationData);
-
-    const cognitoUser = new CognitoUser({
-      Username: email,
-      Pool: userPool,
-    });
-
-    cognitoUser.authenticateUser(authenticationDetails, {
-      onSuccess: (result) => {
-        console.log('login success', result);
-        onClose(); // Close the modal on successful login
-        // Update the app's state here if needed
-      },
-      onFailure: (err) => {
-        console.error('login failure', err);
-        // Handle login errors here
-      },
-    });
+    await handleSignIn();
   };
-
 
   return (
     <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
