@@ -18,6 +18,13 @@ import { printDocument, getDieSize } from './functions/utils';
 import { useWindowSize } from './hooks/useWindowSize';
 import { handleRollDice} from './functions/handleRollDice';
 
+import { Amplify } from 'aws-amplify';
+import { withAuthenticator } from '@aws-amplify/ui-react';
+
+import config from './aws-exports';
+
+Amplify.configure(config);
+
 interface AppProps {
   initialDice?: number[];
 }
@@ -120,4 +127,4 @@ const App: React.FC<AppProps> = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   );
 };
 
-export default App;
+export default withAuthenticator(App);
