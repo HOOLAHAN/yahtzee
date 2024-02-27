@@ -9,6 +9,9 @@ import ScoreDisplay from './ScoreDisplay';
 import CategoryButtons from './CategoryButtons';
 import DiceControl from './DiceControl';
 import ScoresSection from './ScoresSection';
+import SubmitScoreButton from './SubmitScoreButton';
+import ScoresList from './ScoresList';
+
 import { calculateCurrentCategoryScore, calculateMaximumScore } from '../functions/scoreCalculator';
 import { toggleHoldDie } from '../functions/diceLogic';
 import { resetGame, startNewRound } from '../functions/gameControl';
@@ -107,7 +110,9 @@ const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       onPrintDocument={printDocument}
       isMobile={windowSize < 640}
     />
-      }
+  }
+    <SubmitScoreButton score={totalScore} />
+    <ScoresList />
     </div>
   )
 }
