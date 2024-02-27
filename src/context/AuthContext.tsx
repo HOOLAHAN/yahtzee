@@ -2,7 +2,6 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 import { getCurrentUser, signOut as amplifySignOut, signUp as amplifySignUp, confirmSignUp as amplifyConfirmSignUp, SignInInput, ConfirmSignUpInput } from 'aws-amplify/auth';
 import { signIn as amplifySignIn } from 'aws-amplify/auth';
 
-
 type SignUpParameters = {
   username: string;
   password: string;
@@ -11,6 +10,7 @@ type SignUpParameters = {
 
 interface AuthContextType {
   isUserSignedIn: boolean;
+  userDetails: any;
   signIn: (signInInput: SignInInput) => Promise<void>;
   signUp: (signUpParameters: SignUpParameters) => Promise<void>;
   confirmSignUp: (confirmSignUpInput: ConfirmSignUpInput) => Promise<void>;
@@ -18,7 +18,6 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
 }
-
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -46,10 +45,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
   
+  const [userDetails, setUserDetails] = useState<any>(null);
+
   const signIn = async ({ username, password }: SignInInput) => {
     try {
       await amplifySignIn({ username, password });
       setIsUserSignedIn(true); // Successful sign-in
+      const userInfo = await getCurrentUser();
+      setUserDetails(userInfo);
+      console.log('User signed in:', userInfo);
     } catch (error) {
       if (error === "UserAlreadyAuthenticatedException") {
         setIsUserSignedIn(true); // User is already signed in
@@ -119,7 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isUserSignedIn, signIn, signUp, confirmSignUp, confirmEmail, signOut, checkAuthStatus }}>
+    <AuthContext.Provider value={{ isUserSignedIn, signIn, userDetails, signUp, confirmSignUp, confirmEmail, signOut, checkAuthStatus }}>
       {children}
     </AuthContext.Provider>
   );
