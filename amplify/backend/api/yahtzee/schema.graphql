@@ -1,9 +1,13 @@
-# This "input" configures a global authorization rule to enable public access to
-# all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
 
-type Todo @model {
+type Score @model {
   id: ID!
-  name: String!
-  description: String
+  userId: String!
+  username: String!
+  score: Int!
+  timestamp: AWSDateTime!
+}
+
+type Mutation {
+  submitScore(userId: String!, username: String!, score: Int!): Score @aws_subscribe(mutations: ["submitScore"])
 }
