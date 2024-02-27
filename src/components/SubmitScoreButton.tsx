@@ -16,15 +16,11 @@ interface SubmitScoreButtonProps {
 
 const SubmitScoreButton: React.FC<SubmitScoreButtonProps> = ({ score }) => {
   const { userDetails } = useAuth();
-
-  if (userDetails) {
-    console.log("userId is: ", userDetails)
-  }
-  
+ 
   const handleSubmitScore = async () => {
     try {
       const userId = userDetails?.userId;
-      const username = userDetails?.signInDetails.loginId;
+      const username = userDetails?.email;
 
       if (!userId || !username || typeof score !== 'number') {
         console.error('Invalid input');

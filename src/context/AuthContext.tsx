@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { getCurrentUser, signOut as amplifySignOut, signUp as amplifySignUp, confirmSignUp as amplifyConfirmSignUp, SignInInput, ConfirmSignUpInput } from 'aws-amplify/auth';
 import { signIn as amplifySignIn } from 'aws-amplify/auth';
 import { fetchAuthSession } from 'aws-amplify/auth';
@@ -38,14 +38,26 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isUserSignedIn, setIsUserSignedIn] = useState(true);
 
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
   const checkAuthStatus = async () => {
     try {
-      await getCurrentUser();
+      const currentUser = await getCurrentUser();
       setIsUserSignedIn(true);
+      const userInfo = { 
+        userId: currentUser.username, 
+        email: currentUser.signInDetails?.loginId
+      };
+      setUserDetails(userInfo);
+      // console.log('currentUser', currentUser)
     } catch {
       setIsUserSignedIn(false);
+      setUserDetails(null); // Ensure userDetails is cleared if not signed in
     }
   };
+  
 
   const currentSession = async () => {
     try {
@@ -65,7 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsUserSignedIn(true); // Successful sign-in
       const userInfo = await getCurrentUser();
       setUserDetails(userInfo);
-      console.log('User signed in:', userInfo);
+      // console.log('User signed in:', userInfo);
       currentSession()
     } catch (error) {
       if (error === "UserAlreadyAuthenticatedException") {
