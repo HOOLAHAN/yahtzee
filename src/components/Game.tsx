@@ -17,6 +17,7 @@ import { ScoreEntry } from '../functions/types';
 import { getDieSize, printDocument } from '../functions/utils';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { handleRollDice } from '../functions/handleRollDice';
+import { useAuth} from '../context/AuthContext';
 
 const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [dice, setDice] = useState(initialDice);
@@ -31,6 +32,7 @@ const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [showScoreCard, setShowScoreCard] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [flashCategory, setFlashCategory] = useState('');
+  const { isUserSignedIn } = useAuth();
   
   const windowSize = useWindowSize();
   const dieSize = getDieSize(windowSize);
@@ -109,6 +111,7 @@ const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       isMobile={windowSize < 640}
       totalScore={totalScore}
       usedCategories={usedCategories.size}
+      isUserSignedIn={isUserSignedIn}
       />
     }
     </div>
