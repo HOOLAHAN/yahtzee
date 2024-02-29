@@ -8,7 +8,7 @@ import { AuthProvider } from './context/AuthContext'
 const App = () => {
   return (
     <AuthProvider>
-      <div className="App">
+      <div className="App bg-gray-200">
         <Navbar />
         <Game />
       </div>

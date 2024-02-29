@@ -87,7 +87,9 @@ const Navbar = () => {
 
       {/* Leaderboard Drawer */}
       {showLeaderboard && (
-        <Leaderboard />
+        <div className='bg-gray-200'>
+          <Leaderboard />
+        </div>
       )}
 
       {/* Authentication Modal */}
