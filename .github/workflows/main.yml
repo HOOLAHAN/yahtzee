@@ -48,10 +48,10 @@ jobs:
                   "passwordPolicyCharacters": []
               },
               "aws_cognito_verification_mechanisms": ["EMAIL"],
-              "aws_appsync_graphqlEndpoint": "${{ secrets.REACT_APP_SYNC_GRAPHQLENDPOINT }}", done 
+              "aws_appsync_graphqlEndpoint": "${{ secrets.REACT_APP_SYNC_GRAPHQLENDPOINT }}",
               "aws_appsync_region": "${{ secrets.REACT_APP_AWS_REGION }}",
               "aws_appsync_authenticationType": "API_KEY",
-              "aws_appsync_apiKey": "${{ secrets.REACT_APP_APPSYNC_APIKEY }}" done 
+              "aws_appsync_apiKey": "${{ secrets.REACT_APP_APPSYNC_APIKEY }}"
           };
 
           export default awsmobile;
