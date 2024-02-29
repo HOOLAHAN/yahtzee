@@ -24,7 +24,7 @@ const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score, isMobile }
   const handleSubmitScore = async () => {
     try {
       const userId = userDetails?.userId;
-      const username = userDetails?.signInDetails.loginId;
+      const username = userDetails?.preferred_username
       const scoreValue = score;
       const timestamp = new Date().toISOString();
       const id = generateUniqueId();

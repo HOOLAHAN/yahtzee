@@ -38,7 +38,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isUserSignedIn, setIsUserSignedIn] = useState(true);
   const [userDetails, setUserDetails] = useState<any>(null);
 
-  
   const checkAuthStatus = useCallback(async () => {
     try {
       const currentUser = await getCurrentUser();
@@ -137,7 +136,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const fetchAndSetUserAttributes = async () => {
     try {
       const fetchedAttributes = await fetchUserAttributes();
-      console.log('Fetched attributes:', fetchedAttributes);
       setUserDetails((prevDetails: any) => ({
         ...prevDetails,
         ...fetchedAttributes,
