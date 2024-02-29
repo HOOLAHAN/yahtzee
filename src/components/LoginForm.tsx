@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const LoginForm: React.FC<{ onSwitch: () => void, onClose: () => void }> = ({ onSwitch, onClose }) => {
-  const [email, setEmail] = useState('');
+  const [login_email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { signIn } = useAuth();
 
   const handleSignIn = async () => {
     try {
-      await signIn({ username: email, password });
+      await signIn({ username: login_email, password });
       onClose();
     } catch (error) {
       console.error('error signing in', error);
@@ -31,7 +31,7 @@ const LoginForm: React.FC<{ onSwitch: () => void, onClose: () => void }> = ({ on
         <input
           id="loginEmail"
           type="email"
-          value={email}
+          value={login_email}
           onChange={(e) => setEmail(e.target.value)}
           required
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
