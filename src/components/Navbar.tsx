@@ -35,47 +35,45 @@ const Navbar = () => {
   return (
     <>
       <nav className="bg-green-600 text-white p-2">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex-none w-16 h-16 sm:w-12 sm:h-12 md:w-20 md:h-20">
+        <div className="container mx-auto flex items-center justify-between flex-wrap">
+          <div className="flex-none mb-2 w-16 h-16 sm:w-12 sm:h-12 md:w-20 md:h-20">
             <img
               src={`${process.env.PUBLIC_URL}/yahtzee_logo.png`}
               alt="Yahtzee Logo"
               className="w-full h-full object-contain"
             />
           </div>
-
           <div className="flex-grow text-center">
-            <h1 className="text-2xl sm:text-xl md:text-4xl font-semibold">Yahtzee!</h1>
+            <h1 className="text-4xl sm:text-2xl md:text-5xl font-semibold">Yahtzee!</h1>
           </div>
-
-          <div className="flex-none">
+          <div className="flex-none w-full sm:w-auto flex justify-center sm:justify-start">
+          <button
+            onClick={toggleAbout}
+            className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-sm sm:text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-2"
+          >
+            About
+          </button>
+          <button
+            onClick={toggleLeaderboard}
+            className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-sm sm:text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-2"
+          >
+            Leaderboard
+          </button>
+          {!isUserSignedIn ? (
             <button
-              onClick={toggleAbout}
-              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-2"
+              onClick={toggleAuthModal}
+              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-sm sm:text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
             >
-              About
+              Login
             </button>
+          ) : (
             <button
-              onClick={toggleLeaderboard}
-              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-2"
+              onClick={handleSignOut}
+              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-sm sm:text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
             >
-              Leaderboard
+              Log Out
             </button>
-            {!isUserSignedIn ? (
-              <button
-                onClick={toggleAuthModal}
-                className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
-              >
-                Login
-              </button>
-            ) : (
-              <button
-                onClick={handleSignOut}
-                className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
-              >
-                Log Out
-              </button>
-            )}
+          )}
           </div>
         </div>
       </nav>
