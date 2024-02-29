@@ -12,12 +12,13 @@ const client = generateClient();
 
 interface CreateScoreButtonProps {
   score: number;
+  isMobile: boolean
 }
 function generateUniqueId(): string {
   return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
 }
 
-const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score }) => {
+const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score, isMobile }) => {
   const { userDetails } = useAuth();
  
   const handleSubmitScore = async () => {
@@ -50,10 +51,10 @@ const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score }) => {
 
   return (
     <button
-      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
       onClick={handleSubmitScore}
     >
-      Submit Score
+      {isMobile ? "Submit" : "Submit Score"}
     </button>
   );
 };
