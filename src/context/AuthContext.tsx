@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { getCurrentUser, signOut as amplifySignOut, signUp as amplifySignUp, confirmSignUp as amplifyConfirmSignUp, SignInInput, ConfirmSignUpInput } from 'aws-amplify/auth';
 import { signIn as amplifySignIn } from 'aws-amplify/auth';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 
 type SignUpParameters = {
   username: string;
@@ -47,6 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email: currentUser.signInDetails?.loginId
       };
       setUserDetails(userInfo);
+      await fetchAndSetUserAttributes();
     } catch {
       setIsUserSignedIn(false);
       setUserDetails(null); // Ensure userDetails is cleared if not signed in
@@ -63,6 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsUserSignedIn(true); // Successful sign-in
       const userInfo = await getCurrentUser();
       setUserDetails(userInfo);
+      await fetchAndSetUserAttributes();
     } catch (error) {
       if (error === "UserAlreadyAuthenticatedException") {
         setIsUserSignedIn(true); // User is already signed in
@@ -128,6 +131,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsUserSignedIn(false);
     } catch (error) {
       console.error('Error signing out:', error);
+    }
+  };
+
+  const fetchAndSetUserAttributes = async () => {
+    try {
+      const fetchedAttributes = await fetchUserAttributes();
+      console.log('Fetched attributes:', fetchedAttributes);
+      setUserDetails((prevDetails: any) => ({
+        ...prevDetails,
+        ...fetchedAttributes,
+      }));
+    } catch (error) {
+      console.error('Error fetching user attributes:', error);
     }
   };
 
