@@ -15,7 +15,7 @@ interface ScoreItem {
   score: number;
 }
 
-const ScoresList: React.FC = () => {
+const Leaderboard: React.FC = () => {
   const [scores, setScores] = useState<ScoreItem[]>([]);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const ScoresList: React.FC = () => {
 
   return (
     <div>
-      <h3>Scores List</h3>
+      <h3>High Scores</h3>
       {scores.length ? (
         <ul>
           {scores.map((score) => (
@@ -57,4 +57,4 @@ const ScoresList: React.FC = () => {
   );
 };
 
-export default ScoresList;
+export default Leaderboard;

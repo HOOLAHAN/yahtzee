@@ -10,7 +10,6 @@ import CategoryButtons from './CategoryButtons';
 import DiceControl from './DiceControl';
 import ScoresSection from './ScoresSection';
 import CreateScoreButton from './CreateScoreButton';
-import ScoresList from './ScoresList';
 
 import { calculateCurrentCategoryScore, calculateMaximumScore } from '../functions/scoreCalculator';
 import { toggleHoldDie } from '../functions/diceLogic';
@@ -112,7 +111,6 @@ const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
     />
   }
     <CreateScoreButton score={totalScore} />
-    <ScoresList />
     </div>
   )
 }

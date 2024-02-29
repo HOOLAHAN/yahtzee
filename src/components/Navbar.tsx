@@ -5,15 +5,17 @@ import About from './About';
 import '../tailwind.css';
 import AuthenticationManager from './AuthenticationManager';
 import { useAuth } from '../context/AuthContext';
-
+import Leaderboard from './Leaderboard'
 
 const Navbar = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const { isUserSignedIn, signOut } = useAuth();
 
   const toggleAbout = () => setShowAbout(!showAbout);
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
+  const toggleLeaderboard = () => setShowLeaderboard(!showLeaderboard);
   
   const handleSignOut = async () => {
     try {
@@ -53,6 +55,12 @@ const Navbar = () => {
             >
               About
             </button>
+            <button
+              onClick={toggleLeaderboard}
+              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-2"
+            >
+              Leaderboard
+            </button>
             {!isUserSignedIn ? (
               <button
                 onClick={toggleAuthModal}
@@ -75,6 +83,11 @@ const Navbar = () => {
       {/* About Drawer */}
       {showAbout && (
         <About />
+      )}
+
+      {/* Leaderboard Drawer */}
+      {showLeaderboard && (
+        <Leaderboard />
       )}
 
       {/* Authentication Modal */}
