@@ -108,6 +108,7 @@ const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       onPrintDocument={printDocument}
       isMobile={windowSize < 640}
       totalScore={totalScore}
+      usedCategories={usedCategories.size}
       />
     }
     </div>
