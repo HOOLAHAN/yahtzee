@@ -11,7 +11,7 @@ const Navbar = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const { isUserSignedIn, signOut } = useAuth();
+  const { isUserSignedIn, signOut, userDetails } = useAuth();
 
   const toggleAbout = () => setShowAbout(!showAbout);
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
@@ -46,6 +46,9 @@ const Navbar = () => {
           <div className="flex-grow text-center">
             <h1 className="text-4xl sm:text-2xl md:text-5xl font-semibold">Yahtzee!</h1>
           </div>
+          {isUserSignedIn && userDetails?.username && (
+              <span className="mr-4 text-xl">{userDetails.signInDetails.loginId}</span>
+            )}
           <div className="flex-none w-full sm:w-auto flex justify-center sm:justify-start">
           <button
             onClick={toggleAbout}
