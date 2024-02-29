@@ -35,6 +35,10 @@ const About: React.FC = () => {
         Each category can be used only once during the game. The strategy lies in deciding when to use each category based on the current roll, as optimising these decisions can significantly influence your final score.
       </p>
       <br/>
+      <p>
+        <strong>Note:</strong> Once the game is complete, if you are signed in, you have the option to submit your score to the leaderboard. This allows you to compete with other players and see where your score stands among the community. Don't miss out on the opportunity to make your mark!
+      </p>
+      <br/>
       <p>Good luck and happy rolling!</p>
     </div>
   );
