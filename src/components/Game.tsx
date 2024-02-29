@@ -9,7 +9,7 @@ import ScoreDisplay from './ScoreDisplay';
 import CategoryButtons from './CategoryButtons';
 import DiceControl from './DiceControl';
 import ScoresSection from './ScoresSection';
-import SubmitScoreButton from './SubmitScoreButton';
+import CreateScoreButton from './CreateScoreButton';
 import ScoresList from './ScoresList';
 
 import { calculateCurrentCategoryScore, calculateMaximumScore } from '../functions/scoreCalculator';
@@ -111,7 +111,7 @@ const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       isMobile={windowSize < 640}
     />
   }
-    <SubmitScoreButton score={totalScore} />
+    <CreateScoreButton score={totalScore} />
     <ScoresList />
     </div>
   )

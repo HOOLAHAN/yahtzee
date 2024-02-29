@@ -1,49 +1,51 @@
-// SubmitScoreButton.tsx
+// CreateScoreButton.tsx
 
 import React from 'react';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/api';
 import config from '../amplifyconfiguration.json';
-import { submitScore } from '../graphql/mutations';
+import { createScore } from '../graphql/mutations';
 import { useAuth } from '../context/AuthContext';
 
 Amplify.configure(config);
 const client = generateClient();
 
-interface SubmitScoreButtonProps {
+interface CreateScoreButtonProps {
   score: number;
 }
+function generateUniqueId(): string {
+  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
+}
 
-const SubmitScoreButton: React.FC<SubmitScoreButtonProps> = ({ score }) => {
+const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score }) => {
   const { userDetails } = useAuth();
  
   const handleSubmitScore = async () => {
     try {
       const userId = userDetails?.userId;
       const username = userDetails?.email;
-
-      if (!userId || !username || typeof score !== 'number') {
+      const scoreValue = score;
+      const timestamp = new Date().toISOString();
+      const id = generateUniqueId();
+  
+      if (!userId || !username || typeof scoreValue !== 'number') {
         console.error('Invalid input');
         return;
       }
-
-
-      const variables = { userId, username, score };
-      console.log('Submitting score with details:', variables);
+  
+      const input = { id, userId, username, score: scoreValue, timestamp };
   
       const result = await client.graphql({
-        query: submitScore,
-        variables: { userId, username, score },
-      });     
-
+        query: createScore,
+        variables: { input },
+      });
+  
       console.log(result);
       alert('Score submitted successfully!');
     } catch (error) {
-      const graphqlError = error as { errors: [{ message: string }] };
-      console.error('Error submitting score:', graphqlError.errors[0].message);
-      alert(`Failed to submit score. Error: ${graphqlError.errors[0].message}`);
+      console.error('Error submitting score:', error);
+      alert('Failed to submit score');
     }
-    
   };
 
   return (
@@ -56,4 +58,4 @@ const SubmitScoreButton: React.FC<SubmitScoreButtonProps> = ({ score }) => {
   );
 };
 
-export default SubmitScoreButton;
+export default CreateScoreButton;
