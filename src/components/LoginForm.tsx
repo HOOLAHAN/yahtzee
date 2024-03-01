@@ -4,18 +4,21 @@ import { useAuth } from '../context/AuthContext';
 const LoginForm: React.FC<{ onSwitch: () => void, onClose: () => void }> = ({ onSwitch, onClose }) => {
   const [login_email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const { signIn } = useAuth();
 
   const handleSignIn = async () => {
+    setError(''); 
     try {
       await signIn({ username: login_email, password });
-      onClose();
+      console.log('Sign-in successful');
+      onClose(); 
     } catch (error) {
-      console.error('error signing in', error);
-      // Handle login errors here
+      console.error('Error signing in', error);
+      setError('Failed to sign in. Please check your email and password.');
     }
   };
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await handleSignIn();
@@ -50,6 +53,7 @@ const LoginForm: React.FC<{ onSwitch: () => void, onClose: () => void }> = ({ on
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
+      {error && <div className="text-red-500 text-xs italic mb-4">{error}</div>}
       <div className="flex items-center justify-between">
         <button type="submit" className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-4">
           Login

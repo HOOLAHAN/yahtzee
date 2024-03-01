@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import Game from '../components/Game';
+import * as AuthContext from '../context/AuthContext';
 
 HTMLCanvasElement.prototype.getContext = jest.fn();
 
@@ -9,13 +10,28 @@ jest.mock('jspdf', () => {
   };
 });
 
+// Explicitly mock useAuth with jest.fn()
+jest.mock('../context/AuthContext', () => ({
+  useAuth: jest.fn(),
+}));
+
 test('initial roll count is 3', () => {
+  (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({
+    isUserSignedIn: true,
+    userDetails: { preferred_username: 'testuser' },
+  }));
+
   render(<Game />);
   const rollButton = screen.getByText(/Roll Dice/i);
   expect(rollButton).toHaveTextContent('Roll Dice (Rolls left: 3)');
 });
 
 test('score for Three of a Kind starts at 0', () => {
+  (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({
+    isUserSignedIn: true,
+    userDetails: { preferred_username: 'testuser' },
+  }));
+
   // Render the component with an initial dice array
   render(<Game initialDice={[1, 1, 2, 3, 4]} />);
 
@@ -31,6 +47,11 @@ test('score for Three of a Kind starts at 0', () => {
 });
 
 test('score for Four of a Kind starts at 0', () => {
+  (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({
+    isUserSignedIn: true,
+    userDetails: { preferred_username: 'testuser' },
+  }));
+
   // Render the component with an initial dice array
   render(<Game initialDice={[1, 1, 2, 3, 4]} />);
 
@@ -46,6 +67,11 @@ test('score for Four of a Kind starts at 0', () => {
 });
 
 test('initial Full House score starts at 0', () => {
+  (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({
+    isUserSignedIn: true,
+    userDetails: { preferred_username: 'testuser' },
+  }));
+
   // Render the component with an initial dice array
   render(<Game initialDice={[1, 1, 2, 3, 4]} />);
 
@@ -61,6 +87,11 @@ test('initial Full House score starts at 0', () => {
 });
 
 test('holding dice functionality', async () => {
+  (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({
+    isUserSignedIn: true,
+    userDetails: { preferred_username: 'testuser' },
+  }));
+
   render(<Game initialDice={[1, 2, 3, 4, 5]} />);
 
   // Simulate an initial roll
@@ -81,6 +112,11 @@ test('holding dice functionality', async () => {
 });
 
 test('calculate Full House score with invalid dice', () => {
+  (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({
+    isUserSignedIn: true,
+    userDetails: { preferred_username: 'testuser' },
+  }));
+
   // Render the component with initial dice array
   render(<Game initialDice={[1, 1, 1, 1, 1]} />);
 
@@ -96,16 +132,31 @@ test('calculate Full House score with invalid dice', () => {
 });
 
 test('calculate Small Straight score with invalid dice', () => {
+  (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({
+    isUserSignedIn: true,
+    userDetails: { preferred_username: 'testuser' },
+  }));
+
   render(<Game initialDice={[1, 1, 1, 2, 2]} />);
   expect(screen.getByText(/Small Straight: 0/)).toBeInTheDocument();
 });
 
 test('calculate Large Straight score with invalid dice', () => {
+  (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({
+    isUserSignedIn: true,
+    userDetails: { preferred_username: 'testuser' },
+  }));
+
   render(<Game initialDice={[1, 2, 3, 3, 5]} />);
   expect(screen.getByText(/Large Straight: 0/)).toBeInTheDocument();
 });
 
 test('calculate Yahtzee score with invalid dice', () => {
+  (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({
+    isUserSignedIn: true,
+    userDetails: { preferred_username: 'testuser' },
+  }));
+  
   render(<Game initialDice={[1, 1, 2, 2, 2]} />);
   expect(screen.getByText(/Yahtzee: 0/)).toBeInTheDocument();
 });
