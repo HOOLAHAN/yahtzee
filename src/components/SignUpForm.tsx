@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { validateSignUpForm, SignUpFormErrors } from '../functions/validationUtils';
 
 interface SignUpFormProps {
   onSwitch: () => void;
@@ -11,10 +12,17 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) =>
   const [username, setEmail] = useState('');
   const [preferred_username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<SignUpFormErrors>({});
   const { signUp } = useAuth();
 
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formErrors = validateSignUpForm({ username, preferred_username, password });
+
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
 
     try {
       await signUp({ username, password, preferred_username });
@@ -40,6 +48,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) =>
           required
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
+        {errors.email && <p className="text-red-500 text-xs italic">{errors.email}</p>}
       </div>
       <div className="mb-4">
         <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">
@@ -53,6 +62,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) =>
           required
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
+        {errors.preferred_username && <p className="text-red-500 text-xs italic">{errors.preferred_username}</p>}
       </div>
       <div className="mb-6">
         <label htmlFor="signUpPassword" className="block text-gray-700 text-sm font-bold mb-2">
@@ -66,6 +76,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) =>
           required
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
         />
+        {errors.password && <p className="text-red-500 text-xs italic">{errors.password}</p>}
       </div>
       <div className="flex items-center justify-between">
         <button type="submit" className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-4">
