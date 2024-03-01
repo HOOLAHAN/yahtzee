@@ -20,6 +20,8 @@ Follow [this link](http://yahtzeehub.s3-website.eu-west-2.amazonaws.com/) to vie
   - Yahtzee
   - Chance
 - Game reset functionality
+- Sign up and login with authentication
+- Leaderboard
 
 ## Prerequisites
 
