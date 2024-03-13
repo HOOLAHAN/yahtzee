@@ -8,16 +8,16 @@ const LoginForm: React.FC<{ onSwitch: () => void, onClose: () => void }> = ({ on
   const { signIn } = useAuth();
 
   const handleSignIn = async () => {
-    setError(''); 
+    setError(''); // Clear previous errors
     try {
       await signIn({ username: login_email, password });
-      console.log('Sign-in successful');
-      onClose(); 
+      onClose(); // Close the modal only upon successful sign-in
     } catch (error) {
-      console.error('Error signing in', error);
+      console.error('Error signing in:', error);
       setError('Failed to sign in. Please check your email and password.');
     }
   };
+  
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

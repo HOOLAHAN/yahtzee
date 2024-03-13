@@ -62,19 +62,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signIn = async ({ username, password }: SignInInput) => {
     try {
-      await amplifySignIn({ username, password });
-      setIsUserSignedIn(true); // Successful sign-in
+      const user = await amplifySignIn({ username, password });
+      console.log('Sign-in successful', user);
+      setIsUserSignedIn(true); // Mark user as signed in
       const userInfo = await getCurrentUser();
       setUserDetails(userInfo);
       await fetchAndSetUserAttributes();
     } catch (error) {
-      if (error === "UserAlreadyAuthenticatedException") {
-        setIsUserSignedIn(true); // User is already signed in
-      } else {
-        console.error('Error signing in:', error);
-      }
+      console.error('Error signing in:', error);
+      throw error; // Ensure this error is thrown for LoginForm to catch
     }
   };
+  
   
   const signUp = async ({
     username,
