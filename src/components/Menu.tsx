@@ -5,9 +5,12 @@ interface MenuProps {
   onClose: () => void;
   toggleAbout: () => void;
   toggleLeaderboard: () => void;
+  toggleAuthModal: () => void;
+  isUserSignedIn: boolean; 
+  handleSignOut: () => void;
 }
 
-const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderboard }) => {
+const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderboard, toggleAuthModal, isUserSignedIn, handleSignOut }) => {
   return (
     <div className={`${isOpen ? 'translate-x-0' : '-translate-x-full'} fixed left-0 top-0 z-40 h-full w-64 bg-white shadow-lg transform transition-transform duration-300`}>
       <div className="p-4">
@@ -15,6 +18,22 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderb
         <button onClick={onClose} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Close Menu</button>
         <button onClick={toggleAbout} className="mt-4 px-4 py-2 bg-green-500 text-white rounded block">About</button>
         <button onClick={toggleLeaderboard} className="mt-4 px-4 py-2 bg-red-500 text-white rounded block">Leaderboard</button>
+        {/* Authentication button */}
+        {!isUserSignedIn ? (
+          <button
+            onClick={toggleAuthModal}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded block"
+          >
+            Login
+          </button>
+        ) : (
+          <button
+            onClick={handleSignOut} // Assuming this also handles logout now
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded block"
+          >
+            Log Out
+          </button>
+        )}
       </div>
     </div>
   );

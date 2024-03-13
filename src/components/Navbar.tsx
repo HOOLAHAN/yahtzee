@@ -51,21 +51,12 @@ const Navbar = () => {
               <span className="mr-4 text-xl">{userDetails.preferred_username}</span>
             )}
           <div className="flex-none w-full sm:w-auto flex justify-center sm:justify-start">
-          {!isUserSignedIn ? (
             <button
-              onClick={toggleAuthModal}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-sm sm:text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
             >
-              Login
+              Menu
             </button>
-          ) : (
-            <button
-              onClick={handleSignOut}
-              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-sm sm:text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
-            >
-              Log Out
-            </button>
-          )}
           </div>
         </div>
       </nav>
@@ -99,7 +90,15 @@ const Navbar = () => {
       )}
 
       {/* Menu Component */}
-      <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} toggleAbout={toggleAbout} toggleLeaderboard={toggleLeaderboard} />
+      <Menu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        toggleAbout={toggleAbout}
+        toggleLeaderboard={toggleLeaderboard}
+        toggleAuthModal={toggleAuthModal}
+        isUserSignedIn={isUserSignedIn}
+        handleSignOut={handleSignOut}
+      />
     </>
   );
 };
