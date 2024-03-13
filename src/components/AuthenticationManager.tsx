@@ -24,6 +24,12 @@ const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChang
     onClose();
   };
 
+  // Function to switch to the verification form
+  const handleSwitchToVerifyEmail = (email: string) => {
+    setUserEmail(email);
+    setCurrentForm('verifyEmail');
+  };
+
   useEffect(() => {
     if(onFormChange) {
       onFormChange(currentForm);
@@ -40,6 +46,7 @@ const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChang
           onSwitch={() => setCurrentForm('login')}
           onClose={onClose}
           onSignUpSuccess={handleSignUpSuccess}
+          onSwitchToVerifyEmail={handleSwitchToVerifyEmail}
         />
       )}
       {currentForm === 'verifyEmail' && (

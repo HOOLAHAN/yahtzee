@@ -8,7 +8,7 @@ interface SignUpFormProps {
   onSignUpSuccess: (email: string) => void;
 }
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) => {
+const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: string) => void }> = ({ onSwitch, onSignUpSuccess, onSwitchToVerifyEmail }) => {
   const [username, setEmail] = useState('');
   const [preferred_username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -93,10 +93,23 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) =>
         />
         {errors.password && <p className="text-red-500 text-xs italic">{errors.password}</p>}
         {generalError && (
-          <div className="mb-4">
-            <p className="text-red-500 text-xs italic">{generalError}</p>
-          </div>
-        )}
+        <div className="mb-4">
+          {generalError && (
+            <div className="mb-4">
+              <p className="text-red-500 text-xs italic">{generalError}</p>
+              {generalError.includes("already exists") && onSwitchToVerifyEmail && (
+                <button
+                  type="button"
+                  onClick={() => onSwitchToVerifyEmail(username)}
+                  className="text-blue-500 hover:text-blue-800 text-sm"
+                >
+                  Click here to verify your email.
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       </div>
       <div className="flex items-center justify-between">
         <button type="submit" className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-4">
