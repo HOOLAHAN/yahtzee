@@ -37,3 +37,25 @@ export const listScores = /* GraphQL */ `
     }
   }
 `;
+export const listUserScores = /* GraphQL */ `
+  query ListUserScores(
+    $userId: String,
+    $limit: Int,
+    $nextToken: String
+  ) {
+    listScores(filter: {userId: {eq: $userId}}, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        userId
+        username
+        score
+        timestamp
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
