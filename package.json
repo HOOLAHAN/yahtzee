@@ -16,7 +16,7 @@
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "amazon-cognito-identity-js": "^6.3.7",
-    "aws-amplify": "^6.0.17",
+    "aws-amplify": "^6.0.20",
     "aws-sdk": "^2.1565.0",
     "graphql-tag": "^2.12.6",
     "html2canvas": "^1.4.1",
