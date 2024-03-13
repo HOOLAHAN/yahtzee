@@ -12,7 +12,7 @@ const Navbar = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const { isUserSignedIn, signOut, userDetails } = useAuth();
+  const { isUserSignedIn, signOut } = useAuth();
   const [currentForm, setCurrentForm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -62,19 +62,16 @@ const Navbar = () => {
   return (
     <>
       <nav className="bg-green-600 text-white p-2">
-        <div className="container mx-auto flex items-center justify-between flex-wrap">
+        <div className="container mx-auto flex items-center justify-between">
           <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="focus:outline-none">
-            <div className="flex-none mb-2 w-16 h-16 sm:w-12 sm:h-12 md:w-20 md:h-20 hover:scale-110 transform transition duration-200 ease-in-out">
+            <div className="w-16 h-16 sm:w-12 sm:h-12 md:w-20 md:h-20 hover:scale-110 transform transition duration-200 ease-in-out">
               <img src={`${process.env.PUBLIC_URL}/yahtzee_logo.png`} alt="Yahtzee Logo" className="w-full h-full object-contain" />
             </div>
           </button>
-          <div className="flex-grow text-center">
-            <h1 className="text-4xl sm:text-2xl md:text-5xl font-semibold">Yahtzee!</h1>
+          <div className="text-center">
+            <h1 className="text-3xl sm:text-2xl md:text-5xl font-semibold">Yahtzee!</h1>
           </div>
-          {isUserSignedIn && userDetails && (
-              <span className="mr-4 text-xl">{userDetails.preferred_username}</span>
-            )}
-          <div className="flex-none w-full sm:w-auto flex justify-center sm:justify-start">
+          <div>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-sm sm:text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"

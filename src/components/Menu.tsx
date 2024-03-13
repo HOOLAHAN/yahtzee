@@ -1,4 +1,5 @@
 // Menu.tsx
+import { useAuth } from '../context/AuthContext';
 
 interface MenuProps {
   isOpen: boolean;
@@ -11,6 +12,8 @@ interface MenuProps {
 }
 
 const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderboard, toggleAuthModal, isUserSignedIn, handleSignOut }) => {
+  const { userDetails } = useAuth();
+
   return (
     <div id="menu" className={`${isOpen ? 'translate-x-0' : 'translate-x-full'} fixed right-0 top-0 z-40 h-full w-64 bg-white shadow-lg transform transition-transform duration-300`}>
       <div className="relative p-4">
@@ -22,6 +25,9 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderb
           &times;
         </button>
         <h2 className="font-semibold text-lg">Menu</h2>
+        {isUserSignedIn && userDetails && (
+          <div className="text-l mb-4">{userDetails.preferred_username} signed in</div>
+        )}
         <button onClick={toggleAbout} className="mt-4 px-4 py-2 bg-green-500 text-white rounded block">About</button>
         <button onClick={toggleLeaderboard} className="mt-4 px-4 py-2 bg-red-500 text-white rounded block">Leaderboard</button>
         {/* Authentication button */}
