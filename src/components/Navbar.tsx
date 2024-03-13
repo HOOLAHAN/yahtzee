@@ -1,6 +1,6 @@
 // Navbar.tsx
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import About from './About';
 import '../tailwind.css';
 import AuthenticationManager from './AuthenticationManager';
@@ -16,10 +16,18 @@ const Navbar = () => {
   const [currentForm, setCurrentForm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const toggleAbout = () => setShowAbout(!showAbout);
+  const toggleAbout = () => {
+    setShowAbout(!showAbout);
+    setIsMenuOpen(false); // Close menu
+  };
+
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
-  const toggleLeaderboard = () => setShowLeaderboard(!showLeaderboard);
-  
+
+  const toggleLeaderboard = () => {
+    setShowLeaderboard(!showLeaderboard);
+    setIsMenuOpen(false); // Close menu
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -34,6 +42,22 @@ const Navbar = () => {
       toggleAuthModal();
     }
   };
+
+  // Handle outside click
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      const menuElement = document.getElementById('menu');
+      if (menuElement && !menuElement.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isMenuOpen]);
     
   return (
     <>
