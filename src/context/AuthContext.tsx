@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { getCurrentUser, signOut as amplifySignOut, signUp as amplifySignUp, confirmSignUp as amplifyConfirmSignUp, SignInInput, ConfirmSignUpInput } from 'aws-amplify/auth';
 import { signIn as amplifySignIn } from 'aws-amplify/auth';
+import { resendSignUpCode } from 'aws-amplify/auth';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 
 type SignUpParameters = {
@@ -18,6 +19,7 @@ interface AuthContextType {
   confirmEmail: ({ username, confirmationCode }: ConfirmSignUpInput) => Promise<void>;
   signOut: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
+  resendVerificationCode: (username: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -145,8 +147,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const resendVerificationCode = async (username: string) => {
+    try {
+      await resendSignUpCode({ username });
+      console.log('Resend verification code successful');
+    } catch (error) {
+      console.error('Error resending verification code:', error);
+      throw error;
+    }
+  };
+  
   return (
-    <AuthContext.Provider value={{ isUserSignedIn, signIn, userDetails, signUp, confirmSignUp, confirmEmail, signOut, checkAuthStatus }}>
+    <AuthContext.Provider value={{ isUserSignedIn, signIn, userDetails, signUp, confirmSignUp, confirmEmail, signOut, checkAuthStatus, resendVerificationCode }}>
       {children}
     </AuthContext.Provider>
   );
