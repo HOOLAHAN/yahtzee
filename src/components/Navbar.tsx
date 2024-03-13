@@ -6,6 +6,7 @@ import '../tailwind.css';
 import AuthenticationManager from './AuthenticationManager';
 import { useAuth } from '../context/AuthContext';
 import Leaderboard from './Leaderboard'
+import Menu from './Menu';
 
 const Navbar = () => {
   const [showAbout, setShowAbout] = useState(false);
@@ -13,6 +14,7 @@ const Navbar = () => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const { isUserSignedIn, signOut, userDetails } = useAuth();
   const [currentForm, setCurrentForm] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleAbout = () => setShowAbout(!showAbout);
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
@@ -37,13 +39,11 @@ const Navbar = () => {
     <>
       <nav className="bg-green-600 text-white p-2">
         <div className="container mx-auto flex items-center justify-between flex-wrap">
-          <div className="flex-none mb-2 w-16 h-16 sm:w-12 sm:h-12 md:w-20 md:h-20">
-            <img
-              src={`${process.env.PUBLIC_URL}/yahtzee_logo.png`}
-              alt="Yahtzee Logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="focus:outline-none">
+            <div className="flex-none mb-2 w-16 h-16 sm:w-12 sm:h-12 md:w-20 md:h-20 hover:scale-110 transform transition duration-200 ease-in-out">
+              <img src={`${process.env.PUBLIC_URL}/yahtzee_logo.png`} alt="Yahtzee Logo" className="w-full h-full object-contain" />
+            </div>
+          </button>
           <div className="flex-grow text-center">
             <h1 className="text-4xl sm:text-2xl md:text-5xl font-semibold">Yahtzee!</h1>
           </div>
@@ -109,6 +109,9 @@ const Navbar = () => {
           </div>
         </div>
       )}
+
+      {/* Menu Component */}
+      <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </>
   );
 };
