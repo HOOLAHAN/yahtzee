@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginForm from './LoginForm';
 import SignUpForm from './SignUpForm';
 import EmailVerificationForm from './EmailVerificationForm';
@@ -7,7 +7,7 @@ interface AuthenticationManagerProps {
   onClose: () => void;
 }
 
-const AuthenticationManager: React.FC<AuthenticationManagerProps> = ({ onClose }) => {
+const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChange?: (form: string) => void }> = ({ onClose, onFormChange }) => {
   const [userEmail, setUserEmail] = useState('');
   const [currentForm, setCurrentForm] = useState('login');
 
@@ -23,6 +23,12 @@ const AuthenticationManager: React.FC<AuthenticationManagerProps> = ({ onClose }
   const handleVerificationSuccess = () => {
     onClose();
   };
+
+  useEffect(() => {
+    if(onFormChange) {
+      onFormChange(currentForm);
+    }
+  }, [currentForm, onFormChange]);
 
   return (
     <div>

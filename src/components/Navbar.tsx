@@ -12,6 +12,7 @@ const Navbar = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const { isUserSignedIn, signOut, userDetails } = useAuth();
+  const [currentForm, setCurrentForm] = useState('');
 
   const toggleAbout = () => setShowAbout(!showAbout);
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
@@ -27,7 +28,7 @@ const Navbar = () => {
 
   // Function to handle outside click
   const handleCloseModal = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget && currentForm !== 'verifyEmail') {
       toggleAuthModal();
     }
   };
@@ -101,7 +102,7 @@ const Navbar = () => {
           onClick={handleCloseModal}
         >
           <div className="relative p-4 rounded-lg" onClick={(e) => e.stopPropagation()}>
-            <AuthenticationManager onClose={toggleAuthModal} />
+            <AuthenticationManager onClose={toggleAuthModal} onFormChange={setCurrentForm} />
             <button onClick={toggleAuthModal} className="absolute top-2 right-3 mt-4 mr-4 text-gray-600 hover:text-gray-900">
               &times;
             </button>
