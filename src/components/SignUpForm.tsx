@@ -13,6 +13,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) =>
   const [preferred_username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<SignUpFormErrors>({});
+  const [generalError, setGeneralError] = useState('');
   const { signUp } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -30,7 +31,15 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) =>
       onSignUpSuccess(username);
     } catch (error) {
       console.error('Error during sign-up:', error);
+      // Check if the error is a UsernameExistsException and set a friendly message
+      if (error instanceof Error && error.name === "UsernameExistsException") {
+        setGeneralError("An account with this email already exists. Please log in or use a different email.");
+      } else {
+        // Handle other types of errors or set a general error message
+        setGeneralError("An unexpected error occurred. Please try again later.");
+      }
     }
+    
   };
 
   return (
@@ -44,7 +53,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) =>
           id="signUpEmail"
           type="email"
           value={username}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setGeneralError('');
+          }}
           required
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
@@ -58,7 +70,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) =>
           id="username"
           type="text"
           value={preferred_username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            setGeneralError('');
+          }}
           required
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
@@ -72,11 +87,16 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch, onSignUpSuccess }) =>
           id="signUpPassword"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value) }
           required
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
         />
         {errors.password && <p className="text-red-500 text-xs italic">{errors.password}</p>}
+        {generalError && (
+          <div className="mb-4">
+            <p className="text-red-500 text-xs italic">{generalError}</p>
+          </div>
+        )}
       </div>
       <div className="flex items-center justify-between">
         <button type="submit" className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-4">
