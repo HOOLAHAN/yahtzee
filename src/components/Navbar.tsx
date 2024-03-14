@@ -97,7 +97,7 @@ const Navbar = () => {
 
       {/* Leaderboard Drawer */}
       {showLeaderboard && (
-        <div className='bg-gray-200'>
+        <div className='bg-gray-200 mx-5'>
           <Leaderboard showUserScores={showUserScores}/>
         </div>
       )}
