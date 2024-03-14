@@ -34,11 +34,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
 
     loadScores();
   }, [showUserScores, userDetails]);
-  
 
+  const heading = showUserScores ? 'My Scores' : 'High Scores';
+  
   return (
     <div className="max-w-xl mx-auto">
-      <h3 className="text-2xl font-bold text-center m-4">High Scores</h3>
+      <h3 className="text-2xl font-bold text-center m-4">{heading}</h3>
       {scores.length ? (
         <ul className="bg-white shadow overflow-hidden rounded-md">
           {scores.map((score, index) => (
