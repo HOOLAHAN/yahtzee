@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await fetchAndSetUserAttributes();
     } catch {
       setIsUserSignedIn(false);
-      setUserDetails(null); // Ensure userDetails is cleared if not signed in
+      setUserDetails(null);
     }
   }, []);
   
@@ -66,16 +66,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const user = await amplifySignIn({ username, password });
       console.log('Sign-in successful', user);
-      setIsUserSignedIn(true); // Mark user as signed in
-      const userInfo = await getCurrentUser();
-      setUserDetails(userInfo);
-      await fetchAndSetUserAttributes();
+      const fetchedAttributes = await fetchUserAttributes();
+      const isEmailVerified = fetchedAttributes.email_verified === 'true';
+  
+      if (!isEmailVerified) {
+        throw new Error('Please verify your email to continue.');
+      }
+  
+      setIsUserSignedIn(true);
+      setUserDetails(fetchedAttributes);
     } catch (error) {
-      console.error('Error signing in:', error);
-      throw error; // Ensure this error is thrown for LoginForm to catch
+      console.error('Error during sign in or fetching user attributes:', error);
+      throw error; 
     }
   };
-  
   
   const signUp = async ({
     username,
