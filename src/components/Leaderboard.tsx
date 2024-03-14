@@ -1,44 +1,23 @@
 // Leaderboard.tsx
 
 import React, { useEffect, useState } from 'react';
-import { Amplify } from 'aws-amplify';
-import { generateClient } from 'aws-amplify/api';
-import config from '../amplifyconfiguration.json';
-import { listScores } from '../graphql/queries';
-
-Amplify.configure(config);
-const client = generateClient();
-
-interface ScoreItem {
-  id: string;
-  username: string;
-  score: number;
-}
+import { fetchScores, ScoreItem } from '../functions/scoreboardUtils';
 
 const Leaderboard: React.FC = () => {
   const [scores, setScores] = useState<ScoreItem[]>([]);
 
   useEffect(() => {
-    const fetchScores = async () => {
+    const loadScores = async () => {
       try {
-        const result = await client.graphql({
-          query: listScores,
-        });
-        if ('data' in result && result.data && result.data.listScores && result.data.listScores.items) {
-          const sortedScores: ScoreItem[] = result.data.listScores.items
-            .sort((a: ScoreItem, b: ScoreItem) => b.score - a.score)
-            .slice(0, 10);
-          setScores(sortedScores);
-        } else {
-          throw new Error('Failed to fetch scores.');
-        }
+        const fetchedScores = await fetchScores();
+        setScores(fetchedScores);
       } catch (error) {
         console.error('Error fetching scores:', error);
       }
     };
-  
-    fetchScores();
-  }, []);  
+
+    loadScores();
+  }, []);
 
   return (
     <div className="max-w-xl mx-auto">
