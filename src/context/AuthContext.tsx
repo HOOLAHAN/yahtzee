@@ -3,6 +3,7 @@ import { getCurrentUser, signOut as amplifySignOut, signUp as amplifySignUp, con
 import { signIn as amplifySignIn } from 'aws-amplify/auth';
 import { resendSignUpCode } from 'aws-amplify/auth';
 import { fetchUserAttributes } from 'aws-amplify/auth';
+import { deleteUser as amplifyDeleteUser} from 'aws-amplify/auth';
 
 type SignUpParameters = {
   username: string;
@@ -20,6 +21,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
   resendVerificationCode: (username: string) => Promise<void>;
+  deleteUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -155,9 +157,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw error;
     }
   };
+
+  async function deleteUser() {
+    try {
+      await amplifyDeleteUser();
+      await signOut();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error; 
+    }
+  }
   
   return (
-    <AuthContext.Provider value={{ isUserSignedIn, signIn, userDetails, signUp, confirmSignUp, confirmEmail, signOut, checkAuthStatus, resendVerificationCode }}>
+    <AuthContext.Provider value={{ isUserSignedIn, signIn, userDetails, signUp, confirmSignUp, confirmEmail, signOut, checkAuthStatus, resendVerificationCode, deleteUser }}>
       {children}
     </AuthContext.Provider>
   );
