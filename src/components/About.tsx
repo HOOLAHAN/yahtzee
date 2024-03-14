@@ -2,9 +2,20 @@
 
 import React from 'react';
 
-const About: React.FC = () => {
+interface AboutProps {
+  onClose: () => void; // Adding onClose prop
+}
+
+const About: React.FC<AboutProps> = ({ onClose }) => {
   return (
-    <div className="bg-white p-4 h-full overflow-y-auto">
+    <div className="bg-white p-4 h-full overflow-y-auto relative">
+      <button
+        onClick={onClose}
+        className="absolute top-0 right-0 mt-4 mr-4 text-xl text-gray-800 hover:text-gray-600"
+        aria-label="Close"
+      >
+        &times;
+      </button>
       <h2 className="text-2xl font-semibold mb-2">About Yahtzee</h2>
       <p>
         Yahtzee is a classic dice game played with five six-sided dice.

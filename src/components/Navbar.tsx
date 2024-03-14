@@ -92,7 +92,7 @@ const Navbar = () => {
 
       {/* About Drawer */}
       {showAbout && (
-        <About />
+        <About onClose={toggleAbout} />
       )}
 
       {/* Leaderboard Drawer */}
