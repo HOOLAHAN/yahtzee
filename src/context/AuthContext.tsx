@@ -75,6 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   
       setIsUserSignedIn(true);
       setUserDetails(fetchedAttributes);
+      checkAuthStatus()
     } catch (error) {
       console.error('Error during sign in or fetching user attributes:', error);
       throw error; 
