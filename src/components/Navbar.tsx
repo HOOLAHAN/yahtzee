@@ -13,11 +13,10 @@ const Navbar = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { isUserSignedIn, signOut } = useAuth();
-  const [currentForm, setCurrentForm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const [showUserScores, setShowUserScores] = useState(false);
+  const [leaderboardDisplay, setLeaderboardDisplay] = useState('closed');
   const [showSettings, setShowSettings] = useState(false);
+  const [currentForm, setCurrentForm] = useState('');
 
   const toggleSettings = () => {
     if (!showSettings) {
@@ -29,7 +28,6 @@ const Navbar = () => {
     }
   };
   
-
   const toggleAbout = () => {
     setShowAbout(!showAbout);
     setIsMenuOpen(false);
@@ -38,14 +36,16 @@ const Navbar = () => {
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
 
   const toggleLeaderboard = () => {
-    setShowLeaderboard(true); 
-    setShowUserScores(false);
-    setIsMenuOpen(false); 
+    setLeaderboardDisplay(prevState =>
+      prevState === 'allScores' ? 'closed' : 'allScores'
+    );
+    setIsMenuOpen(false);
   };
 
   const toggleUserScores = () => {
-    setShowLeaderboard(!showLeaderboard || !showUserScores);
-    setShowUserScores(!showUserScores);
+    setLeaderboardDisplay(prevState =>
+      prevState === 'userScores' ? 'closed' : 'userScores'
+    );
     setIsMenuOpen(false);
   };
 
@@ -109,9 +109,9 @@ const Navbar = () => {
       )}
 
       {/* Leaderboard Drawer */}
-      {showLeaderboard && (
+      {leaderboardDisplay !== 'closed' && (
         <div className='bg-gray-200 mx-5'>
-          <Leaderboard showUserScores={showUserScores}/>
+          <Leaderboard showUserScores={leaderboardDisplay === 'userScores'}/>
         </div>
       )}
 

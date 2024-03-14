@@ -39,7 +39,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [isUserSignedIn, setIsUserSignedIn] = useState(true);
+  const [isUserSignedIn, setIsUserSignedIn] = useState(false);
   const [userDetails, setUserDetails] = useState<any>(null);
 
   const checkAuthStatus = useCallback(async () => {
