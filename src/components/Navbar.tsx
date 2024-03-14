@@ -11,21 +11,29 @@ import Menu from './Menu';
 const Navbar = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const { isUserSignedIn, signOut } = useAuth();
   const [currentForm, setCurrentForm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showUserScores, setShowUserScores] = useState(false);
 
   const toggleAbout = () => {
     setShowAbout(!showAbout);
-    setIsMenuOpen(false); // Close menu
+    setIsMenuOpen(false);
   };
 
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
 
   const toggleLeaderboard = () => {
-    setShowLeaderboard(!showLeaderboard);
-    setIsMenuOpen(false); // Close menu
+    setShowLeaderboard(true); 
+    setShowUserScores(false);
+    setIsMenuOpen(false); 
+  };
+
+  const toggleUserScores = () => {
+    setShowLeaderboard(!showLeaderboard || !showUserScores);
+    setShowUserScores(!showUserScores);
+    setIsMenuOpen(false);
   };
 
   const handleSignOut = async () => {
@@ -90,7 +98,7 @@ const Navbar = () => {
       {/* Leaderboard Drawer */}
       {showLeaderboard && (
         <div className='bg-gray-200'>
-          <Leaderboard />
+          <Leaderboard showUserScores={showUserScores}/>
         </div>
       )}
 
@@ -115,10 +123,11 @@ const Navbar = () => {
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
         toggleAbout={toggleAbout}
-        toggleLeaderboard={toggleLeaderboard}
         toggleAuthModal={toggleAuthModal}
         isUserSignedIn={isUserSignedIn}
         handleSignOut={handleSignOut}
+        toggleLeaderboard={toggleLeaderboard}
+        toggleUserScores={toggleUserScores}
       />
     </>
   );

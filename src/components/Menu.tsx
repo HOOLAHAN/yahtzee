@@ -5,13 +5,14 @@ interface MenuProps {
   isOpen: boolean;
   onClose: () => void;
   toggleAbout: () => void;
-  toggleLeaderboard: () => void;
   toggleAuthModal: () => void;
   isUserSignedIn: boolean; 
   handleSignOut: () => void;
+  toggleLeaderboard: () => void;
+  toggleUserScores: () => void;
 }
 
-const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderboard, toggleAuthModal, isUserSignedIn, handleSignOut }) => {
+const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderboard, toggleAuthModal, isUserSignedIn, handleSignOut, toggleUserScores }) => {
   const { userDetails } = useAuth();
 
   return (
@@ -30,6 +31,9 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderb
         )}
         <button onClick={toggleAbout} className="mt-4 px-4 py-2 bg-green-500 text-white rounded block">About</button>
         <button onClick={toggleLeaderboard} className="mt-4 px-4 py-2 bg-red-500 text-white rounded block">Leaderboard</button>
+        {isUserSignedIn && (
+          <button onClick={toggleUserScores} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded block">My Scores</button>
+        )}
         {/* Authentication button */}
         {!isUserSignedIn ? (
           <button

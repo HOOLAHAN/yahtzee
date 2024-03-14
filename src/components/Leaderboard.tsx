@@ -1,23 +1,40 @@
 // Leaderboard.tsx
 
 import React, { useEffect, useState } from 'react';
-import { fetchScores, ScoreItem } from '../functions/scoreboardUtils';
+import { fetchScores, ScoreItem, fetchUserScores } from '../functions/scoreboardUtils';
+import { useAuth } from '../context/AuthContext'; 
 
-const Leaderboard: React.FC = () => {
+interface LeaderboardProps {
+  showUserScores: boolean;
+}
+
+const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
   const [scores, setScores] = useState<ScoreItem[]>([]);
+  const { userDetails } = useAuth();
 
   useEffect(() => {
     const loadScores = async () => {
       try {
-        const fetchedScores = await fetchScores();
+        let fetchedScores = [];
+        if (showUserScores && userDetails) {
+          fetchedScores = await fetchUserScores(userDetails.userId);
+        } else {
+          fetchedScores = await fetchScores();
+        }
         setScores(fetchedScores);
       } catch (error) {
         console.error('Error fetching scores:', error);
       }
     };
 
+    if (showUserScores && !userDetails) {
+      console.error('User details not available for fetching user scores');
+      return;
+    }
+
     loadScores();
-  }, []);
+  }, [showUserScores, userDetails]);
+  
 
   return (
     <div className="max-w-xl mx-auto">
