@@ -7,6 +7,7 @@ import AuthenticationManager from './AuthenticationManager';
 import { useAuth } from '../context/AuthContext';
 import Leaderboard from './Leaderboard'
 import Menu from './Menu';
+import Settings from './Settings'
 
 const Navbar = () => {
   const [showAbout, setShowAbout] = useState(false);
@@ -16,6 +17,18 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showUserScores, setShowUserScores] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const toggleSettings = () => {
+    if (!showSettings) {
+      setShowSettings(true);
+      setIsMenuOpen(false);
+    } else {
+      setShowSettings(false);
+      setIsMenuOpen(true);
+    }
+  };
+  
 
   const toggleAbout = () => {
     setShowAbout(!showAbout);
@@ -128,7 +141,13 @@ const Navbar = () => {
         handleSignOut={handleSignOut}
         toggleLeaderboard={toggleLeaderboard}
         toggleUserScores={toggleUserScores}
+        toggleSettings={toggleSettings}
       />
+
+      {/* Settings Component */}
+      {showSettings && (
+        <Settings onClose={toggleSettings} />
+      )}
     </>
   );
 };

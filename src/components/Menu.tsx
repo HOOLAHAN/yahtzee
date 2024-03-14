@@ -10,9 +10,10 @@ interface MenuProps {
   handleSignOut: () => void;
   toggleLeaderboard: () => void;
   toggleUserScores: () => void;
+  toggleSettings?: () => void; 
 }
 
-const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderboard, toggleAuthModal, isUserSignedIn, handleSignOut, toggleUserScores }) => {
+const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderboard, toggleAuthModal, isUserSignedIn, handleSignOut, toggleUserScores, toggleSettings }) => {
   const { userDetails } = useAuth();
 
   return (
@@ -33,19 +34,23 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderb
         <button onClick={toggleLeaderboard} className="mt-4 px-4 py-2 bg-red-500 text-white rounded block">Leaderboard</button>
         {isUserSignedIn && (
           <button onClick={toggleUserScores} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded block">My Scores</button>
+          
+        )}
+        {isUserSignedIn && (
+          <button onClick={toggleSettings} className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded block">Settings</button>          
         )}
         {/* Authentication button */}
         {!isUserSignedIn ? (
           <button
             onClick={toggleAuthModal}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded block"
+            className="mt-4 px-4 py-2 bg-purple-600 text-white rounded block"
           >
             Login
           </button>
         ) : (
           <button
             onClick={handleSignOut}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded block"
+            className="mt-4 px-4 py-2 bg-purple-600 text-white rounded block"
           >
             Log Out
           </button>
