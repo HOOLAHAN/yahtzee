@@ -27,7 +27,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const handleRequestResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await resetUserPassword(resetEmail); // Adjusted for your context
+      await resetUserPassword(resetEmail);
       setShowResetPassword(true);
     } catch (error) {
       console.error('Error requesting password reset:', error);
@@ -40,7 +40,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     try {
       await confirmUserPasswordReset(resetEmail, confirmationCode, newPassword);
       alert('Password has been reset successfully');
-      // Optionally, close settings or clear form
+      onClose();
     } catch (error) {
       console.error('Error resetting password:', error);
       alert('Failed to reset password');
