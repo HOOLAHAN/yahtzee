@@ -115,7 +115,7 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
         <button type="submit" className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-4">
           Sign Up
         </button>
-        <button type="button" onClick={onSwitch} className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
+        <button type="button" onClick={onSwitch} className="text-blue-500 hover:text-blue-800 text-sm cursor-pointer" >
           Already have an account? Login
         </button>
       </div>
