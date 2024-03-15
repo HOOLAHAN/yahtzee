@@ -9,12 +9,44 @@ interface SettingsProps {
 
 const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-  const { deleteUser } = useAuth();
+  const [newPassword, setNewPassword] = useState('');
+  const [resetEmail, setResetEmail] = useState('');
+  const [confirmationCode, setConfirmationCode] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const {
+    deleteUser,
+    resetUserPassword, 
+    confirmUserPasswordReset, 
+  } = useAuth();
 
   const handleDeleteAccount = async () => {
     await deleteUser();
     onClose();
   };
+
+  const handleRequestResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await resetUserPassword(resetEmail); // Adjusted for your context
+      setShowResetPassword(true);
+    } catch (error) {
+      console.error('Error requesting password reset:', error);
+      alert('Failed to send reset code');
+    }
+  };
+
+  const handleConfirmResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await confirmUserPasswordReset(resetEmail, confirmationCode, newPassword);
+      alert('Password has been reset successfully');
+      // Optionally, close settings or clear form
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      alert('Failed to reset password');
+    }
+  };
+
   return (
     <div className="fixed right-0 top-0 z-50 h-full w-64 bg-white shadow-lg transform transition-transform duration-300">
       <div className="relative p-4">
@@ -25,34 +57,86 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         >
           &times;
         </button>
-        <h2 className="font-semibold text-lg">Settings</h2>
-        {/* Button to initiate the delete account process */}
-        {!showConfirmDelete && (
-          <button
-            onClick={() => setShowConfirmDelete(true)}
-            className="mt-4 px-4 py-2 bg-red-500 text-white rounded block"
-          >
-            Delete Account
-          </button>
-        )}
-        {/* Confirmation prompt */}
-        {showConfirmDelete && (
-          <div>
-            <p>Are you sure you want to delete your account? This cannot be undone.</p>
+        <h2 className="font-semibold text-lg mb-4">Settings</h2>
+        {/* Password reset request form */}
+        {!showConfirmDelete && !showResetPassword && (
+          <form onSubmit={handleRequestResetPassword} className="space-y-4 mt-4">
+            <h3 className="font-semibold">Reset Password</h3>
+            <input
+              className="w-full p-2 border border-gray-300 rounded"
+              type="email"
+              placeholder="Email"
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              required
+            />
             <button
-              onClick={handleDeleteAccount}
-              className="mt-2 px-4 py-2 bg-red-600 text-white rounded"
+              type="submit"
+              className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
             >
-              Confirm
+              Send Reset Code
             </button>
-            <button
-              onClick={() => setShowConfirmDelete(false)}
-              className="mt-2 ml-2 px-4 py-2 bg-gray-500 text-white rounded"
-            >
-              Cancel
-            </button>
-          </div>
+          </form>
         )}
+        {/* Confirm reset password form */}
+        {showResetPassword && (
+          <form onSubmit={handleConfirmResetPassword} className="space-y-4 mt-4">
+            <h3 className="font-semibold">Enter Confirmation Code</h3>
+            <input
+              className="w-full p-2 border border-gray-300 rounded"
+              type="text"
+              placeholder="Confirmation Code"
+              value={confirmationCode}
+              onChange={(e) => setConfirmationCode(e.target.value)}
+              required
+            />
+            <h3 className="font-semibold">Enter New Password</h3>
+            <input
+              className="w-full p-2 border border-gray-300 rounded"
+              type="password"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+            <button
+              type="submit"
+              className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Reset Password
+            </button>
+          </form>
+        )}
+        {/* Delete account button and confirmation */}
+        <div className="mt-6">
+          <h3 className="font-semibold mb-4">Delete Account</h3>
+          {!showConfirmDelete ? (
+            <button
+              onClick={() => setShowConfirmDelete(true)}
+              className="w-full p-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Delete Account
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <p>Are you sure you want to delete your account? This cannot be undone.</p>
+              <div className="flex justify-between">
+                <button
+                  onClick={handleDeleteAccount}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setShowConfirmDelete(false)}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -4,6 +4,8 @@ import { signIn as amplifySignIn } from 'aws-amplify/auth';
 import { resendSignUpCode } from 'aws-amplify/auth';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import { deleteUser as amplifyDeleteUser} from 'aws-amplify/auth';
+import { resetPassword, confirmResetPassword, updatePassword } from 'aws-amplify/auth';
+
 
 type SignUpParameters = {
   username: string;
@@ -22,6 +24,9 @@ interface AuthContextType {
   checkAuthStatus: () => Promise<void>;
   resendVerificationCode: (username: string) => Promise<void>;
   deleteUser: () => Promise<void>;
+  resetUserPassword: (username: string) => Promise<void>;
+  confirmUserPasswordReset: (username: string, code: string, newPassword: string) => Promise<void>;
+  updateUserPassword: (oldPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -172,9 +177,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw error; 
     }
   }
+
+  const resetUserPassword = async (username: string) => {
+    try {
+      const output = await resetPassword({ username });
+      // Handle the next steps based on the output if needed
+      console.log(output);
+    } catch (error) {
+      console.error('Error resetting password:', error);
+    }
+  };
+
+  const confirmUserPasswordReset = async (username: string, code: string, newPassword: string) => {
+    try {
+      await confirmResetPassword({ username, confirmationCode: code, newPassword });
+      console.log('Password reset successfully.');
+    } catch (error) {
+      console.error('Error confirming password reset:', error);
+    }
+  };
+
+  const updateUserPassword = async (oldPassword: string, newPassword: string) => {
+    try {
+      await updatePassword({ oldPassword, newPassword });
+      console.log('Password updated successfully.');
+    } catch (error) {
+      console.error('Error updating password:', error);
+    }
+  };
   
   return (
-    <AuthContext.Provider value={{ isUserSignedIn, signIn, userDetails, signUp, confirmSignUp, confirmEmail, signOut, checkAuthStatus, resendVerificationCode, deleteUser }}>
+    <AuthContext.Provider value={{ isUserSignedIn, signIn, userDetails, signUp, confirmSignUp, confirmEmail, signOut, checkAuthStatus, resendVerificationCode, deleteUser, resetUserPassword, confirmUserPasswordReset, updateUserPassword }}>
       {children}
     </AuthContext.Provider>
   );
