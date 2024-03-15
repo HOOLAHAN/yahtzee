@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchScores, ScoreItem, fetchUserScores } from '../functions/scoreboardUtils';
 import { useAuth } from '../context/AuthContext'; 
+import { useLeaderboardRefresh } from '../context/LeaderboardRefreshContext';
 
 interface LeaderboardProps {
   showUserScores: boolean;
@@ -11,6 +12,7 @@ interface LeaderboardProps {
 const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
   const [scores, setScores] = useState<ScoreItem[]>([]);
   const { userDetails } = useAuth();
+  const { refreshLeaderboard } = useLeaderboardRefresh();
 
   useEffect(() => {
     const loadScores = async () => {
@@ -33,7 +35,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
     }
 
     loadScores();
-  }, [showUserScores, userDetails]);
+  }, [showUserScores, userDetails, refreshLeaderboard]);
 
   const heading = showUserScores ? 'My Scores' : 'High Scores';
   
