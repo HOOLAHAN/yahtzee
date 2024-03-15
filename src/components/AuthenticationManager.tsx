@@ -39,7 +39,7 @@ const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChang
   return (
     <div>
       {currentForm === 'login' && (
-        <LoginForm onSwitch={() => setCurrentForm('signup')} onClose={handleLoginSuccess} />
+        <LoginForm onSwitch={() => setCurrentForm('signup')} onClose={handleLoginSuccess} onSwitchToVerifyEmail={() => setCurrentForm('verifyEmail')}/>
       )}
       {currentForm === 'signup' && (
         <SignUpForm

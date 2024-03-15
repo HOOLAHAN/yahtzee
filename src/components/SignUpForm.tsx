@@ -33,7 +33,7 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
       console.error('Error during sign-up:', error);
       // Check if the error is a UsernameExistsException and set a friendly message
       if (error instanceof Error && error.name === "UsernameExistsException") {
-        setGeneralError("An account with this email already exists. Please log in or use a different email.");
+        setGeneralError("An account with this email already exists.");
       } else {
         // Handle other types of errors or set a general error message
         setGeneralError("An unexpected error occurred. Please try again later.");
@@ -89,19 +89,19 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
           value={password}
           onChange={(e) => setPassword(e.target.value) }
           required
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-2 leading-tight focus:outline-none focus:shadow-outline"
         />
-        {errors.password && <p className="text-red-500 text-xs italic">{errors.password}</p>}
+        {errors.password && <p className="text-red-500 text-xs italic mb-2">{errors.password}</p>}
         {generalError && (
-        <div className="mb-4">
+        <div className="mb-2">
           {generalError && (
-            <div className="mb-4">
+            <div className="mb-2">
               <p className="text-red-500 text-xs italic">{generalError}</p>
               {generalError.includes("already exists") && onSwitchToVerifyEmail && (
                 <button
                   type="button"
                   onClick={() => onSwitchToVerifyEmail(username)}
-                  className="text-blue-500 hover:text-blue-800 text-sm"
+                  className="text-blue-500 hover:text-blue-800 text-sm font-bold"
                 >
                   Click here to verify your email.
                 </button>
