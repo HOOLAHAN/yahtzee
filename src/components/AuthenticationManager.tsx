@@ -21,7 +21,7 @@ const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChang
   };
 
   const handleVerificationSuccess = () => {
-    onClose();
+    setCurrentForm('login');
   };
 
   // Function to switch to the verification form
