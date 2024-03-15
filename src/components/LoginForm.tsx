@@ -22,17 +22,21 @@ const LoginForm: React.FC<{
       onClose(); 
     } catch (error) {
       console.error('Error signing in:', error);
-      if (error instanceof Error) {
-        if (error.name === "NotAuthorizedException") {
+      if (error instanceof Error && error.name === "NotAuthorizedException") {
+        // Parse the error message to determine the specific NotAuthorizedException
+        if (error.message.includes("Incorrect username or password.")) {
+          setError('Incorrect username or password.');
+        } else if (error.message.includes("Unauthenticated access is not supported for this identity pool.")) {
           setError('Your account requires verification.');
         } else {
-          setError('Failed to sign in. Please check your email and password.');
+          setError(error.message); // For any other NotAuthorizedException messages
         }
       } else {
         setError('An unexpected error occurred. Please try again.');
       }
     }
   };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
