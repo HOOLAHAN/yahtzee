@@ -10,13 +10,13 @@ interface SettingsProps {
 const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [newPassword, setNewPassword] = useState('');
-  const [resetEmail, setResetEmail] = useState('');
   const [confirmationCode, setConfirmationCode] = useState('');
   const [showResetPassword, setShowResetPassword] = useState(false);
   const {
     deleteUser,
     resetUserPassword, 
-    confirmUserPasswordReset, 
+    confirmUserPasswordReset,
+    userDetails
   } = useAuth();
 
   const handleDeleteAccount = async () => {
@@ -24,10 +24,9 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     onClose();
   };
 
-  const handleRequestResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRequestResetPassword = async () => {
     try {
-      await resetUserPassword(resetEmail);
+      await resetUserPassword(userDetails.email);
       setShowResetPassword(true);
     } catch (error) {
       console.error('Error requesting password reset:', error);
@@ -38,7 +37,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const handleConfirmResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await confirmUserPasswordReset(resetEmail, confirmationCode, newPassword);
+      await confirmUserPasswordReset(userDetails.email, confirmationCode, newPassword);
       alert('Password has been reset successfully');
       onClose();
     } catch (error) {
@@ -58,25 +57,20 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           &times;
         </button>
         <h2 className="font-semibold text-lg mb-4">Settings</h2>
+        <h3 className="font-semibold text-md mb-2">Account Details:</h3>
+        <h3 className="text-sm mb-2">Username - {userDetails.preferred_username}</h3>
+        <h3 className="text-sm mb-2">Email - {userDetails.email}</h3>
         {/* Password reset request form */}
         {!showConfirmDelete && !showResetPassword && (
-          <form onSubmit={handleRequestResetPassword} className="space-y-4 mt-4">
-            <h3 className="font-semibold">Reset Password</h3>
-            <input
-              className="w-full p-2 border border-gray-300 rounded"
-              type="email"
-              placeholder="Email"
-              value={resetEmail}
-              onChange={(e) => setResetEmail(e.target.value)}
-              required
-            />
+          <div className="mt-4">
+            <h3 className="font-semibold">Reset Password:</h3>
             <button
-              type="submit"
+              onClick={handleRequestResetPassword}
               className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
             >
               Send Reset Code
             </button>
-          </form>
+          </div>
         )}
         {/* Confirm reset password form */}
         {showResetPassword && (
@@ -109,7 +103,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         )}
         {/* Delete account button and confirmation */}
         <div className="mt-6">
-          <h3 className="font-semibold mb-4">Delete Account</h3>
+          <h3 className="font-semibold mb-4">Delete Account:</h3>
           {!showConfirmDelete ? (
             <button
               onClick={() => setShowConfirmDelete(true)}
