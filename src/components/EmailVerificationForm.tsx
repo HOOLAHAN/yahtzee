@@ -23,6 +23,10 @@ const EmailVerificationForm: React.FC<{ userEmail: string; onVerified: () => voi
   }; 
 
   const handleResendCode = async () => {
+    if (!userEmail) {
+      setErrorMessage("Email address is missing. Please ensure you've entered your email.");
+      return;
+    }
     await resendVerificationCode(userEmail);
   };
 

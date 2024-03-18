@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 const LoginForm: React.FC<{
   onSwitch: () => void;
   onClose: () => void;
-  onSwitchToVerifyEmail?: () => void;
+  onSwitchToVerifyEmail?: (email: string) => void
 }> = ({ onSwitch, onClose, onSwitchToVerifyEmail }) => {
   const [loginEmail, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -158,7 +158,7 @@ const LoginForm: React.FC<{
         {error && <p className="text-red-500 text-xs italic mt-2">{error}</p>}
         {error === 'Your account requires verification.' && onSwitchToVerifyEmail && (
         <button
-          onClick={onSwitchToVerifyEmail}
+          onClick={() => onSwitchToVerifyEmail(loginEmail)}
           className="mt-4 text-blue-500 hover:text-blue-800 text-sm cursor-pointer" 
         >
           Click here to verify your email.

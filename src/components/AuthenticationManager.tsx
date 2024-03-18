@@ -39,7 +39,11 @@ const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChang
   return (
     <div>
       {currentForm === 'login' && (
-        <LoginForm onSwitch={() => setCurrentForm('signup')} onClose={handleLoginSuccess} onSwitchToVerifyEmail={() => setCurrentForm('verifyEmail')}/>
+        <LoginForm 
+          onSwitch={() => setCurrentForm('signup')} 
+          onClose={handleLoginSuccess} 
+          onSwitchToVerifyEmail={handleSwitchToVerifyEmail}
+        />
       )}
       {currentForm === 'signup' && (
         <SignUpForm
@@ -50,7 +54,10 @@ const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChang
         />
       )}
       {currentForm === 'verifyEmail' && (
-        <EmailVerificationForm userEmail={userEmail} onVerified={handleVerificationSuccess} />
+        <EmailVerificationForm 
+          userEmail={userEmail} 
+          onVerified={handleVerificationSuccess} 
+        />
       )}
     </div>
   );
