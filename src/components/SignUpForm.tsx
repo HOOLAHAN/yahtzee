@@ -51,6 +51,7 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
         </label>
         <input
           id="signUpEmail"
+          name="email"
           type="email"
           value={username}
           onChange={(e) => {
@@ -68,6 +69,7 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
         </label>
         <input
           id="username"
+          name="preferredUsername"
           type="text"
           value={preferred_username}
           onChange={(e) => {
