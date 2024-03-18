@@ -122,7 +122,7 @@ const Navbar = () => {
           className="absolute top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
           onClick={handleCloseModal}
         >
-          <div className="relative p-4 rounded-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="relative p-4 rounded-lg w-full sm:w-[410px] max-w-full" onClick={(e) => e.stopPropagation()}>
             <AuthenticationManager onClose={toggleAuthModal} onFormChange={setCurrentForm} />
             <button onClick={toggleAuthModal} className="absolute top-2 right-3 mt-4 mr-4 text-gray-600 hover:text-gray-900">
               &times;
