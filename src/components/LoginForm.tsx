@@ -22,21 +22,29 @@ const LoginForm: React.FC<{
       onClose(); 
     } catch (error) {
       console.error('Error signing in:', error);
-      if (error instanceof Error && error.name === "NotAuthorizedException") {
-        // Parse the error message to determine the specific NotAuthorizedException
-        if (error.message.includes("Incorrect username or password.")) {
-          setError('Incorrect username or password.');
-        } else if (error.message.includes("Unauthenticated access is not supported for this identity pool.")) {
-          setError('Your account requires verification.');
-        } else {
-          setError(error.message); // For any other NotAuthorizedException messages
+      if (error instanceof Error) {
+        // Check for NotAuthorizedException
+        if (error.name === "NotAuthorizedException") {
+          if (error.message.includes("Incorrect username or password.")) {
+            setError('Incorrect username or password.');
+          } else if (error.message.includes("Unauthenticated access is not supported for this identity pool.")) {
+            setError('Your account requires verification.');
+          } else {
+            setError(error.message); // For any other NotAuthorizedException messages
+          }
+        } 
+        // Check for UserNotFoundException
+        else if (error.name === "UserNotFoundException" || error.message.includes("User does not exist.")) {
+          setError("Account does not exist. Please follow the sign up link below.");
+        } 
+        else {
+          setError('An unexpected error occurred. Please try again.');
         }
       } else {
         setError('An unexpected error occurred. Please try again.');
       }
     }
-  };
-  
+  };  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
