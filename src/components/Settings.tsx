@@ -28,6 +28,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     try {
       await resetUserPassword(userDetails.email);
       setShowResetPassword(true);
+      setShowConfirmDelete(false);
     } catch (error) {
       console.error('Error requesting password reset:', error);
       alert('Failed to send reset code');
@@ -63,7 +64,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         {/* Password reset request form */}
         {!showConfirmDelete && !showResetPassword && (
           <div className="mt-4">
-            <h3 className="font-semibold">Reset Password:</h3>
+            <h3 className="font-semibold mb-4">Reset Password:</h3>
             <button
               onClick={handleRequestResetPassword}
               className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
@@ -102,6 +103,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           </form>
         )}
         {/* Delete account button and confirmation */}
+        {!showResetPassword && (
         <div className="mt-6">
           <h3 className="font-semibold mb-4">Delete Account:</h3>
           {!showConfirmDelete ? (
@@ -131,6 +133,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
             </div>
           )}
         </div>
+        )}
       </div>
     </div>
   );
