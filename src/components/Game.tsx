@@ -147,13 +147,12 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer 
         setPlayer2TotalScore={setPlayer2TotalScore}
       />
       <ScoreFlash category={flashCategory} show={showFlash} onEnd={() => setShowFlash(false)} />
-      <ScoresSection 
-        dice={dice} 
-        hasRolled={hasRolled} 
-        currentPlayer={currentPlayer}
-        player1Scores={calculateScores(player1ScoreHistory)}
-        player2Scores={calculateScores(player2ScoreHistory)}
-      />
+      {hasRolled && (
+        <ScoresSection 
+          dice={dice} 
+          hasRolled={hasRolled} 
+        />
+      )}
       {showScoreCard && <h2 className="text-2xl mb-2">Score Card:</h2>}
       <div className="flex space-x-2">
         {showScoreCard && (
@@ -204,15 +203,6 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer 
       )}
     </div>
   );
-};
-
-// Helper function to calculate scores for the current score history
-const calculateScores = (scoreHistory: ScoreEntry[]) => {
-  const scores: { [key: string]: number } = {};
-  scoreHistory.forEach(entry => {
-    scores[entry.category] = entry.roundScore;
-  });
-  return scores;
 };
 
 export default Game;

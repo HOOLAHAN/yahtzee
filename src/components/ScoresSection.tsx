@@ -11,13 +11,10 @@ import {
 interface ScoresSectionProps {
   dice: number[];
   hasRolled: boolean;
-  currentPlayer: number;
-  player1Scores: { [key: string]: number };
-  player2Scores: { [key: string]: number };
 }
 
-const ScoresSection: React.FC<ScoresSectionProps> = ({ dice, hasRolled, currentPlayer, player1Scores, player2Scores }) => {
-  const scores = currentPlayer === 1 ? player1Scores : player2Scores;
+const ScoresSection: React.FC<ScoresSectionProps> = ({ dice, hasRolled }) => {
+  if (!hasRolled) return null;
 
   return (
     <div className="scores-section">
@@ -26,21 +23,21 @@ const ScoresSection: React.FC<ScoresSectionProps> = ({ dice, hasRolled, currentP
       </div>
       <div className="flex justify-between">
         <div className='mr-10'>
-          <div className="mb-1">Ones: { hasRolled ? calculateNumberScore('Ones', dice) : scores['Ones'] || 0}</div>
-          <div className="mb-1">Twos: { hasRolled ? calculateNumberScore('Twos', dice) : scores['Twos'] || 0}</div>
-          <div className="mb-1">Threes: { hasRolled ? calculateNumberScore('Threes', dice) : scores['Threes'] || 0}</div>
-          <div className="mb-1">Fours: { hasRolled ? calculateNumberScore('Fours', dice) : scores['Fours'] || 0}</div>
-          <div className="mb-1">Fives: { hasRolled ? calculateNumberScore('Fives', dice) : scores['Fives'] || 0}</div>
-          <div className="mb-1">Sixes: { hasRolled ? calculateNumberScore('Sixes', dice) : scores['Sixes'] || 0}</div>
+          <div className="mb-1">Ones: { calculateNumberScore('Ones', dice) }</div>
+          <div className="mb-1">Twos: { calculateNumberScore('Twos', dice) }</div>
+          <div className="mb-1">Threes: { calculateNumberScore('Threes', dice) }</div>
+          <div className="mb-1">Fours: { calculateNumberScore('Fours', dice) }</div>
+          <div className="mb-1">Fives: { calculateNumberScore('Fives', dice) }</div>
+          <div className="mb-1">Sixes: { calculateNumberScore('Sixes', dice) }</div>
         </div>
         <div>
-          <div className="mb-1">Three of a Kind: { hasRolled ? calculateScore('ThreeOfAKind', dice) : scores['ThreeOfAKind'] || 0}</div>
-          <div className="mb-1">Four of a Kind: { hasRolled ? calculateScore('FourOfAKind', dice) : scores['FourOfAKind'] || 0}</div>
-          <div className="mb-1">Full House: { hasRolled ? calculateFullHouse(dice) : scores['FullHouse'] || 0}</div>
-          <div className="mb-1">Small Straight: { hasRolled ? (isStraight(dice, 4) ? 30 : 0) : scores['SmallStraight'] || 0}</div>
-          <div className="mb-1">Large Straight: { hasRolled ? (isStraight(dice, 5) ? 40 : 0) : scores['LargeStraight'] || 0}</div>
-          <div className="mb-1">Chance: { hasRolled ? calculateChance(dice) : scores['Chance'] || 0}</div>
-          <div className="mb-1">Yahtzee: { hasRolled ? calculateScore('Yahtzee', dice) : scores['Yahtzee'] || 0}</div>
+          <div className="mb-1">Three of a Kind: { calculateScore('ThreeOfAKind', dice) }</div>
+          <div className="mb-1">Four of a Kind: { calculateScore('FourOfAKind', dice) }</div>
+          <div className="mb-1">Full House: { calculateFullHouse(dice) }</div>
+          <div className="mb-1">Small Straight: { isStraight(dice, 4) ? 30 : 0 }</div>
+          <div className="mb-1">Large Straight: { isStraight(dice, 5) ? 40 : 0 }</div>
+          <div className="mb-1">Chance: { calculateChance(dice) }</div>
+          <div className="mb-1">Yahtzee: { calculateScore('Yahtzee', dice) }</div>
         </div>
       </div>
     </div>
