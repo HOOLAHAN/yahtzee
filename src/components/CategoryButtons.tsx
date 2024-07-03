@@ -1,4 +1,5 @@
 // CategoryButtons.tsx
+
 import React from 'react';
 import { lockInScore, canLockInScore } from '../functions/gameControl';
 import { calculateCurrentCategoryScore } from '../functions/scoreCalculator';
@@ -24,6 +25,12 @@ interface CategoryButtonsProps {
   currentScore: number;
   setFlashCategory: React.Dispatch<React.SetStateAction<string>>;
   setShowFlash: React.Dispatch<React.SetStateAction<boolean>>;
+  isTwoPlayer: boolean;
+  currentPlayer: number;
+  player1TotalScore: number;
+  player2TotalScore: number;
+  setPlayer1TotalScore: React.Dispatch<React.SetStateAction<number>>;
+  setPlayer2TotalScore: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const CategoryButtons: React.FC<CategoryButtonsProps> = ({
@@ -44,6 +51,12 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
   calculateScoreFunction,
   currentScore,
   startNewRound,
+  isTwoPlayer,
+  currentPlayer,
+  player1TotalScore,
+  player2TotalScore,
+  setPlayer1TotalScore,
+  setPlayer2TotalScore,
 }) => {
   return (
     <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto justify-center">
@@ -74,7 +87,13 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
               setHeldDice,
               initialDice,
               currentScore,
-              calculateScoreFunction
+              calculateScoreFunction,
+              isTwoPlayer,
+              currentPlayer,
+              player1TotalScore,
+              player2TotalScore,
+              setPlayer1TotalScore,
+              setPlayer2TotalScore
             )}
             disabled={!canLock || isUsed}
           >

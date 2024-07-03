@@ -21,7 +21,7 @@ test('initial roll count is 3', () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game />);
+  render(<Game isTwoPlayer={false} />);
   const rollButton = screen.getByText(/Roll Dice/i);
   expect(rollButton).toHaveTextContent('Roll Dice (Rolls left: 3)');
 });
@@ -33,7 +33,7 @@ test('score for Three of a Kind starts at 0', () => {
   }));
 
   // Render the component with an initial dice array
-  render(<Game initialDice={[1, 1, 2, 3, 4]} />);
+  render(<Game initialDice={[1, 1, 2, 3, 4]} isTwoPlayer={false} />);
 
   // Use getAllByText to get all elements containing the text "Three of a Kind"
   const allThreeOfAKindScores = screen.getAllByText(/Three of a Kind/i);
@@ -53,7 +53,7 @@ test('score for Four of a Kind starts at 0', () => {
   }));
 
   // Render the component with an initial dice array
-  render(<Game initialDice={[1, 1, 2, 3, 4]} />);
+  render(<Game initialDice={[1, 1, 2, 3, 4]} isTwoPlayer={false} />);
 
   // Use getAllByText to get all elements containing the text "Four of a Kind"
   const allFourOfAKindScores = screen.getAllByText(/Four of a Kind/i);
@@ -73,7 +73,7 @@ test('initial Full House score starts at 0', () => {
   }));
 
   // Render the component with an initial dice array
-  render(<Game initialDice={[1, 1, 2, 3, 4]} />);
+  render(<Game initialDice={[1, 1, 2, 3, 4]} isTwoPlayer={false} />);
 
   // Use getAllByText to get all elements containing the text "Full House"
   const allFullHouseScores = screen.getAllByText(/Full House/i);
@@ -92,7 +92,7 @@ test('holding dice functionality', async () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 2, 3, 4, 5]} />);
+  render(<Game initialDice={[1, 2, 3, 4, 5]} isTwoPlayer={false} />);
 
   // Simulate an initial roll
   const rollButton = screen.getByText(/Roll Dice/i);
@@ -118,7 +118,7 @@ test('calculate Full House score with invalid dice', () => {
   }));
 
   // Render the component with initial dice array
-  render(<Game initialDice={[1, 1, 1, 1, 1]} />);
+  render(<Game initialDice={[1, 1, 1, 1, 1]} isTwoPlayer={false} />);
 
   // Use getAllByText to get all elements containing the text "Full House"
   const allFullHouseScores = screen.getAllByText(/Full House/i);
@@ -137,7 +137,7 @@ test('calculate Small Straight score with invalid dice', () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 1, 1, 2, 2]} />);
+  render(<Game initialDice={[1, 1, 1, 2, 2]} isTwoPlayer={false} />);
   expect(screen.getByText(/Small Straight: 0/)).toBeInTheDocument();
 });
 
@@ -147,7 +147,7 @@ test('calculate Large Straight score with invalid dice', () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 2, 3, 3, 5]} />);
+  render(<Game initialDice={[1, 2, 3, 3, 5]} isTwoPlayer={false} />);
   expect(screen.getByText(/Large Straight: 0/)).toBeInTheDocument();
 });
 
@@ -157,6 +157,6 @@ test('calculate Yahtzee score with invalid dice', () => {
     userDetails: { preferred_username: 'testuser' },
   }));
   
-  render(<Game initialDice={[1, 1, 2, 2, 2]} />);
+  render(<Game initialDice={[1, 1, 2, 2, 2]} isTwoPlayer={false} />);
   expect(screen.getByText(/Yahtzee: 0/)).toBeInTheDocument();
 });

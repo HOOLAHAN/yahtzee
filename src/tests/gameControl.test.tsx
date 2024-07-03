@@ -16,7 +16,7 @@ describe("canLockInScore function", () => {
 });
 
 describe("lockInScore function", () => {
-  const setFunctions = Array.from({ length: 11 }, () => jest.fn());
+  const setFunctions = Array.from({ length: 17 }, () => jest.fn());
 
   const [
     setUsedCategories,
@@ -28,6 +28,8 @@ describe("lockInScore function", () => {
     setDice,
     setRollsLeft,
     setHeldDice,
+    setPlayer1TotalScore,
+    setPlayer2TotalScore,
   ] = setFunctions;
 
   const initialDice = [1, 2, 3, 4, 5];
@@ -42,14 +44,33 @@ describe("lockInScore function", () => {
 
   it("should lock in a new score", () => {
     lockInScore(
-      'ThreeOfAKind', usedCategories, setUsedCategories,
-      dice, setTotalScore, totalScore, setScoreHistory,
-      scoreHistory, startNewRoundFn, setCurrentScore, setHasRolled,
-      setDice, setRollsLeft, setHeldDice, initialDice, currentScore, calculateScoreFunction
+      'ThreeOfAKind', 
+      usedCategories, 
+      setUsedCategories,
+      dice, 
+      setTotalScore, 
+      totalScore, 
+      setScoreHistory,
+      scoreHistory, 
+      startNewRoundFn, 
+      setCurrentScore, 
+      setHasRolled,
+      setDice, 
+      setRollsLeft, 
+      setHeldDice, 
+      initialDice, 
+      currentScore, 
+      calculateScoreFunction,
+      false,   // isTwoPlayer
+      1,       // currentPlayer
+      0,       // player1TotalScore
+      0,       // player2TotalScore
+      setPlayer1TotalScore, 
+      setPlayer2TotalScore
     );
 
     expect(setUsedCategories).toHaveBeenCalledWith(new Set(['ThreeOfAKind']));
-    expect(setTotalScore).toHaveBeenCalledWith(NaN);
+    expect(setTotalScore).toHaveBeenCalledWith(109);
     expect(setScoreHistory).toHaveBeenCalled();
     expect(startNewRoundFn).toHaveBeenCalled();
   });

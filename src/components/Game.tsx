@@ -17,13 +17,19 @@ import { ScoreEntry } from '../functions/types';
 import { getDieSize, printDocument } from '../functions/utils';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { handleRollDice } from '../functions/handleRollDice';
-import { useAuth} from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
-const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
+interface GameProps {
+  initialDice?: number[];
+  isTwoPlayer: boolean;
+}
+
+const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer }) => {
   const [dice, setDice] = useState(initialDice);
   const [heldDice, setHeldDice] = useState(new Set<number>());
   const [currentScore, setCurrentScore] = useState(0);
-  const [scoreHistory, setScoreHistory] = useState<ScoreEntry[]>([]);
+  const [player1ScoreHistory, setPlayer1ScoreHistory] = useState<ScoreEntry[]>([]);
+  const [player2ScoreHistory, setPlayer2ScoreHistory] = useState<ScoreEntry[]>([]);
   const [rollsLeft, setRollsLeft] = useState(3);
   const [totalScore, setTotalScore] = useState(0);
   const [hasRolled, setHasRolled] = useState(false);
@@ -33,34 +39,60 @@ const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
   const [showFlash, setShowFlash] = useState(false);
   const [flashCategory, setFlashCategory] = useState('');
   const { isUserSignedIn } = useAuth();
-  
+
   const windowSize = useWindowSize();
   const dieSize = getDieSize(windowSize);
 
+  const [currentPlayer, setCurrentPlayer] = useState(1);
+  const [player1TotalScore, setPlayer1TotalScore] = useState(0);
+  const [player2TotalScore, setPlayer2TotalScore] = useState(0);
+
   useEffect(() => {
-    if (scoreHistory.length > 0) {
+    if (player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) {
       setShowScoreCard(true);
     } else {
       setShowScoreCard(false);
     }
-  }, [scoreHistory]);
+  }, [player1ScoreHistory, player2ScoreHistory]);
 
   const handleStartNewRound = () => {
     startNewRound(
-      setDice, 
-      setRollsLeft, 
-      setHeldDice, 
-      setCurrentScore, 
-      setHasRolled, 
-      setTotalScore, 
-      initialDice, 
-      totalScore, 
+      setDice,
+      setRollsLeft,
+      setHeldDice,
+      setCurrentScore,
+      setHasRolled,
+      setTotalScore,
+      initialDice,
+      totalScore,
       currentScore
     );
+    if (isTwoPlayer) {
+      setCurrentPlayer(currentPlayer === 1 ? 2 : 1);
+    }
+  };
+
+  useEffect(() => {
+    if (isTwoPlayer) {
+      setTotalScore(currentPlayer === 1 ? player1TotalScore : player2TotalScore);
+    }
+  }, [currentPlayer, isTwoPlayer, player1TotalScore, player2TotalScore]);
+
+  const updateScores = (newTotalScore: number) => {
+    if (isTwoPlayer) {
+      if (currentPlayer === 1) {
+        setPlayer1TotalScore(newTotalScore);
+      } else {
+        setPlayer2TotalScore(newTotalScore);
+      }
+    } else {
+      setTotalScore(newTotalScore);
+    }
   };
 
   return (
     <div className="bg-gray-200 min-h-screen flex flex-col items-center justify-start p-4 md:p-8">
+      <h1 className="text-3xl mb-4">{isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player Mode'}</h1>
       <DiceControl
         dice={dice}
         heldDice={heldDice}
@@ -74,18 +106,18 @@ const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
       />
       <ScoreDisplay
         currentScore={calculateMaximumScore(dice, hasRolled, usedCategories)}
-        totalScore={totalScore}
+        totalScore={isTwoPlayer ? (currentPlayer === 1 ? player1TotalScore : player2TotalScore) : totalScore}
       />
-      { hasRolled && <h2 className="text-2xl mb-2">Lock In Score:</h2> }
+      {hasRolled && <h2 className="text-2xl mb-2">Lock In Score:</h2>}
       <CategoryButtons
         dice={dice}
         hasRolled={hasRolled}
         usedCategories={usedCategories}
         setUsedCategories={setUsedCategories}
-        setTotalScore={setTotalScore}
+        setTotalScore={updateScores as React.Dispatch<React.SetStateAction<number>>}
         totalScore={totalScore}
-        setScoreHistory={setScoreHistory}
-        scoreHistory={scoreHistory}
+        setScoreHistory={currentPlayer === 1 ? setPlayer1ScoreHistory : setPlayer2ScoreHistory}
+        scoreHistory={currentPlayer === 1 ? player1ScoreHistory : player2ScoreHistory}
         startNewRound={handleStartNewRound}
         setCurrentScore={setCurrentScore}
         setHasRolled={setHasRolled}
@@ -97,25 +129,80 @@ const Game = ({ initialDice = [1, 1, 1, 1, 1] }) => {
         calculateScoreFunction={calculateCurrentCategoryScore}
         setFlashCategory={setFlashCategory}
         setShowFlash={setShowFlash}
+        isTwoPlayer={isTwoPlayer}
+        currentPlayer={currentPlayer}
+        player1TotalScore={player1TotalScore}
+        player2TotalScore={player2TotalScore}
+        setPlayer1TotalScore={setPlayer1TotalScore}
+        setPlayer2TotalScore={setPlayer2TotalScore}
       />
       <ScoreFlash category={flashCategory} show={showFlash} onEnd={() => setShowFlash(false)} />
-      <ScoresSection dice={dice} hasRolled={hasRolled} />
-      { showScoreCard && <h2 className="text-2xl mb-2">Score Card:</h2> }
-      <div className="flex space-x-2">
-      { showScoreCard && <ScoreCard scoreHistory={scoreHistory} totalScore={totalScore}/> }
-      </div>
-      { scoreHistory.length > 0 &&
-      <GameControlButtons
-      onResetGame={() => resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice, setUsedCategories)}
-      onPrintDocument={printDocument}
-      isMobile={windowSize < 640}
-      totalScore={totalScore}
-      usedCategories={usedCategories.size}
-      isUserSignedIn={isUserSignedIn}
+      <ScoresSection 
+        dice={dice} 
+        hasRolled={hasRolled} 
+        currentPlayer={currentPlayer}
+        player1Scores={calculateScores(player1ScoreHistory)}
+        player2Scores={calculateScores(player2ScoreHistory)}
       />
-    }
+      {showScoreCard && <h2 className="text-2xl mb-2">Score Card:</h2>}
+      <div className="flex space-x-2">
+        {showScoreCard && (
+          <div className="flex space-x-8">
+            <ScoreCard
+              player1ScoreHistory={player1ScoreHistory}
+              player2ScoreHistory={player2ScoreHistory}
+              player1TotalScore={player1TotalScore}
+              player2TotalScore={player2TotalScore}
+              currentPlayer={1}
+            />
+            {isTwoPlayer && (
+              <ScoreCard
+                player1ScoreHistory={player1ScoreHistory}
+                player2ScoreHistory={player2ScoreHistory}
+                player1TotalScore={player1TotalScore}
+                player2TotalScore={player2TotalScore}
+                currentPlayer={2}
+              />
+            )}
+          </div>
+        )}
+      </div>
+      {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && (
+        <GameControlButtons
+          onResetGame={() => resetGame(
+            setDice, setRollsLeft, setHeldDice, setCurrentScore, 
+            currentPlayer === 1 ? setPlayer1ScoreHistory : setPlayer2ScoreHistory, 
+            setHasRolled, 
+            currentPlayer === 1 ? setPlayer1TotalScore : setPlayer2TotalScore, 
+            initialDice, setUsedCategories)}
+          onPrintDocument={printDocument}
+          isMobile={windowSize < 640}
+          totalScore={totalScore}
+          usedCategories={usedCategories.size}
+          isUserSignedIn={isUserSignedIn}
+        />
+      )}
+      {isTwoPlayer && (
+        <div className="flex space-x-8 mt-4">
+          <div>
+            <h2 className="text-xl">Player 1 Score: {player1TotalScore}</h2>
+          </div>
+          <div>
+            <h2 className="text-xl">Player 2 Score: {player2TotalScore}</h2>
+          </div>
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
+
+// Helper function to calculate scores for the current score history
+const calculateScores = (scoreHistory: ScoreEntry[]) => {
+  const scores: { [key: string]: number } = {};
+  scoreHistory.forEach(entry => {
+    scores[entry.category] = entry.roundScore;
+  });
+  return scores;
+};
 
 export default Game;

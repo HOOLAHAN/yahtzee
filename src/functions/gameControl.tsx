@@ -1,5 +1,3 @@
-// gameControl.tsx
-
 import { ScoreEntry } from "./types";
 
 export const canLockInScore = (
@@ -33,7 +31,13 @@ export const lockInScore = (
   setHeldDice: Function,
   initialDice: number[],
   currentScore: number,
-  calculateScoreFunction: Function
+  calculateScoreFunction: Function,
+  isTwoPlayer: boolean,
+  currentPlayer: number,
+  player1TotalScore: number,
+  player2TotalScore: number,
+  setPlayer1TotalScore: Function,
+  setPlayer2TotalScore: Function
 ) => {
   // Check if the category has already been used
   if (usedCategories.has(category)) return;
@@ -52,7 +56,8 @@ export const lockInScore = (
   setUsedCategories(newUsedCategories);
 
   // Update the total score
-  setTotalScore(totalScore + newScore);
+  const newTotalScore = totalScore + newScore;
+  setTotalScore(newTotalScore);
 
   // Update the score history
   setScoreHistory([
@@ -64,6 +69,15 @@ export const lockInScore = (
     },
   ]);
 
+  // Update player-specific scores if in two-player mode
+  if (isTwoPlayer) {
+    if (currentPlayer === 1) {
+      setPlayer1TotalScore(newTotalScore);
+    } else {
+      setPlayer2TotalScore(newTotalScore);
+    }
+  }
+
   // Start a new round
   startNewRound(
     setDice,
@@ -73,11 +87,10 @@ export const lockInScore = (
     setHasRolled,
     setTotalScore,
     initialDice,
-    totalScore,
+    newTotalScore,
     currentScore
   );
 };
-
 
 export const resetGame = (
   setDice: React.Dispatch<React.SetStateAction<number[]>>, 
@@ -89,7 +102,10 @@ export const resetGame = (
   setTotalScore: React.Dispatch<React.SetStateAction<number>>, 
   initialDice: number[],
   setUsedCategories: React.Dispatch<React.SetStateAction<Set<string>>>,
-  ) => {
+  setPlayer1TotalScore?: React.Dispatch<React.SetStateAction<number>>,
+  setPlayer2TotalScore?: React.Dispatch<React.SetStateAction<number>>,
+  isTwoPlayer?: boolean
+) => {
   setDice(initialDice);
   setRollsLeft(3);
   setHeldDice(new Set());
@@ -98,6 +114,12 @@ export const resetGame = (
   setHasRolled(false);
   setTotalScore(0);
   setUsedCategories(new Set<string>());
+
+  // Reset player-specific scores if in two-player mode
+  if (isTwoPlayer) {
+    setPlayer1TotalScore?.(0);
+    setPlayer2TotalScore?.(0);
+  }
 };
 
 export const startNewRound = (
@@ -110,12 +132,11 @@ export const startNewRound = (
   initialDice: number[], 
   totalScore: number, 
   currentScore: number
-  ) => {
-    // Reset state for the new round
-    setDice(initialDice);
-    setRollsLeft(3);
-    setHeldDice(new Set());
-    setCurrentScore(0);
-    setHasRolled(false);
-  };
-
+) => {
+  // Reset state for the new round
+  setDice(initialDice);
+  setRollsLeft(3);
+  setHeldDice(new Set());
+  setCurrentScore(0);
+  setHasRolled(false);
+};
