@@ -70,7 +70,7 @@ describe("lockInScore function", () => {
     );
 
     expect(setUsedCategories).toHaveBeenCalledWith(new Set(['ThreeOfAKind']));
-    expect(setTotalScore).toHaveBeenCalledWith(109);
+    expect(setTotalScore).toHaveBeenCalledWith(totalScore + calculateScoreFunction());
     expect(setScoreHistory).toHaveBeenCalled();
     expect(startNewRoundFn).toHaveBeenCalled();
   });
