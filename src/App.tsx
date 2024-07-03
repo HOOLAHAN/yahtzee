@@ -9,25 +9,19 @@ import { LeaderboardRefreshProvider } from './context/LeaderboardRefreshContext'
 
 const App = () => {
   const [isTwoPlayer, setIsTwoPlayer] = useState(false);
+  const [resetGameKey, setResetGameKey] = useState(0);
 
   const toggleTwoPlayerMode = () => {
     setIsTwoPlayer(!isTwoPlayer);
+    setResetGameKey(prevKey => prevKey + 1);
   };
 
   return (
     <LeaderboardRefreshProvider>
       <AuthProvider>
         <div className="App bg-gray-200">
-          <Navbar />
-          <div className="flex justify-center my-4">
-            <button
-              className="px-4 py-2 bg-blue-500 text-white rounded"
-              onClick={toggleTwoPlayerMode}
-            >
-              {isTwoPlayer ? 'Switch to Single Player' : 'Switch to Two Player'}
-            </button>
-          </div>
-          <Game isTwoPlayer={isTwoPlayer} />
+          <Navbar isTwoPlayer={isTwoPlayer} toggleTwoPlayerMode={toggleTwoPlayerMode} />
+          <Game key={resetGameKey} isTwoPlayer={isTwoPlayer} setIsTwoPlayer={setIsTwoPlayer} />
         </div>
       </AuthProvider>
     </LeaderboardRefreshProvider>

@@ -1,4 +1,3 @@
-// Game.tsx
 import { useState, useEffect } from 'react';
 import '../tailwind.css';
 import ScoreCard from './ScoreCard';
@@ -21,9 +20,10 @@ import { useAuth } from '../context/AuthContext';
 interface GameProps {
   initialDice?: number[];
   isTwoPlayer: boolean;
+  setIsTwoPlayer: (isTwoPlayer: boolean) => void;
 }
 
-const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer }) => {
+const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer, setIsTwoPlayer }) => {
   const [dice, setDice] = useState(initialDice);
   const [heldDice, setHeldDice] = useState(new Set<number>());
   const [currentScore, setCurrentScore] = useState(0);
@@ -67,6 +67,16 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer 
     if (isTwoPlayer) {
       setCurrentPlayer(currentPlayer === 1 ? 2 : 1);
     }
+  };
+
+  const handleResetGame = () => {
+    resetGame(
+      setDice, setRollsLeft, setHeldDice, setCurrentScore, 
+      setPlayer1ScoreHistory, setPlayer2ScoreHistory,
+      setHasRolled, setTotalScore,
+      setPlayer1TotalScore, setPlayer2TotalScore,
+      initialDice, setPlayer1UsedCategories, setPlayer2UsedCategories
+    );
   };
 
   useEffect(() => {
@@ -177,13 +187,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer 
       </div>
       {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && (
         <GameControlButtons
-          onResetGame={() => resetGame(
-            setDice, setRollsLeft, setHeldDice, setCurrentScore, 
-            setPlayer1ScoreHistory, setPlayer2ScoreHistory,
-            setHasRolled, setTotalScore,
-            setPlayer1TotalScore, setPlayer2TotalScore,
-            initialDice, setPlayer1UsedCategories, setPlayer2UsedCategories
-          )}
+          onResetGame={handleResetGame}
           onPrintDocument={printDocument}
           isMobile={windowSize < 640}
           totalScore={totalScore}

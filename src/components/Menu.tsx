@@ -11,9 +11,23 @@ interface MenuProps {
   toggleLeaderboard: () => void;
   toggleUserScores: () => void;
   toggleSettings?: () => void; 
+  toggleTwoPlayerMode: () => void;
+  isTwoPlayer: boolean;
 }
 
-const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderboard, toggleAuthModal, isUserSignedIn, handleSignOut, toggleUserScores, toggleSettings }) => {
+const Menu: React.FC<MenuProps> = ({
+  isOpen,
+  onClose,
+  toggleAbout,
+  toggleLeaderboard,
+  toggleAuthModal,
+  isUserSignedIn,
+  handleSignOut,
+  toggleUserScores,
+  toggleSettings,
+  toggleTwoPlayerMode,
+  isTwoPlayer
+}) => {
   const { userDetails } = useAuth();
 
   return (
@@ -34,12 +48,16 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, toggleAbout, toggleLeaderb
         <button onClick={toggleLeaderboard} className="mt-4 px-4 py-2 bg-red-500 text-white rounded block">Leaderboard</button>
         {isUserSignedIn && (
           <button onClick={toggleUserScores} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded block">My Scores</button>
-          
         )}
         {isUserSignedIn && (
-          <button onClick={toggleSettings} className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded block">Settings</button>          
+          <button onClick={toggleSettings} className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded block">Settings</button>
         )}
-        {/* Authentication button */}
+        <button
+          onClick={toggleTwoPlayerMode}
+          className="mt-4 px-4 py-2 bg-purple-600 text-white rounded block"
+        >
+          {isTwoPlayer ? 'Switch to Single Player' : 'Switch to Two Player'}
+        </button>
         {!isUserSignedIn ? (
           <button
             onClick={toggleAuthModal}

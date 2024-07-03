@@ -5,11 +5,16 @@ import About from './About';
 import '../tailwind.css';
 import AuthenticationManager from './AuthenticationManager';
 import { useAuth } from '../context/AuthContext';
-import Leaderboard from './Leaderboard'
+import Leaderboard from './Leaderboard';
 import Menu from './Menu';
-import Settings from './Settings'
+import Settings from './Settings';
 
-const Navbar = () => {
+interface NavbarProps {
+  isTwoPlayer: boolean;
+  toggleTwoPlayerMode: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { isUserSignedIn, signOut } = useAuth();
@@ -142,6 +147,8 @@ const Navbar = () => {
         toggleLeaderboard={toggleLeaderboard}
         toggleUserScores={toggleUserScores}
         toggleSettings={toggleSettings}
+        toggleTwoPlayerMode={toggleTwoPlayerMode}
+        isTwoPlayer={isTwoPlayer}
       />
 
       {/* Settings Component */}

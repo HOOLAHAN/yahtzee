@@ -19,7 +19,9 @@ test('initial roll count is 3', () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game isTwoPlayer={false} />);
+  const setIsTwoPlayer = jest.fn();
+
+  render(<Game isTwoPlayer={false} setIsTwoPlayer={setIsTwoPlayer} />);
   const rollButton = screen.getByText(/Roll Dice/i);
   expect(rollButton).toHaveTextContent('Roll Dice (Rolls left: 3)');
 });
@@ -30,7 +32,9 @@ test('score for Three of a Kind starts at 0', async () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 1, 2, 2, 3]} isTwoPlayer={false} />);
+  const setIsTwoPlayer = jest.fn();
+
+  render(<Game initialDice={[1, 2, 3, 4, 5]} isTwoPlayer={false} setIsTwoPlayer={setIsTwoPlayer} />);
 
   fireEvent.click(screen.getByText(/Roll Dice/i));
 
@@ -44,7 +48,9 @@ test('score for Four of a Kind starts at 0', async () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 1, 2, 3, 4]} isTwoPlayer={false} />);
+  const setIsTwoPlayer = jest.fn(); 
+
+  render(<Game initialDice={[1, 2, 3, 4, 5]} isTwoPlayer={false} setIsTwoPlayer={setIsTwoPlayer} />);
 
   fireEvent.click(screen.getByText(/Roll Dice/i));
 
@@ -58,7 +64,9 @@ test('initial Full House score starts at 0', async () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 1, 2, 3, 4]} isTwoPlayer={false} />);
+  const setIsTwoPlayer = jest.fn(); 
+
+  render(<Game initialDice={[1, 2, 3, 4, 5]} isTwoPlayer={false} setIsTwoPlayer={setIsTwoPlayer} />);
 
   fireEvent.click(screen.getByText(/Roll Dice/i));
 
@@ -72,7 +80,9 @@ test('holding dice functionality', async () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 2, 3, 4, 5]} isTwoPlayer={false} />);
+  const setIsTwoPlayer = jest.fn(); 
+
+  render(<Game initialDice={[1, 2, 3, 4, 5]} isTwoPlayer={false} setIsTwoPlayer={setIsTwoPlayer}/>);
 
   // Simulate an initial roll
   const rollButton = screen.getByText(/Roll Dice/i);
@@ -98,7 +108,9 @@ test('calculate Full House score with invalid dice', async () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 1, 1, 1, 1]} isTwoPlayer={false} />);
+  const setIsTwoPlayer = jest.fn();
+
+  render(<Game initialDice={[1, 1, 1, 1, 1]} isTwoPlayer={false} setIsTwoPlayer={setIsTwoPlayer}/>);
 
   fireEvent.click(screen.getByText(/Roll Dice/i));
 
@@ -112,7 +124,9 @@ test('calculate Small Straight score with invalid dice', async () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 1, 1, 2, 2]} isTwoPlayer={false} />);
+  const setIsTwoPlayer = jest.fn(); 
+
+  render(<Game initialDice={[1, 2, 3, 4, 5]} isTwoPlayer={false} setIsTwoPlayer={setIsTwoPlayer}/>);
 
   fireEvent.click(screen.getByText(/Roll Dice/i));
 
@@ -126,7 +140,9 @@ test('calculate Large Straight score with invalid dice', async () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 2, 3, 3, 5]} isTwoPlayer={false} />);
+  const setIsTwoPlayer = jest.fn(); 
+
+  render(<Game initialDice={[1, 2, 3, 4, 5]} isTwoPlayer={false} setIsTwoPlayer={setIsTwoPlayer} />);
 
   fireEvent.click(screen.getByText(/Roll Dice/i));
 
@@ -140,7 +156,9 @@ test('calculate Yahtzee score with invalid dice', async () => {
     userDetails: { preferred_username: 'testuser' },
   }));
 
-  render(<Game initialDice={[1, 1, 2, 2, 2]} isTwoPlayer={false} />);
+  const setIsTwoPlayer = jest.fn(); 
+
+  render(<Game initialDice={[1, 2, 3, 4, 5]} isTwoPlayer={false} setIsTwoPlayer={setIsTwoPlayer} />);
 
   fireEvent.click(screen.getByText(/Roll Dice/i));
 
