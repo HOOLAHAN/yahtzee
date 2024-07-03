@@ -1,5 +1,4 @@
 // Game.tsx
-
 import { useState, useEffect } from 'react';
 import '../tailwind.css';
 import ScoreCard from './ScoreCard';
@@ -180,10 +179,11 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer 
         <GameControlButtons
           onResetGame={() => resetGame(
             setDice, setRollsLeft, setHeldDice, setCurrentScore, 
-            currentPlayer === 1 ? setPlayer1ScoreHistory : setPlayer2ScoreHistory, 
-            setHasRolled, 
-            currentPlayer === 1 ? setPlayer1TotalScore : setPlayer2TotalScore, 
-            initialDice, setUsedCategories)}
+            setPlayer1ScoreHistory, setPlayer2ScoreHistory,
+            setHasRolled, setTotalScore,
+            setPlayer1TotalScore, setPlayer2TotalScore,
+            initialDice, setPlayer1UsedCategories, setPlayer2UsedCategories
+          )}
           onPrintDocument={printDocument}
           isMobile={windowSize < 640}
           totalScore={totalScore}

@@ -77,21 +77,52 @@ describe("lockInScore function", () => {
 });
 
 describe("resetGame function", () => {
-  const setFunctions = Array.from({ length: 8 }, () => jest.fn());
-  const [setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, setUsedCategories] = setFunctions;
+  const setFunctions = Array.from({ length: 13 }, () => jest.fn());
+  const [
+    setDice, 
+    setRollsLeft, 
+    setHeldDice, 
+    setCurrentScore, 
+    setPlayer1ScoreHistory, 
+    setPlayer2ScoreHistory, 
+    setHasRolled, 
+    setTotalScore, 
+    setPlayer1TotalScore, 
+    setPlayer2TotalScore, 
+    setPlayer1UsedCategories, 
+    setPlayer2UsedCategories
+  ] = setFunctions;
   const initialDice = [1, 2, 3, 4, 5];
 
   it("should reset game states", () => {
-    resetGame(setDice, setRollsLeft, setHeldDice, setCurrentScore, setScoreHistory, setHasRolled, setTotalScore, initialDice, setUsedCategories);
+    resetGame(
+      setDice, 
+      setRollsLeft, 
+      setHeldDice, 
+      setCurrentScore, 
+      setPlayer1ScoreHistory, 
+      setPlayer2ScoreHistory, 
+      setHasRolled, 
+      setTotalScore, 
+      setPlayer1TotalScore, 
+      setPlayer2TotalScore, 
+      initialDice, 
+      setPlayer1UsedCategories, 
+      setPlayer2UsedCategories
+    );
 
     expect(setDice).toHaveBeenCalledWith(initialDice);
     expect(setRollsLeft).toHaveBeenCalledWith(3);
     expect(setHeldDice).toHaveBeenCalledWith(new Set());
     expect(setCurrentScore).toHaveBeenCalledWith(0);
-    expect(setScoreHistory).toHaveBeenCalledWith([]);
+    expect(setPlayer1ScoreHistory).toHaveBeenCalledWith([]);
+    expect(setPlayer2ScoreHistory).toHaveBeenCalledWith([]);
     expect(setHasRolled).toHaveBeenCalledWith(false);
     expect(setTotalScore).toHaveBeenCalledWith(0);
-    expect(setUsedCategories).toHaveBeenCalledWith(new Set<string>());
+    expect(setPlayer1TotalScore).toHaveBeenCalledWith(0);
+    expect(setPlayer2TotalScore).toHaveBeenCalledWith(0);
+    expect(setPlayer1UsedCategories).toHaveBeenCalledWith(new Set<string>());
+    expect(setPlayer2UsedCategories).toHaveBeenCalledWith(new Set<string>());
   });
 });
 

@@ -81,20 +81,28 @@ export const resetGame = (
   setRollsLeft: React.Dispatch<React.SetStateAction<number>>, 
   setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>, 
   setCurrentScore: React.Dispatch<React.SetStateAction<number>>, 
-  setScoreHistory: React.Dispatch<React.SetStateAction<ScoreEntry[]>>,
+  setPlayer1ScoreHistory: React.Dispatch<React.SetStateAction<ScoreEntry[]>>,
+  setPlayer2ScoreHistory: React.Dispatch<React.SetStateAction<ScoreEntry[]>>,
   setHasRolled: React.Dispatch<React.SetStateAction<boolean>>, 
   setTotalScore: React.Dispatch<React.SetStateAction<number>>, 
+  setPlayer1TotalScore: React.Dispatch<React.SetStateAction<number>>,
+  setPlayer2TotalScore: React.Dispatch<React.SetStateAction<number>>,
   initialDice: number[],
-  setUsedCategories: React.Dispatch<React.SetStateAction<Set<string>>>,
-  ) => {
+  setPlayer1UsedCategories: React.Dispatch<React.SetStateAction<Set<string>>>,
+  setPlayer2UsedCategories: React.Dispatch<React.SetStateAction<Set<string>>>
+) => {
   setDice(initialDice);
   setRollsLeft(3);
   setHeldDice(new Set());
   setCurrentScore(0);
-  setScoreHistory([]);
+  setPlayer1ScoreHistory([]);
+  setPlayer2ScoreHistory([]);
   setHasRolled(false);
   setTotalScore(0);
-  setUsedCategories(new Set<string>());
+  setPlayer1TotalScore(0);
+  setPlayer2TotalScore(0);
+  setPlayer1UsedCategories(new Set<string>());
+  setPlayer2UsedCategories(new Set<string>());
 };
 
 export const startNewRound = (
