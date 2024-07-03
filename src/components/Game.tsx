@@ -33,7 +33,8 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer 
   const [rollsLeft, setRollsLeft] = useState(3);
   const [totalScore, setTotalScore] = useState(0);
   const [hasRolled, setHasRolled] = useState(false);
-  const [usedCategories, setUsedCategories] = useState(new Set<string>());
+  const [player1UsedCategories, setPlayer1UsedCategories] = useState(new Set<string>());
+  const [player2UsedCategories, setPlayer2UsedCategories] = useState(new Set<string>());
   const [shouldShake, setShouldShake] = useState(false);
   const [showScoreCard, setShowScoreCard] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
@@ -62,10 +63,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer 
       setHeldDice,
       setCurrentScore,
       setHasRolled,
-      setTotalScore,
-      initialDice,
-      totalScore,
-      currentScore
+      initialDice
     );
     if (isTwoPlayer) {
       setCurrentPlayer(currentPlayer === 1 ? 2 : 1);
@@ -90,6 +88,18 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer 
     }
   };
 
+  const getUsedCategories = () => {
+    return currentPlayer === 1 ? player1UsedCategories : player2UsedCategories;
+  };
+
+  const setUsedCategories = (categories: Set<string> | ((prevCategories: Set<string>) => Set<string>)) => {
+    if (currentPlayer === 1) {
+      setPlayer1UsedCategories(categories as Set<string>);
+    } else {
+      setPlayer2UsedCategories(categories as Set<string>);
+    }
+  };
+
   return (
     <div className="bg-gray-200 min-h-screen flex flex-col items-center justify-start p-4 md:p-8">
       <h1 className="text-3xl mb-4">{isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player Mode'}</h1>
@@ -101,18 +111,18 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer 
         hasRolled={hasRolled}
         shouldShake={shouldShake}
         dieSize={dieSize}
-        usedCategoriesSize={usedCategories.size}
+        usedCategoriesSize={getUsedCategories().size}
         onRollDice={() => handleRollDice(rollsLeft, dice, heldDice, setShouldShake, setHasRolled, setDice, setRollsLeft, setCurrentScore)}
       />
       <ScoreDisplay
-        currentScore={calculateMaximumScore(dice, hasRolled, usedCategories)}
+        currentScore={calculateMaximumScore(dice, hasRolled, getUsedCategories())}
         totalScore={isTwoPlayer ? (currentPlayer === 1 ? player1TotalScore : player2TotalScore) : totalScore}
       />
       {hasRolled && <h2 className="text-2xl mb-2">Lock In Score:</h2>}
       <CategoryButtons
         dice={dice}
         hasRolled={hasRolled}
-        usedCategories={usedCategories}
+        usedCategories={getUsedCategories()}
         setUsedCategories={setUsedCategories}
         setTotalScore={updateScores as React.Dispatch<React.SetStateAction<number>>}
         totalScore={totalScore}
@@ -178,7 +188,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer 
           onPrintDocument={printDocument}
           isMobile={windowSize < 640}
           totalScore={totalScore}
-          usedCategories={usedCategories.size}
+          usedCategories={getUsedCategories().size}
           isUserSignedIn={isUserSignedIn}
         />
       )}

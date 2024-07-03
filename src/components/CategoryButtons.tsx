@@ -1,9 +1,8 @@
-// CategoryButtons.tsx
-
 import React from 'react';
 import { lockInScore, canLockInScore } from '../functions/gameControl';
 import { calculateCurrentCategoryScore } from '../functions/scoreCalculator';
 import { getButtonClass } from '../functions/utils';
+import { Category } from '../functions/types';
 
 interface CategoryButtonsProps {
   dice: number[];
@@ -20,7 +19,7 @@ interface CategoryButtonsProps {
   setRollsLeft: React.Dispatch<React.SetStateAction<number>>;
   setHeldDice: React.Dispatch<React.SetStateAction<Set<number>>>;
   initialDice: number[];
-  calculateScoreFunction: typeof calculateCurrentCategoryScore;
+  calculateScoreFunction: (category: Category, dice: number[]) => number;
   startNewRound: () => void;
   currentScore: number;
   setFlashCategory: React.Dispatch<React.SetStateAction<string>>;
@@ -51,6 +50,8 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
   calculateScoreFunction,
   currentScore,
   startNewRound,
+  setFlashCategory,
+  setShowFlash,
   isTwoPlayer,
   currentPlayer,
   player1TotalScore,
@@ -58,9 +59,15 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
   setPlayer1TotalScore,
   setPlayer2TotalScore,
 }) => {
+  const categories: Category[] = [
+    'Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 
+    'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 
+    'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'
+  ];
+
   return (
     <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto justify-center">
-      {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'].map((category) => {
+      {categories.map((category) => {
         const canLock = canLockInScore(category, hasRolled, usedCategories);
         const isUsed = usedCategories.has(category);
         if (!canLock || isUsed) return null;

@@ -96,14 +96,12 @@ describe("resetGame function", () => {
 });
 
 describe("startNewRound function", () => {
-  const setFunctions = Array.from({ length: 7 }, () => jest.fn());
-  const [setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore] = setFunctions;
+  const setFunctions = Array.from({ length: 6 }, () => jest.fn());
+  const [setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled] = setFunctions;
   const initialDice = [1, 2, 3, 4, 5];
-  const totalScore = 100;
-  const currentScore = 9;
 
   it("should reset round states", () => {
-    startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, setTotalScore, initialDice, totalScore, currentScore);
+    startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, initialDice);
 
     expect(setDice).toHaveBeenCalledWith(initialDice);
     expect(setRollsLeft).toHaveBeenCalledWith(3);
