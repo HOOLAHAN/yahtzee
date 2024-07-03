@@ -49,15 +49,15 @@ const Menu: React.FC<MenuProps> = ({
         {isUserSignedIn && (
           <button onClick={toggleUserScores} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded block">My Scores</button>
         )}
+        <button
+          onClick={toggleTwoPlayerMode}
+          className="mt-4 px-4 py-2 bg-orange-500 text-white rounded block"
+        >
+          {isTwoPlayer ? 'Play Single Player' : 'Play Two Player'}
+        </button>
         {isUserSignedIn && (
           <button onClick={toggleSettings} className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded block">Settings</button>
         )}
-        <button
-          onClick={toggleTwoPlayerMode}
-          className="mt-4 px-4 py-2 bg-purple-600 text-white rounded block"
-        >
-          {isTwoPlayer ? 'Switch to Single Player' : 'Switch to Two Player'}
-        </button>
         {!isUserSignedIn ? (
           <button
             onClick={toggleAuthModal}
