@@ -171,7 +171,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
       <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8">
         {showScoreCard && (
           <>
-            {windowSize < 640 ? (
+            {windowSize < 1000 ? (
               <div className="relative p-4 w-full">
                 <ScoreCard
                   player1ScoreHistory={player1ScoreHistory}
