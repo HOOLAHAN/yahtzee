@@ -25,11 +25,11 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
   return (
     <div className="w-full">
       <div id="pdf-div">
-        <h2 className="text-xl mb-2">{`Player ${currentPlayer} Score Card`}</h2>
+      <center><h2 className="text-xl mb-2">{`Player ${currentPlayer}`}</h2></center>
         <table className="min-w-full bg-white">
           <thead>
             <tr>
-              <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Round</th>
+              <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base"> </th>
               <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Dice</th>
               <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Category</th>
               <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Score</th>

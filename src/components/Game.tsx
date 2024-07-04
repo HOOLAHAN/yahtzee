@@ -46,6 +46,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
   const [currentPlayer, setCurrentPlayer] = useState(1);
   const [player1TotalScore, setPlayer1TotalScore] = useState(0);
   const [player2TotalScore, setPlayer2TotalScore] = useState(0);
+  const [currentMobileScoreCard, setCurrentMobileScoreCard] = useState(currentPlayer);
 
   useEffect(() => {
     if (player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) {
@@ -54,6 +55,10 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
       setShowScoreCard(false);
     }
   }, [player1ScoreHistory, player2ScoreHistory]);
+
+  useEffect(() => {
+    setCurrentMobileScoreCard(currentPlayer);
+  }, [currentPlayer]);
 
   const handleStartNewRound = () => {
     startNewRound(
@@ -163,28 +168,64 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
         />
       )}
       {showScoreCard && <h2 className="text-2xl mb-2">Score Card:</h2>}
-      <div className="flex space-x-2">
+      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8">
         {showScoreCard && (
-          <div className="flex space-x-8">
-            <ScoreCard
-              player1ScoreHistory={player1ScoreHistory}
-              player2ScoreHistory={player2ScoreHistory}
-              player1TotalScore={player1TotalScore}
-              player2TotalScore={player2TotalScore}
-              currentPlayer={1}
-            />
-            {isTwoPlayer && (
-              <ScoreCard
-                player1ScoreHistory={player1ScoreHistory}
-                player2ScoreHistory={player2ScoreHistory}
-                player1TotalScore={player1TotalScore}
-                player2TotalScore={player2TotalScore}
-                currentPlayer={2}
-              />
+          <>
+            {windowSize < 640 ? (
+              <div className="relative p-4 w-full">
+                <ScoreCard
+                  player1ScoreHistory={player1ScoreHistory}
+                  player2ScoreHistory={player2ScoreHistory}
+                  player1TotalScore={player1TotalScore}
+                  player2TotalScore={player2TotalScore}
+                  currentPlayer={currentMobileScoreCard}
+                />
+                {isTwoPlayer && (
+                  <center><button
+                    onClick={() => setCurrentMobileScoreCard(currentMobileScoreCard === 1 ? 2 : 1)}
+                    className="mt-4 mx-auto bg-blue-600 text-white py-2 px-3 rounded-full w-14"
+                  >
+                    {currentMobileScoreCard === 1 ? '>' : '<'}
+                  </button></center>
+                )}
+              </div>
+            ) : (
+              <div className="flex w-full space-x-8">
+                <div className="flex-1">
+                  <ScoreCard
+                    player1ScoreHistory={player1ScoreHistory}
+                    player2ScoreHistory={player2ScoreHistory}
+                    player1TotalScore={player1TotalScore}
+                    player2TotalScore={player2TotalScore}
+                    currentPlayer={1}
+                  />
+                </div>
+                {isTwoPlayer && (
+                  <div className="flex-1">
+                    <ScoreCard
+                      player1ScoreHistory={player1ScoreHistory}
+                      player2ScoreHistory={player2ScoreHistory}
+                      player1TotalScore={player1TotalScore}
+                      player2TotalScore={player2TotalScore}
+                      currentPlayer={2}
+                    />
+                  </div>
+                )}
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
+      {isTwoPlayer && (
+        <div className="flex space-x-8 mt-4">
+          <div>
+          <center><h2 className="text-xl">Player 1 Score: {player1TotalScore}</h2></center>
+          </div>
+          <div>
+          <center><h2 className="text-xl">Player 2 Score: {player2TotalScore}</h2></center>
+          </div>
+        </div>
+      )}
       {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && (
         <GameControlButtons
           onResetGame={handleResetGame}
@@ -194,16 +235,6 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
           usedCategories={getUsedCategories().size}
           isUserSignedIn={isUserSignedIn}
         />
-      )}
-      {isTwoPlayer && (
-        <div className="flex space-x-8 mt-4">
-          <div>
-            <h2 className="text-xl">Player 1 Score: {player1TotalScore}</h2>
-          </div>
-          <div>
-            <h2 className="text-xl">Player 2 Score: {player2TotalScore}</h2>
-          </div>
-        </div>
       )}
     </div>
   );
