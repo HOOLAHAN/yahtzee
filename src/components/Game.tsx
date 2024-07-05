@@ -123,8 +123,11 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
     setShowFlash(true);
   };
 
+  const playerClass = isTwoPlayer ? (currentPlayer === 1 ? 'bg-green-100' : 'bg-blue-100') : 'bg-gray-100';
+  const buttonClass = currentPlayer === 1 ? 'bg-green-500 hover:bg-green-700' : 'bg-blue-500 hover:bg-blue-700';
+
   return (
-    <div className="bg-gray-200 min-h-screen flex flex-col items-center justify-start p-4 md:p-8">
+    <div className={`min-h-screen flex flex-col items-center justify-start p-4 md:p-8 ${playerClass}`}>
       <h1 className="text-3xl mb-4">{isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player'}</h1>
       <DiceControl
         dice={dice}
@@ -192,7 +195,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
                 {isTwoPlayer && (
                   <center><button
                     onClick={() => setCurrentMobileScoreCard(currentMobileScoreCard === 1 ? 2 : 1)}
-                    className="mt-4 mx-auto bg-blue-500 text-white py-2 px-4 rounded-full w-20 transition duration-300 ease-in-out transform hover:scale-105"
+                    className={`mt-4 mx-auto text-white py-2 px-4 rounded-full w-20 transition duration-300 ease-in-out transform hover:scale-105 ${buttonClass}`}
                   >
                     {currentMobileScoreCard === 1 ? '>' : '<'}
                   </button></center>
