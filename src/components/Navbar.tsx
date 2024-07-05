@@ -24,13 +24,8 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
   const [currentForm, setCurrentForm] = useState('');
 
   const toggleSettings = () => {
-    if (!showSettings) {
-      setShowSettings(true);
-      setIsMenuOpen(false);
-    } else {
-      setShowSettings(false);
-      setIsMenuOpen(true);
-    }
+    setShowSettings(!showSettings);
+    setIsMenuOpen(false);
   };
   
   const toggleAbout = () => {
@@ -69,21 +64,31 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
     }
   };
 
-  // Handle outside click
+  // Handle outside click for About, Leaderboard, and Settings
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       const menuElement = document.getElementById('menu');
+      const aboutElement = document.getElementById('about-drawer');
+      const leaderboardElement = document.getElementById('leaderboard-drawer');
+      const settingsElement = document.getElementById('settings-drawer');
+      
       if (menuElement && !menuElement.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
+      if (aboutElement && !aboutElement.contains(event.target as Node)) {
+        setShowAbout(false);
+      }
+      if (leaderboardElement && !leaderboardElement.contains(event.target as Node)) {
+        setLeaderboardDisplay('closed');
+      }
+      if (settingsElement && !settingsElement.contains(event.target as Node)) {
+        setShowSettings(false);
+      }
     };
 
-    if (isMenuOpen) {
-      document.addEventListener('mousedown', handleOutsideClick);
-    }
-
+    document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [isMenuOpen]);
+  }, [isMenuOpen, showAbout, leaderboardDisplay, showSettings]);
     
   return (
     <>
@@ -110,12 +115,14 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
 
       {/* About Drawer */}
       {showAbout && (
-        <About onClose={toggleAbout} />
+        <div id="about-drawer">
+          <About onClose={toggleAbout} />
+        </div>
       )}
 
       {/* Leaderboard Drawer */}
       {leaderboardDisplay !== 'closed' && (
-        <div className='bg-gray-200 mx-5'>
+        <div id="leaderboard-drawer" className='bg-gray-200 mx-5'>
           <Leaderboard showUserScores={leaderboardDisplay === 'userScores'}/>
         </div>
       )}
@@ -153,7 +160,9 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
 
       {/* Settings Component */}
       {showSettings && (
-        <Settings onClose={toggleSettings} />
+        <div id="settings-drawer">
+          <Settings onClose={toggleSettings} />
+        </div>
       )}
     </>
   );
