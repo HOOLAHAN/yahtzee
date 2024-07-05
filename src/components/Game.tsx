@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import '../tailwind.css';
 import ScoreCard from './ScoreCard';
 import ScoreFlash from './ScoreFlash';
@@ -193,12 +195,14 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
                   currentPlayer={currentMobileScoreCard}
                 />
                 {isTwoPlayer && (
-                  <center><button
-                    onClick={() => setCurrentMobileScoreCard(currentMobileScoreCard === 1 ? 2 : 1)}
-                    className={`mt-4 mx-auto text-white py-2 px-4 rounded-full w-20 transition duration-300 ease-in-out transform hover:scale-105 ${buttonClass}`}
-                  >
-                    {currentMobileScoreCard === 1 ? '>' : '<'}
-                  </button></center>
+                  <center>
+                    <button
+                      onClick={() => setCurrentMobileScoreCard(currentMobileScoreCard === 1 ? 2 : 1)}
+                      className={`mt-4 mx-auto text-white py-2 px-4 rounded-full w-20 transition duration-300 ease-in-out transform hover:scale-105 ${buttonClass}`}
+                    >
+                      <FontAwesomeIcon icon={currentMobileScoreCard === 1 ? faArrowRight : faArrowLeft} />
+                    </button>
+                  </center>
                 )}
               </div>
             ) : (

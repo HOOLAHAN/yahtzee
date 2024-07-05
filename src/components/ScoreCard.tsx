@@ -25,50 +25,52 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
 
   return (
     <div id={pdfDivId} className="w-full">
-      <div>
-        <center><h2 className="text-xl mb-2">{`Player ${currentPlayer}`}</h2></center>
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr>
-              <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base"></th>
-              <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Score</th>
-              <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Category</th>
-              <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Dice</th>
+      <table className="min-w-full bg-white">
+        <thead>
+          <tr>
+            <th colSpan={4} className="py-2 px-2 border-b border-gray-200 text-center text-sm md:text-base">
+              {`Player ${currentPlayer}`}
+            </th>
+          </tr>
+          <tr>
+            <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Round</th>
+            <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Score</th>
+            <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Category</th>
+            <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Dice</th>
+          </tr>
+        </thead>
+        <tbody>
+          {scoreHistory.map((entry, index) => (
+            <tr key={index}>
+              <td className="py-2 px-4 border-b border-gray-200">{index + 1}</td>
+              <td className="py-2 px-4 border-b border-gray-200 text-sm md:text-base">{entry.roundScore}</td>
+              <td className="py-2 px-4 border-b border-gray-200 text-sm md:text-base">{entry.category}</td>
+              <td className="py-2 px-4 border-b border-gray-200">
+                <div className="flex space-x-1">
+                  {entry.dice.map((value, i) => (
+                    <Die
+                      key={i}
+                      value={value}
+                      canHold={false}
+                      isHeld={true}
+                      onToggleHold={() => {}}
+                      size="lg"
+                      className="h-4 w-4 sm:h-8 sm:w-8"
+                      shake={false}
+                    />
+                  ))}
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {scoreHistory.map((entry, index) => (
-              <tr key={index}>
-                <td className="py-2 px-4 border-b border-gray-200">{index + 1}</td>
-                <td className="py-2 px-4 border-b border-gray-200">
-                  <div className="flex space-x-1">
-                    {entry.dice.map((value, i) => (
-                      <Die
-                        key={i}
-                        value={value}
-                        canHold={false}
-                        isHeld={true}
-                        onToggleHold={() => {}}
-                        size="lg"
-                        className="h-4 w-4 sm:h-8 sm:w-8"
-                        shake={false}
-                      />
-                    ))}
-                  </div>
-                </td>
-                <td className="py-2 px-4 border-b border-gray-200 text-sm md:text-base">{entry.category}</td>
-                <td className="py-2 px-4 border-b border-gray-200 text-sm md:text-base">{entry.roundScore}</td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={3} className="py-2 px-4 border-t border-gray-200 text-right text-sm md:text-base">Total Score</td>
-              <td className="py-2 px-4 border-t border-gray-200 text-sm md:text-base">{totalScore}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan={3} className="py-2 px-4 border-t border-gray-200 text-right text-sm md:text-base">Total Score</td>
+            <td className="py-2 px-4 border-t border-gray-200 text-sm md:text-base">{totalScore}</td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
 };
