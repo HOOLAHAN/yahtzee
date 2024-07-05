@@ -228,10 +228,10 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
       {isTwoPlayer && (
         <div className="flex space-x-8 mt-4">
           <div>
-            <center><h2 className="text-xl">Player 1 Score: {player1TotalScore}</h2></center>
+            <center><h2 className="text-xl">Player 1 : {player1TotalScore}</h2></center>
           </div>
           <div>
-            <center><h2 className="text-xl">Player 2 Score: {player2TotalScore}</h2></center>
+            <center><h2 className="text-xl">Player 2 : {player2TotalScore}</h2></center>
           </div>
         </div>
       )}

@@ -13,29 +13,26 @@ const ScoreFlash: React.FC<ScoreFlashProps> = ({ category, duration = 2000, show
   const [isVisible, setIsVisible] = useState(show);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
     if (show) {
       setIsVisible(true);
-      timer = setTimeout(() => {
+      const timer = setTimeout(() => {
         setIsVisible(false);
         onEnd();
       }, duration);
+      return () => clearTimeout(timer);
     }
-    return () => {
-      clearTimeout(timer);
-    };
   }, [show, duration, onEnd]);
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center">
+    <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="bg-white text-2xl p-4 rounded shadow-lg animate-fadeInScaleUpFadeOut">
-          <FontAwesomeIcon icon={faLock} className="pr-2" />
-          {category.replace(/([A-Z])/g, ' $1').trim()}
+        <FontAwesomeIcon icon={faLock} className="pr-2" />
+        {category.replace(/([A-Z])/g, ' $1').trim()}
       </div>
     </div>
-  );
+  );  
 };
 
 export default ScoreFlash;
