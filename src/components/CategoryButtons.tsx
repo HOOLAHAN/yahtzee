@@ -22,7 +22,7 @@ interface CategoryButtonsProps {
   calculateScoreFunction: (category: Category, dice: number[]) => number;
   startNewRound: () => void;
   currentScore: number;
-  setFlashCategory: React.Dispatch<React.SetStateAction<string>>;
+  handleScoreLockIn: (category: string) => void;
   setShowFlash: React.Dispatch<React.SetStateAction<boolean>>;
   isTwoPlayer: boolean;
   currentPlayer: number;
@@ -50,7 +50,7 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
   calculateScoreFunction,
   currentScore,
   startNewRound,
-  setFlashCategory,
+  handleScoreLockIn,
   setShowFlash,
   isTwoPlayer,
   currentPlayer,
@@ -77,31 +77,34 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
           <button
             key={category}
             className={buttonClass}
-            onClick={() => lockInScore(
-              category,
-              usedCategories,
-              setUsedCategories,
-              dice,
-              setTotalScore,
-              totalScore,
-              setScoreHistory,
-              scoreHistory,
-              startNewRound,
-              setCurrentScore,
-              setHasRolled,
-              setDice,
-              setRollsLeft,
-              setHeldDice,
-              initialDice,
-              currentScore,
-              calculateScoreFunction,
-              isTwoPlayer,
-              currentPlayer,
-              player1TotalScore,
-              player2TotalScore,
-              setPlayer1TotalScore,
-              setPlayer2TotalScore
-            )}
+            onClick={() => {
+              lockInScore(
+                category,
+                usedCategories,
+                setUsedCategories,
+                dice,
+                setTotalScore,
+                totalScore,
+                setScoreHistory,
+                scoreHistory,
+                startNewRound,
+                setCurrentScore,
+                setHasRolled,
+                setDice,
+                setRollsLeft,
+                setHeldDice,
+                initialDice,
+                currentScore,
+                calculateScoreFunction,
+                isTwoPlayer,
+                currentPlayer,
+                player1TotalScore,
+                player2TotalScore,
+                setPlayer1TotalScore,
+                setPlayer2TotalScore
+              );
+              handleScoreLockIn(category);
+            }}
             disabled={!canLock || isUsed}
           >
             {category.replace(/([A-Z])/g, ' $1').trim()}

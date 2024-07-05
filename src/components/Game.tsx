@@ -1,5 +1,3 @@
-// Game.tsx
-
 import { useState, useEffect } from 'react';
 import '../tailwind.css';
 import ScoreCard from './ScoreCard';
@@ -120,9 +118,14 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
     printDocument(isTwoPlayer);
   };
 
+  const handleScoreLockIn = (category: string) => {
+    setFlashCategory(category);
+    setShowFlash(true);
+  };
+
   return (
     <div className="bg-gray-200 min-h-screen flex flex-col items-center justify-start p-4 md:p-8">
-      <h1 className="text-3xl mb-4">{isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player Mode'}</h1>
+      <h1 className="text-3xl mb-4">{isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player'}</h1>
       <DiceControl
         dice={dice}
         heldDice={heldDice}
@@ -157,7 +160,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
         initialDice={initialDice}
         currentScore={currentScore}
         calculateScoreFunction={calculateCurrentCategoryScore}
-        setFlashCategory={setFlashCategory}
+        handleScoreLockIn={handleScoreLockIn}
         setShowFlash={setShowFlash}
         isTwoPlayer={isTwoPlayer}
         currentPlayer={currentPlayer}
@@ -222,17 +225,6 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
           </>
         )}
       </div>
-      {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && (
-        <GameControlButtons
-          onResetGame={handleResetGame}
-          onPrintDocument={handlePrintDocument}
-          isMobile={windowSize < 640}
-          totalScore={totalScore}
-          usedCategories={getUsedCategories().size}
-          isUserSignedIn={isUserSignedIn}
-          isTwoPlayer={isTwoPlayer}
-        />
-      )}
       {isTwoPlayer && (
         <div className="flex space-x-8 mt-4">
           <div>
@@ -242,6 +234,17 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
             <h2 className="text-xl">Player 2 Score: {player2TotalScore}</h2>
           </div>
         </div>
+      )}
+      {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && (
+        <GameControlButtons
+          onResetGame={handleResetGame}
+          onPrintDocument={handlePrintDocument} 
+          isMobile={windowSize < 640}
+          totalScore={totalScore}
+          usedCategories={getUsedCategories().size}
+          isUserSignedIn={isUserSignedIn}
+          isTwoPlayer={isTwoPlayer}
+        />
       )}
     </div>
   );

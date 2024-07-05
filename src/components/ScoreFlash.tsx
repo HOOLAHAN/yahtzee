@@ -1,5 +1,3 @@
-// ScoreFlash.tsx
-
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock } from '@fortawesome/free-solid-svg-icons';
@@ -15,13 +13,17 @@ const ScoreFlash: React.FC<ScoreFlashProps> = ({ category, duration = 2000, show
   const [isVisible, setIsVisible] = useState(show);
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (show) {
       setIsVisible(true);
-      setTimeout(() => {
+      timer = setTimeout(() => {
         setIsVisible(false);
         onEnd();
       }, duration);
     }
+    return () => {
+      clearTimeout(timer);
+    };
   }, [show, duration, onEnd]);
 
   if (!isVisible) return null;
@@ -33,8 +35,7 @@ const ScoreFlash: React.FC<ScoreFlashProps> = ({ category, duration = 2000, show
           {category.replace(/([A-Z])/g, ' $1').trim()}
       </div>
     </div>
-  );  
-  
+  );
 };
 
 export default ScoreFlash;
