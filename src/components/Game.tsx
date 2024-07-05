@@ -180,7 +180,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
       <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8">
         {showScoreCard && (
           <>
-            {windowSize < 640 ? (
+            {windowSize < 1050 ? (
               <div className="relative p-4 w-full">
                 <ScoreCard
                   player1ScoreHistory={player1ScoreHistory}
@@ -190,12 +190,12 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
                   currentPlayer={currentMobileScoreCard}
                 />
                 {isTwoPlayer && (
-                  <button
+                  <center><button
                     onClick={() => setCurrentMobileScoreCard(currentMobileScoreCard === 1 ? 2 : 1)}
-                    className="mt-4 mx-auto bg-blue-500 text-white py-2 px-4 rounded-full w-20"
+                    className="mt-4 mx-auto bg-blue-500 text-white py-2 px-4 rounded-full w-20 transition duration-300 ease-in-out transform hover:scale-105"
                   >
-                    {currentMobileScoreCard === 1 ? 'Player 2' : 'Player 1'}
-                  </button>
+                    {currentMobileScoreCard === 1 ? '>' : '<'}
+                  </button></center>
                 )}
               </div>
             ) : (
@@ -228,10 +228,10 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
       {isTwoPlayer && (
         <div className="flex space-x-8 mt-4">
           <div>
-            <h2 className="text-xl">Player 1 Score: {player1TotalScore}</h2>
+            <center><h2 className="text-xl">Player 1 Score: {player1TotalScore}</h2></center>
           </div>
           <div>
-            <h2 className="text-xl">Player 2 Score: {player2TotalScore}</h2>
+            <center><h2 className="text-xl">Player 2 Score: {player2TotalScore}</h2></center>
           </div>
         </div>
       )}
