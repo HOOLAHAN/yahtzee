@@ -54,7 +54,7 @@ const Menu: React.FC<MenuProps> = ({
           <button onClick={toggleUserScores} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded block">My Scores</button>
         )}
         <button
-          onClick={handleToggleTwoPlayerMode} // Use the new handler here
+          onClick={handleToggleTwoPlayerMode}
           className="mt-4 px-4 py-2 bg-orange-500 text-white rounded block"
         >
           {isTwoPlayer ? 'Play Single Player' : 'Play Two Player'}
