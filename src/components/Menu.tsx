@@ -1,4 +1,3 @@
-// Menu.tsx
 import { useAuth } from '../context/AuthContext';
 
 interface MenuProps {
@@ -30,6 +29,11 @@ const Menu: React.FC<MenuProps> = ({
 }) => {
   const { userDetails } = useAuth();
 
+  const handleToggleTwoPlayerMode = () => {
+    toggleTwoPlayerMode();
+    onClose();
+  };
+
   return (
     <div id="menu" className={`${isOpen ? 'translate-x-0' : 'translate-x-full'} fixed right-0 top-0 z-40 h-full w-64 bg-white shadow-lg transform transition-transform duration-300`}>
       <div className="relative p-4">
@@ -50,7 +54,7 @@ const Menu: React.FC<MenuProps> = ({
           <button onClick={toggleUserScores} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded block">My Scores</button>
         )}
         <button
-          onClick={toggleTwoPlayerMode}
+          onClick={handleToggleTwoPlayerMode} // Use the new handler here
           className="mt-4 px-4 py-2 bg-orange-500 text-white rounded block"
         >
           {isTwoPlayer ? 'Play Single Player' : 'Play Two Player'}
