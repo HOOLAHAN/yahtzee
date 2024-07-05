@@ -3,6 +3,7 @@
 import React from 'react';
 import { ScoreEntry } from '../functions/types';
 import Die from './Die';
+import { useAuth } from '../context/AuthContext';
 
 interface ScoreCardProps {
   player1ScoreHistory: ScoreEntry[];
@@ -10,6 +11,7 @@ interface ScoreCardProps {
   player1TotalScore: number;
   player2TotalScore: number;
   currentPlayer: number;
+  isTwoPlayer: boolean;
 }
 
 const ScoreCard: React.FC<ScoreCardProps> = ({
@@ -18,7 +20,9 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
   player1TotalScore,
   player2TotalScore,
   currentPlayer,
+  isTwoPlayer,
 }) => {
+  const { userDetails } = useAuth();
   const scoreHistory = currentPlayer === 1 ? player1ScoreHistory : player2ScoreHistory;
   const totalScore = currentPlayer === 1 ? player1TotalScore : player2TotalScore;
   const pdfDivId = currentPlayer === 1 ? 'pdf-div-player1' : 'pdf-div-player2';
@@ -29,7 +33,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
         <thead>
           <tr>
             <th colSpan={4} className="py-2 px-2 border-b border-gray-200 text-center text-sm md:text-base">
-              {`Player ${currentPlayer}`}
+              {isTwoPlayer ? `Player ${currentPlayer}` : userDetails?.preferred_username || 'Player 1'}
             </th>
           </tr>
           <tr>

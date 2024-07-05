@@ -193,6 +193,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
                   player1TotalScore={player1TotalScore}
                   player2TotalScore={player2TotalScore}
                   currentPlayer={currentMobileScoreCard}
+                  isTwoPlayer={isTwoPlayer}
                 />
                 {isTwoPlayer && (
                   <center>
@@ -214,6 +215,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
                     player1TotalScore={player1TotalScore}
                     player2TotalScore={player2TotalScore}
                     currentPlayer={1}
+                    isTwoPlayer={isTwoPlayer}
                   />
                 </div>
                 {isTwoPlayer && (
@@ -224,6 +226,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
                       player1TotalScore={player1TotalScore}
                       player2TotalScore={player2TotalScore}
                       currentPlayer={2}
+                      isTwoPlayer={isTwoPlayer}
                     />
                   </div>
                 )}
