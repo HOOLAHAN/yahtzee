@@ -21,15 +21,16 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
 }) => {
   const scoreHistory = currentPlayer === 1 ? player1ScoreHistory : player2ScoreHistory;
   const totalScore = currentPlayer === 1 ? player1TotalScore : player2TotalScore;
+  const pdfDivId = currentPlayer === 1 ? 'pdf-div-player1' : 'pdf-div-player2';
 
   return (
-    <div className="w-full">
-      <div id="pdf-div">
-      <center><h2 className="text-xl mb-2">{`Player ${currentPlayer}`}</h2></center>
+    <div id={pdfDivId} className="w-full">
+      <div>
+        <h2 className="text-xl mb-2">{`Player ${currentPlayer} Score Card`}</h2>
         <table className="min-w-full bg-white">
           <thead>
             <tr>
-              <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base"> </th>
+              <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Round</th>
               <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Dice</th>
               <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Category</th>
               <th className="py-2 px-2 border-b border-gray-200 text-left text-sm md:text-base">Score</th>

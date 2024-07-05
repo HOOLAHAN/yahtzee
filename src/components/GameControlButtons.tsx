@@ -4,6 +4,7 @@ import CreateScoreButton from './CreateScoreButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { useLeaderboardRefresh } from '../context/LeaderboardRefreshContext';
+import { printDocument } from '../functions/utils'; 
 
 interface GameControlButtonsProps {
   onResetGame: () => void;
@@ -12,10 +13,10 @@ interface GameControlButtonsProps {
   totalScore: number;
   usedCategories: number;
   isUserSignedIn: boolean;
-  isTwoPlayer: boolean;
+  isTwoPlayer: boolean; 
 }
 
-const GameControlButtons: React.FC<GameControlButtonsProps> = ({ onResetGame, onPrintDocument, isMobile, totalScore, usedCategories, isUserSignedIn, isTwoPlayer }) => {
+const GameControlButtons: React.FC<GameControlButtonsProps> = ({ onResetGame, isMobile, totalScore, usedCategories, isUserSignedIn, isTwoPlayer }) => {
   const { toggleRefreshLeaderboard } = useLeaderboardRefresh();
 
   return (
@@ -29,7 +30,7 @@ const GameControlButtons: React.FC<GameControlButtonsProps> = ({ onResetGame, on
       { usedCategories === 13 && 
       <button 
         className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
-        onClick={onPrintDocument}
+        onClick={() => printDocument(isTwoPlayer)}
       >
         <FontAwesomeIcon icon={faFilePdf} className="mr-2" />
         {isMobile ? "" : "Score Card"}

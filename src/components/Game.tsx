@@ -116,6 +116,10 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
     }
   };
 
+  const handlePrintDocument = () => {
+    printDocument(isTwoPlayer);
+  };
+
   return (
     <div className="bg-gray-200 min-h-screen flex flex-col items-center justify-start p-4 md:p-8">
       <h1 className="text-3xl mb-4">{isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player Mode'}</h1>
@@ -221,7 +225,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
       {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && (
         <GameControlButtons
           onResetGame={handleResetGame}
-          onPrintDocument={printDocument}
+          onPrintDocument={handlePrintDocument}
           isMobile={windowSize < 640}
           totalScore={totalScore}
           usedCategories={getUsedCategories().size}
