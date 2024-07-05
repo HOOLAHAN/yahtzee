@@ -1,3 +1,5 @@
+// Game.tsx
+
 import { useState, useEffect } from 'react';
 import '../tailwind.css';
 import ScoreCard from './ScoreCard';
@@ -171,7 +173,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
       <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8">
         {showScoreCard && (
           <>
-            {windowSize < 1000 ? (
+            {windowSize < 640 ? (
               <div className="relative p-4 w-full">
                 <ScoreCard
                   player1ScoreHistory={player1ScoreHistory}
@@ -181,12 +183,12 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
                   currentPlayer={currentMobileScoreCard}
                 />
                 {isTwoPlayer && (
-                  <center><button
+                  <button
                     onClick={() => setCurrentMobileScoreCard(currentMobileScoreCard === 1 ? 2 : 1)}
-                    className="mt-4 mx-auto bg-blue-600 text-white py-2 px-3 rounded-full w-14"
+                    className="mt-4 mx-auto bg-blue-500 text-white py-2 px-4 rounded-full w-20"
                   >
-                    {currentMobileScoreCard === 1 ? '>' : '<'}
-                  </button></center>
+                    {currentMobileScoreCard === 1 ? 'Player 2' : 'Player 1'}
+                  </button>
                 )}
               </div>
             ) : (
@@ -216,16 +218,6 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
           </>
         )}
       </div>
-      {isTwoPlayer && (
-        <div className="flex space-x-8 mt-4">
-          <div>
-          <center><h2 className="text-xl">Player 1 Score: {player1TotalScore}</h2></center>
-          </div>
-          <div>
-          <center><h2 className="text-xl">Player 2 Score: {player2TotalScore}</h2></center>
-          </div>
-        </div>
-      )}
       {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && (
         <GameControlButtons
           onResetGame={handleResetGame}
@@ -234,7 +226,18 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
           totalScore={totalScore}
           usedCategories={getUsedCategories().size}
           isUserSignedIn={isUserSignedIn}
+          isTwoPlayer={isTwoPlayer}
         />
+      )}
+      {isTwoPlayer && (
+        <div className="flex space-x-8 mt-4">
+          <div>
+            <h2 className="text-xl">Player 1 Score: {player1TotalScore}</h2>
+          </div>
+          <div>
+            <h2 className="text-xl">Player 2 Score: {player2TotalScore}</h2>
+          </div>
+        </div>
       )}
     </div>
   );
