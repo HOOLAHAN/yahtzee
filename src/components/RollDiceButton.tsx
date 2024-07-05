@@ -8,7 +8,7 @@ interface RollDiceButtonProps {
 
 const RollDiceButton: React.FC<RollDiceButtonProps> = ({ rollsLeft, usedCategoriesSize, onRollDice }) => (
   <button
-    className="w-full md:w-auto transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mb-2 mr-2"
+    className={`w-full md:w-auto py-2 px-4 text-white rounded mb-2 mr-2 focus:ring focus:ring-blue-200 ${rollsLeft > 0 && usedCategoriesSize < 13 ? 'transition duration-300 ease-in-out transform hover:scale-105 bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
     onClick={onRollDice}
     disabled={rollsLeft <= 0 || usedCategoriesSize === 13}
   >

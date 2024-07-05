@@ -73,10 +73,13 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
         if (!canLock || isUsed) return null;
         const currentCategoryScore = calculateCurrentCategoryScore(category, dice);
         const buttonClass = getButtonClass(currentCategoryScore);
+
         return (
           <button
             key={category}
-            className={buttonClass}
+            className={`${
+              canLock ? 'transition duration-300 ease-in-out transform hover:scale-105' : ''
+            } ${buttonClass}`}
             onClick={() => {
               lockInScore(
                 category,
