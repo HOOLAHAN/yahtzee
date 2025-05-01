@@ -23,9 +23,10 @@ interface GameProps {
   initialDice?: number[];
   isTwoPlayer: boolean;
   setIsTwoPlayer: (isTwoPlayer: boolean) => void;
+  testOverrideDice?: number[];
 }
 
-const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer, setIsTwoPlayer }) => {
+const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer, setIsTwoPlayer, testOverrideDice }) => {
   const [dice, setDice] = useState(initialDice);
   const [heldDice, setHeldDice] = useState(new Set<number>());
   const [currentScore, setCurrentScore] = useState(0);
@@ -91,6 +92,14 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
       setTotalScore(currentPlayer === 1 ? player1TotalScore : player2TotalScore);
     }
   }, [currentPlayer, isTwoPlayer, player1TotalScore, player2TotalScore]);
+
+  // Inject test dice after rolling, for stable tests
+useEffect(() => {
+  if (testOverrideDice && hasRolled) {
+    setDice(testOverrideDice);
+  }
+}, [testOverrideDice, hasRolled]);
+
 
   const updateScores = (newTotalScore: number) => {
     if (isTwoPlayer) {
