@@ -6,7 +6,7 @@ import {
   calculateFullHouse,
   isStraight,
   calculateChance,
-} from '../functions/scoreCalculator';
+} from '../../functions/scoreCalculator';
 
 interface ScoresSectionProps {
   dice: number[];

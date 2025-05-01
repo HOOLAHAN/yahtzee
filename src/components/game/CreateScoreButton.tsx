@@ -3,9 +3,9 @@
 import React from 'react';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/api';
-import config from '../amplifyconfiguration.json';
-import { createScore } from '../graphql/mutations';
-import { useAuth } from '../context/AuthContext';
+import config from '../../amplifyconfiguration.json';
+import { createScore } from '../../graphql/mutations';
+import { useAuth } from '../../context/AuthContext';
 
 Amplify.configure(config);
 const client = generateClient();

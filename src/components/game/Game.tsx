@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import '../styles/tailwind.css';
+import '../../styles/tailwind.css';
 import ScoreCard from './ScoreCard';
 import ScoreFlash from './ScoreFlash';
 import GameControlButtons from './GameControlButtons';
 import ScoreDisplay from './ScoreDisplay';
-import CategoryButtons from './CategoryButtons';
+import CategoryButtons from '../CategoryButtons';
 import DiceControl from './DiceControl';
 import ScoresSection from './ScoresSection';
 
-import { calculateCurrentCategoryScore, calculateMaximumScore } from '../functions/scoreCalculator';
-import { toggleHoldDie } from '../functions/diceLogic';
-import { resetGame, startNewRound } from '../functions/gameControl';
-import { ScoreEntry } from '../functions/types';
-import { getDieSize, printDocument } from '../functions/utils';
-import { useWindowSize } from '../hooks/useWindowSize';
-import { handleRollDice } from '../functions/handleRollDice';
-import { useAuth } from '../context/AuthContext';
+import { calculateCurrentCategoryScore, calculateMaximumScore } from '../../functions/scoreCalculator';
+import { toggleHoldDie } from '../../functions/diceLogic';
+import { resetGame, startNewRound } from '../../functions/gameControl';
+import { ScoreEntry } from '../../functions/types';
+import { getDieSize, printDocument } from '../../functions/utils';
+import { useWindowSize } from '../../hooks/useWindowSize';
+import { handleRollDice } from '../../functions/handleRollDice';
+import { useAuth } from '../../context/AuthContext';
 
 interface GameProps {
   initialDice?: number[];

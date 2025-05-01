@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import './styles/tailwind.css';
 import Navbar from './components/Navbar';
-import Game from './components/Game';
+import Game from './components/game/Game';
 import { AuthProvider } from './context/AuthContext';
 import { LeaderboardRefreshProvider } from './context/LeaderboardRefreshContext';
 

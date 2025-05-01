@@ -1,9 +1,9 @@
 // ScoreCard.tsx
 
 import React from 'react';
-import { ScoreEntry } from '../functions/types';
+import { ScoreEntry } from '../../functions/types';
 import Die from './Die';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface ScoreCardProps {
   player1ScoreHistory: ScoreEntry[];

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import Game from '../components/Game';
+import Game from '../components/game/Game';
 import * as AuthContext from '../context/AuthContext';
 
 HTMLCanvasElement.prototype.getContext = jest.fn();
