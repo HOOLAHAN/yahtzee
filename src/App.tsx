@@ -1,7 +1,7 @@
 // App.tsx
 
 import { useState } from 'react';
-import './tailwind.css';
+import './styles/tailwind.css';
 import Navbar from './components/Navbar';
 import Game from './components/Game';
 import { AuthProvider } from './context/AuthContext';

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import About from './About';
-import '../tailwind.css';
+import '../styles/tailwind.css';
 import AuthenticationManager from './AuthenticationManager';
 import { useAuth } from '../context/AuthContext';
 import Leaderboard from './Leaderboard';

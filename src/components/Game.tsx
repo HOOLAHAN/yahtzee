@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import '../tailwind.css';
+import '../styles/tailwind.css';
 import ScoreCard from './ScoreCard';
 import ScoreFlash from './ScoreFlash';
 import GameControlButtons from './GameControlButtons';
