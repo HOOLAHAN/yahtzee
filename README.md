@@ -6,7 +6,7 @@ This project is an interactive Yahtzee! game web application developed with Reac
 
 ## Deployed Page
 
-Access the live application [here](http://yahtzeehub.s3-website.eu-west-2.amazonaws.com/).
+Access the live application [here](https://d2q1p79jvmctkj.cloudfront.net/).
 
 ## Features
 
