@@ -24,34 +24,112 @@ Access the live application [here](https://d2q1p79jvmctkj.cloudfront.net/).
 - User authentication for secure access
 - Leaderboard feature to track high scores
 
+## Demo
+
+### 🔐 User Authentication
+
+**Landing Page**  
+Shows the welcome screen with access to login and sign-up:
+
+![Landing Page](./docs/demo/landing_page.png)
+
+**Login Form**  
+Secure user sign-in using AWS Cognito:
+
+![Login Form](./docs/demo/login_form.png)
+
+---
+
+### 🎮 Gameplay (Single Player)
+
+**Rolling Dice**  
+User rolls five dice with visual feedback on remaining rolls:
+
+![Roll Dice](./docs/demo/single_player_roll_dice.png)
+
+**Holding Dice**  
+Clicking dice allows players to hold values between rolls:
+
+![Hold Dice](./docs/demo/single_player_hold_dice.png)
+
+**Locking in Scores**  
+Once a valid combination is rolled, users can lock in scores (e.g., Full House, Three of a Kind):
+
+![Lock In Score](./docs/demo/single_player_lock_in_score.png)
+
+---
+
+### 👥 Two Player Mode
+
+Alternate turns and separate scoring tracked between players:
+
+![Two Player Gameplay](./docs/demo/two_player_gameplay.png)
+
+---
+
+### 🧭 Navigation & UI
+
+**Main Menu**  
+Access key features such as the game, leaderboard, about, and settings:
+
+![Menu](./docs/demo/menu.png)
+
+---
+
+### 🏆 Leaderboard
+
+Scores submitted by users are saved and ranked using AWS DynamoDB:
+
+![Leaderboard](./docs/demo/leaderboard.png)
+
+---
+
+### 📱 Mobile Responsive Design
+
+UI adapts for smaller screens with clean layout and functionality:
+
+![Mobile View](./docs/demo/mobile_view.png)
+
+---
+
 ## Architecture
 
 The application's frontend is built using React and TypeScript, with state management handled via React's Context API. AWS Amplify facilitates the frontend deployment and hosting, AWS Cognito provides user authentication services, and AWS DynamoDB is used for storing and retrieving leaderboard data.
 
 ## Project Structure
 
-The Yahtzee! game project is structured as follows:
-
-- `amplify` - AWS Amplify configuration files and backend resources.
-- `src` - Source code for the application:
-  - `components` - React components for the UI:
-    - `Game.tsx` - **The parent component that encapsulates all game-related child components.**
-    - `Navbar.tsx` - Navigation bar for the app.
-    - `AuthenticationManager.tsx` - Manages user authentication logic.
-    - `CategoryButtons.tsx` - Renders category buttons for the game.
-    - `DiceControl.tsx` - Controls for rolling and holding dice.
-    - `Leaderboard.tsx` - Displays the game's leaderboard.
-    - ... etc.
-  - `context` - Contains React context for state management.
-  - `functions` - Utility functions, including game logic and score calculations.
-  - `graphql` - GraphQL queries, mutations, and subscriptions.
-  - `hooks` - Custom React hooks.
-  - `tests` - Test files for the components and functions.
-  - `App.tsx` - The main React component that renders the app.
-  - `index.tsx` - The entry point for the React application.
-- `tailwind.css` - Tailwind CSS framework configuration.
-
-This structure is designed to separate concerns and enhance maintainability. The `src` directory is further modularised to reflect different aspects of the application, such as UI components (`components`), application logic (`context`, `functions`), and API interactions (`graphql`).
+```
+.
+├── .github/workflows       # CI/CD pipelines
+├── .vscode                 # VSCode workspace settings
+├── amplify                 # AWS Amplify backend resources
+├── public                  # Static assets
+├── src                     # Application source code
+│   ├── components          # UI components
+│   │   ├── auth            # Sign-up, login, email verification
+│   │   ├── common          # Reusable UI like About, Settings, Leaderboard
+│   │   ├── game            # All Yahtzee gameplay components (Dice, Game, ScoreCard, etc.)
+│   │   └── layout          # Navbar, Menu
+│   ├── context             # Authentication context
+│   ├── graphql             # GraphQL schema, queries, mutations, subscriptions
+│   ├── hooks               # Custom React hooks (e.g., useWindowSize)
+│   ├── lib                 # Game logic, score calculation, utilities
+│   ├── styles              # Tailwind CSS configuration and output
+│   ├── tests               # Unit and integration tests
+│   ├── App.tsx            # Root application component
+│   ├── index.tsx          # React entry point
+│   ├── amplify-config.tsx # Amplify setup
+│   ├── awsConfig.jsx      # AWS credentials/configs
+│   └── setupTests.ts      # Test setup for Jest
+├── .eslintignore
+├── .gitignore
+├── .graphqlconfig.yml
+├── README.md
+├── package.json
+├── package-lock.json
+├── tailwind.config.js
+└── tsconfig.json
+```
 
 ## Prerequisites
 
@@ -64,8 +142,6 @@ This structure is designed to separate concerns and enhance maintainability. The
 
 ### Cloning the Repository
 
-Clone the repository using the following command:
-
 ```bash
 git clone https://github.com/yourusername/yahtzee.git
 cd yahtzee
@@ -73,21 +149,19 @@ cd yahtzee
 
 ### Installing Dependencies
 
-Install the required npm packages using:
-
 ```bash
 npm install
 ```
 
 ### AWS Configuration
 
-In order to interact with the leaderboard, you need to set up AWS Amplify, Cognito, and DynamoDB. Follow the instructions provided in the `aws-setup-instructions.md` to configure your AWS resources.
+To interact with the leaderboard, set up AWS Amplify, Cognito, and DynamoDB. Follow the `aws-setup-instructions.md` to configure your AWS resources.
 
 ### Environment Variables
 
-Create a `.env` file in the root directory and add the necessary environment variables:
+Create a `.env` file in the root directory with:
 
-```plaintext
+```env
 REACT_APP_USER_POOL_ID=your_cognito_user_pool_id
 REACT_APP_CLIENT_ID=your_cognito_app_client_id
 REACT_APP_AWS_REGION=your_aws_region
@@ -98,21 +172,17 @@ REACT_APP_AWS_USER_POOLS_ID=your_cognito_user_pools_id
 REACT_APP_AWS_POOLS_WEB_CLIENT_ID=your_cognito_user_pools_web_client_id
 ```
 
-Replace the placeholders with your actual AWS resource information.
+Replace values with your actual AWS credentials.
 
 ## Running the Game Locally
-
-Start the development server with:
 
 ```bash
 npm start
 ```
 
-Navigate to [http://localhost:3000/](http://localhost:3000/) in your browser to view the app.
+Visit [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 ## Running Tests
-
-Execute the test suites with:
 
 ```bash
 npm test
@@ -120,7 +190,7 @@ npm test
 
 ## Contributing
 
-We welcome contributions to enhance the application's functionality and user experience. If you have improvements or bug fixes, please fork the repository, make your changes, and submit a pull request.
+Contributions to improve features or fix bugs are welcome. Fork the repository, create a branch, make your changes, and submit a pull request.
 
 ---
 
