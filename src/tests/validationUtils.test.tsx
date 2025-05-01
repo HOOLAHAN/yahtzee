@@ -1,4 +1,4 @@
-import { validateSignUpForm, SignUpFormInputs } from '../functions/validationUtils';
+import { validateSignUpForm, SignUpFormInputs } from '../lib/validationUtils';
 
 describe('validateSignUpForm', () => {
   it('should return an error for an empty email', () => {

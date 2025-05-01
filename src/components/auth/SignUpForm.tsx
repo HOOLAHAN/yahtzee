@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { validateSignUpForm, SignUpFormErrors } from '../../functions/validationUtils';
+import { validateSignUpForm, SignUpFormErrors } from '../../lib/validationUtils';
 
 interface SignUpFormProps {
   onSwitch: () => void;

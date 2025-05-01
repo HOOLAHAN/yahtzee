@@ -10,13 +10,13 @@ import CategoryButtons from './CategoryButtons';
 import DiceControl from './DiceControl';
 import ScoresSection from './ScoresSection';
 
-import { calculateCurrentCategoryScore, calculateMaximumScore } from '../../functions/scoreCalculator';
-import { toggleHoldDie } from '../../functions/diceLogic';
-import { resetGame, startNewRound } from '../../functions/gameControl';
-import { ScoreEntry } from '../../functions/types';
-import { getDieSize, printDocument } from '../../functions/utils';
+import { calculateCurrentCategoryScore, calculateMaximumScore } from '../../lib/scoreCalculator';
+import { toggleHoldDie } from '../../lib/diceLogic';
+import { resetGame, startNewRound } from '../../lib/gameControl';
+import { ScoreEntry } from '../../lib/types';
+import { getDieSize, printDocument } from '../../lib/utils';
 import { useWindowSize } from '../../hooks/useWindowSize';
-import { handleRollDice } from '../../functions/handleRollDice';
+import { handleRollDice } from '../../lib/handleRollDice';
 import { useAuth } from '../../context/AuthContext';
 
 interface GameProps {

@@ -8,7 +8,7 @@ import {
   calculateScoreFunction,
   calculateCurrentCategoryScore,
   calculateMaximumScore,
-} from '../functions/scoreCalculator';
+} from '../lib/scoreCalculator';
 
 describe('scoreCalculator', () => {
   describe('calculateFullHouse', () => {

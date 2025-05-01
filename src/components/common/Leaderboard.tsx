@@ -1,7 +1,7 @@
 // Leaderboard.tsx
 
 import React, { useEffect, useState } from 'react';
-import { fetchScores, ScoreItem, fetchUserScores } from '../../functions/scoreboardUtils';
+import { fetchScores, ScoreItem, fetchUserScores } from '../../lib/scoreboardUtils';
 import { useAuth } from '../../context/AuthContext'; 
 import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
 

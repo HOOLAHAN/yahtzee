@@ -1,7 +1,7 @@
 // ScoreCard.tsx
 
 import React from 'react';
-import { ScoreEntry } from '../../functions/types';
+import { ScoreEntry } from '../../lib/types';
 import Die from './Die';
 import { useAuth } from '../../context/AuthContext';
 

@@ -4,7 +4,7 @@ import CreateScoreButton from './CreateScoreButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
-import { printDocument } from '../../functions/utils'; 
+import { printDocument } from '../../lib/utils'; 
 
 interface GameControlButtonsProps {
   onResetGame: () => void;

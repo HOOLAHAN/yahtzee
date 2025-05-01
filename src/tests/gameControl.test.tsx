@@ -1,5 +1,5 @@
-import { canLockInScore, lockInScore, resetGame, startNewRound } from '../functions/gameControl';
-import { ScoreEntry } from '../functions/types';
+import { canLockInScore, lockInScore, resetGame, startNewRound } from '../lib/gameControl';
+import { ScoreEntry } from '../lib/types';
 
 describe("canLockInScore function", () => {
   it("should return false if not rolled", () => {

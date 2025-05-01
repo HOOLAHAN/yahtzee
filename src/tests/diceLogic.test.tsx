@@ -1,4 +1,4 @@
-import { rollDie, rollDice, toggleHoldDie } from "../functions/diceLogic";
+import { rollDie, rollDice, toggleHoldDie } from "../lib/diceLogic";
 
 describe("rollDie function", () => {
   it("should return a number between 1 and 6", () => {
