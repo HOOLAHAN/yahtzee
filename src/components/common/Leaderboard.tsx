@@ -1,9 +1,9 @@
 // Leaderboard.tsx
 
 import React, { useEffect, useState } from 'react';
-import { fetchScores, ScoreItem, fetchUserScores } from '../functions/scoreboardUtils';
-import { useAuth } from '../context/AuthContext'; 
-import { useLeaderboardRefresh } from '../context/LeaderboardRefreshContext';
+import { fetchScores, ScoreItem, fetchUserScores } from '../../functions/scoreboardUtils';
+import { useAuth } from '../../context/AuthContext'; 
+import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
 
 interface LeaderboardProps {
   showUserScores: boolean;

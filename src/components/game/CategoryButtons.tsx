@@ -1,8 +1,8 @@
 import React from 'react';
-import { lockInScore, canLockInScore } from '../functions/gameControl';
-import { calculateCurrentCategoryScore } from '../functions/scoreCalculator';
-import { getButtonClass } from '../functions/utils';
-import { Category } from '../functions/types';
+import { lockInScore, canLockInScore } from '../../functions/gameControl';
+import { calculateCurrentCategoryScore } from '../../functions/scoreCalculator';
+import { getButtonClass } from '../../functions/utils';
+import { Category } from '../../functions/types';
 
 interface CategoryButtonsProps {
   dice: number[];

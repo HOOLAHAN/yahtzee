@@ -1,13 +1,13 @@
 // Navbar.tsx
 
 import { useState, useEffect } from 'react';
-import About from './About';
-import '../styles/tailwind.css';
-import AuthenticationManager from './auth/AuthenticationManager';
-import { useAuth } from '../context/AuthContext';
-import Leaderboard from './Leaderboard';
+import About from '../common/About';
+import '../../styles/tailwind.css';
+import AuthenticationManager from '../auth/AuthenticationManager';
+import { useAuth } from '../../context/AuthContext';
+import Leaderboard from '../common/Leaderboard';
 import Menu from './Menu';
-import Settings from './Settings';
+import Settings from '../common/Settings';
 
 interface NavbarProps {
   isTwoPlayer: boolean;

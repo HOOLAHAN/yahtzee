@@ -6,7 +6,7 @@ import ScoreCard from './ScoreCard';
 import ScoreFlash from './ScoreFlash';
 import GameControlButtons from './GameControlButtons';
 import ScoreDisplay from './ScoreDisplay';
-import CategoryButtons from '../CategoryButtons';
+import CategoryButtons from './CategoryButtons';
 import DiceControl from './DiceControl';
 import ScoresSection from './ScoresSection';
 
