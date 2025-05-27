@@ -106,21 +106,21 @@ The application's frontend is built using React and TypeScript, with state manag
 ├── public                  # Static assets
 ├── src                     # Application source code
 │   ├── components          # UI components
-│   │   ├── auth            # Sign-up, login, email verification
-│   │   ├── common          # Reusable UI like About, Settings, Leaderboard
-│   │   ├── game            # All Yahtzee gameplay components (Dice, Game, ScoreCard, etc.)
-│   │   └── layout          # Navbar, Menu
-│   ├── context             # Authentication context
+│   │   ├── auth            # AuthenticationManager.tsx, EmailVerificationForm.tsx, LoginForm.tsx, SignUpForm.tsx
+│   │   ├── common          # About.tsx, Leaderboard.tsx, Settings.tsx
+│   │   ├── game            # All Yahtzee gameplay components (CategoryButtons, CreateScoreButton, DiceControl, DiceDisplay, Die, Game, GameControlButtons, RollDiceButton, ScoreCard, ScoreDisplay, ScoreFlash, ScoresSection)
+│   │   └── layout          # Navbar.tsx, Menu.tsx
+│   ├── context             # AuthContext.tsx, LeaderboardRefreshContext.tsx
 │   ├── graphql             # GraphQL schema, queries, mutations, subscriptions
-│   ├── hooks               # Custom React hooks (e.g., useWindowSize)
-│   ├── lib                 # Game logic, score calculation, utilities
+│   ├── hooks               # Custom React hooks (e.g., useWindowSize.tsx)
+│   ├── lib                 # diceLogic.tsx, gameControl.tsx, handleRollDice.tsx, scoreboardUtils.tsx, scoreCalculator.tsx, types.tsx, utils.tsx, validationUtils.tsx
 │   ├── styles              # Tailwind CSS configuration and output
 │   ├── tests               # Unit and integration tests
-│   ├── App.tsx            # Root application component
-│   ├── index.tsx          # React entry point
-│   ├── amplify-config.tsx # Amplify setup
-│   ├── awsConfig.jsx      # AWS credentials/configs
-│   └── setupTests.ts      # Test setup for Jest
+│   ├── App.tsx             # Root application component
+│   ├── index.tsx           # React entry point
+│   ├── amplify-config.tsx  # Amplify setup
+│   ├── awsConfig.jsx       # AWS credentials/configs
+│   └── setupTests.ts       # Test setup for Jest
 ├── .eslintignore
 ├── .gitignore
 ├── .graphqlconfig.yml
