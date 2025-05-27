@@ -1,7 +1,7 @@
 {
   "name": "yahtzee",
   "version": "0.1.0",
-  "homepage": "/yahtzee",
+  "homepage": "/",
   "private": true,
   "dependencies": {
     "@aws-amplify/auth": "^6.0.17",
