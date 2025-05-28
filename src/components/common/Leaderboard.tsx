@@ -40,27 +40,31 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
   const heading = showUserScores ? 'My Scores' : 'High Scores';
   
   return (
-    <div className="max-w-xl mx-auto">
-      <h3 className="text-2xl font-bold text-center m-4">{heading}</h3>
+    <div className="max-w-xl mx-auto p-6 bg-deepBlack rounded-2xl shadow-xl border-4 border-neonCyan">
+      <h3 className="text-3xl font-bold text-center mb-6 text-neonYellow animate-pulse-glow drop-shadow-[0_0_10px_#faff00]">
+        {heading}
+      </h3>
       {scores.length ? (
-        <ul className="bg-white shadow overflow-hidden rounded-md">
+        <ul className="space-y-4">
           {scores.map((score, index) => (
-            <li key={score.id} className={`px-4 py-4 sm:px-6 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-medium text-indigo-600 truncate">
-                  {index + 1}. {score.username}
-                </div>
-                <div className="ml-2 flex-shrink-0 flex">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    Score: {score.score}
-                  </span>
-                </div>
+            <li
+              key={score.id}
+              className={`flex items-center justify-between px-4 py-3 rounded-xl transition transform hover:scale-[1.02] shadow-md
+              ${index % 2 === 0 ? 'bg-black/70' : 'bg-black/50'}`}
+            >
+              <div className="text-neonCyan font-semibold text-lg">
+                {index + 1}. {score.username}
+              </div>
+              <div>
+                <span className="bg-neonYellow text-deepBlack font-bold px-3 py-1 rounded-full text-sm shadow">
+                  {score.score}
+                </span>
               </div>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-center text-gray-500">No scores available.</p>
+        <p className="text-center text-gray-400 mt-6">No scores available.</p>
       )}
     </div>
   );

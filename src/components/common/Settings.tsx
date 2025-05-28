@@ -48,37 +48,41 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed right-0 top-0 z-50 h-full w-64 bg-white shadow-lg transform transition-transform duration-300">
-      <div className="relative p-4">
+    <div className="fixed right-0 top-0 z-50 h-full w-72 bg-deepBlack text-mintGlow shadow-xl transform transition-transform duration-300 border-l-4 border-neonCyan">
+      <div className="relative p-5 space-y-6">
         <button
           onClick={onClose}
-          className="absolute top-0 right-0 mt-4 mr-4 text-xl text-gray-800 hover:text-gray-600"
+          className="absolute top-0 right-0 mt-4 mr-4 text-3xl text-neonCyan hover:text-electricPink"
           aria-label="Close settings"
         >
           &times;
         </button>
-        <h2 className="font-semibold text-lg mb-4">Settings</h2>
-        <h3 className="font-semibold text-md mb-2">Account Details:</h3>
-        <h3 className="text-sm mb-2">Username - {userDetails.preferred_username}</h3>
-        <h3 className="text-sm mb-2">Email - {userDetails.email}</h3>
-        {/* Password reset request form */}
+
+        <h2 className="text-2xl font-bold text-neonYellow animate-pulse-glow">Settings</h2>
+
+        <div>
+          <h3 className="font-semibold">Account:</h3>
+          <p className="text-sm">Username: {userDetails.preferred_username}</p>
+          <p className="text-sm">Email: {userDetails.email}</p>
+        </div>
+
         {!showConfirmDelete && !showResetPassword && (
-          <div className="mt-4">
-            <h3 className="font-semibold mb-4">Reset Password:</h3>
+          <div>
+            <h3 className="font-semibold">Reset Password</h3>
             <button
               onClick={handleRequestResetPassword}
-              className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
+              className="w-full py-2 px-4 bg-neonCyan text-black rounded-xl font-semibold hover:bg-electricPink transition"
             >
               Send Reset Code
             </button>
           </div>
         )}
-        {/* Confirm reset password form */}
+
         {showResetPassword && (
-          <form onSubmit={handleConfirmResetPassword} className="space-y-4 mt-4">
+          <form onSubmit={handleConfirmResetPassword} className="space-y-4">
             <h3 className="font-semibold">Enter Confirmation Code</h3>
             <input
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full px-3 py-2 bg-black text-white border border-neonCyan rounded focus:outline-none focus:ring-2 focus:ring-neonCyan"
               type="text"
               placeholder="Confirmation Code"
               value={confirmationCode}
@@ -87,7 +91,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
             />
             <h3 className="font-semibold">Enter New Password</h3>
             <input
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full px-3 py-2 bg-black text-white border border-neonCyan rounded focus:outline-none focus:ring-2 focus:ring-neonCyan"
               type="password"
               placeholder="New Password"
               value={newPassword}
@@ -96,43 +100,43 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
             />
             <button
               type="submit"
-              className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="w-full py-2 bg-neonCyan text-black rounded-xl font-semibold hover:bg-electricPink transition"
             >
               Reset Password
             </button>
           </form>
         )}
-        {/* Delete account button and confirmation */}
+
         {!showResetPassword && (
-        <div className="mt-6">
-          <h3 className="font-semibold mb-4">Delete Account:</h3>
-          {!showConfirmDelete ? (
-            <button
-              onClick={() => setShowConfirmDelete(true)}
-              className="w-full p-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              Delete Account
-            </button>
-          ) : (
-            <div className="space-y-2">
-              <p>Are you sure you want to delete your account? This cannot be undone.</p>
-              <div className="flex justify-between">
-                <button
-                  onClick={handleDeleteAccount}
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                >
-                  Confirm
-                </button>
-                <button
-                  onClick={() => setShowConfirmDelete(false)}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
+          <div>
+            <h3 className="font-semibold">Delete Account</h3>
+            {!showConfirmDelete ? (
+              <button
+                onClick={() => setShowConfirmDelete(true)}
+                className="w-full py-2 font-semibold rounded-xl border border-red-500 text-red-400 bg-deepBlack hover:bg-red-900 hover:text-white hover:border-red-400 transition duration-300 shadow-md hover:shadow-red-500"
+              >
+                Delete Account
+              </button>
+            ) : (
+              <div className="space-y-2 text-sm">
+                <p className="text-red-400">Are you sure? This cannot be undone.</p>
+                <div className="flex justify-between gap-2">
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="flex-1 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    onClick={() => setShowConfirmDelete(false)}
+                    className="flex-1 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
         )}
       </div>
     </div>
