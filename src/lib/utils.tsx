@@ -53,9 +53,13 @@ export const printDocument = (isTwoPlayer: boolean) => {
 };
 
 
-export const getButtonClass = (score: number) => score === 0
-  ? "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-200 text-white hover:bg-green-300 focus:ring focus:ring-green-100"
-  : "transition duration-300 ease-in-out transform py-2 px-4 rounded mb-2 mr-2 bg-green-600 text-white hover:bg-green-700 focus:ring focus:ring-green-200";
+export const getButtonClass = (score: number) => {
+  if (score > 0) {
+    return 'px-3 py-2 rounded-md font-semibold text-deepBlack bg-neonYellow shadow-[0_0_10px_#faff00] hover:brightness-110 transition duration-300 ease-in-out transform hover:scale-105';
+  } else {
+    return 'px-3 py-2 rounded-md font-semibold text-white bg-red-600 shadow-md hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105';
+  }
+};
 
 export const getDieSize = (windowSize: number) => {
   if (windowSize < 640) return '3x';

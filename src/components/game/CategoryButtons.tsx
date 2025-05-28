@@ -60,26 +60,29 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
   setPlayer2TotalScore,
 }) => {
   const categories: Category[] = [
-    'Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 
-    'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 
+    'Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes',
+    'ThreeOfAKind', 'FourOfAKind', 'FullHouse',
     'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'
   ];
 
   return (
-    <div className="flex flex-wrap space-x-2 max-w-3xl mx-auto justify-center">
+    <div className="flex flex-wrap justify-center gap-3 mt-6 max-w-5xl mx-auto">
       {categories.map((category) => {
         const canLock = canLockInScore(category, hasRolled, usedCategories);
         const isUsed = usedCategories.has(category);
         if (!canLock || isUsed) return null;
+
         const currentCategoryScore = calculateCurrentCategoryScore(category, dice);
         const buttonClass = getButtonClass(currentCategoryScore);
 
         return (
           <button
             key={category}
-            className={`${
-              canLock ? 'transition duration-300 ease-in-out transform hover:scale-105' : ''
-            } ${buttonClass}`}
+            className={`
+              ${buttonClass}
+              ${isUsed ? 'cursor-not-allowed opacity-70' : ''}
+              ${!canLock ? 'cursor-not-allowed opacity-40' : ''}
+            `}
             onClick={() => {
               lockInScore(
                 category,
@@ -110,7 +113,7 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
             }}
             disabled={!canLock || isUsed}
           >
-            {category.replace(/([A-Z])/g, ' $1').trim()}
+            {category.replace(/([A-Z])/g, ' $1').trim()} ({currentCategoryScore})
           </button>
         );
       })}
