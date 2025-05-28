@@ -123,13 +123,13 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
                 <div className="flex justify-between gap-2">
                   <button
                     onClick={handleDeleteAccount}
-                    className="flex-1 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                    className="flex-1 py-2 font-semibold rounded-xl border border-red-500 text-red-400 bg-deepBlack hover:bg-red-800 hover:text-white hover:border-red-400 transition shadow-sm hover:shadow-red-500"
                   >
                     Confirm
                   </button>
                   <button
                     onClick={() => setShowConfirmDelete(false)}
-                    className="flex-1 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                    className="flex-1 py-2 font-semibold rounded-xl border border-gray-500 text-gray-300 bg-deepBlack hover:bg-gray-700 hover:text-white hover:border-gray-300 transition"
                   >
                     Cancel
                   </button>
