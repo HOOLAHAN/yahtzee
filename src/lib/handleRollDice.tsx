@@ -16,6 +16,6 @@ export const handleRollDice = (
     setTimeout(() => {
       setShouldShake(false);
       rollDice(rollsLeft, dice, heldDice, setHasRolled, setDice, setRollsLeft, setCurrentScore);
-    }, 800);
+    }, 700);
   }
 };

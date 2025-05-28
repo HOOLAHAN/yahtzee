@@ -48,7 +48,7 @@ const Die: React.FC<DieProps> = ({
     }
   };
 
-  const shouldShake = shake && !isHeld;
+  const shakeClass = shake && !isHeld ? 'animate-spin-wiggle' : '';
 
   return (
     <div
@@ -59,12 +59,18 @@ const Die: React.FC<DieProps> = ({
       role="button"
       aria-label={`${value}`}
     >
-      <FontAwesomeIcon
-        icon={diceIcon()}
-        size={size || '3x'}
-        style={{ color: isHeld ? '#22c65f' : '#888888' }}
-        spinPulse={shouldShake}
-      />
+    <FontAwesomeIcon
+      icon={diceIcon()}
+      size={size || '3x'}
+      className={`${shakeClass} align-middle`}
+      style={{
+        color: isHeld ? '#faff00' : '#00f7ff',
+        backgroundColor: '#0d0d0d',
+        borderRadius: '0.5rem',
+        padding: '0.25rem',
+        display: 'block', 
+      }}
+    />
     </div>
   );
 };
