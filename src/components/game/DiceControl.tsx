@@ -28,7 +28,7 @@ const DiceControl: React.FC<DiceControlProps> = ({
   onRollDice,
 }) => {
   return (
-    <div>
+    <div className="bg-deepBlack text-mintGlow p-4 rounded-lg shadow-md">
       <DiceDisplay
         dice={dice}
         heldDice={heldDice}
@@ -38,7 +38,7 @@ const DiceControl: React.FC<DiceControlProps> = ({
         shouldShake={shouldShake}
         dieSize={dieSize}
       />
-      <h2 className="text-l mb-2 text-center">Toggle to hold dice</h2>
+      <h2 className="text-electricPink text-center mb-2 font-semibold text-sm uppercase">Tap to Hold Dice</h2>
       <div className="flex justify-center space-x-2">
         <RollDiceButton
           rollsLeft={rollsLeft}

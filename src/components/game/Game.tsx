@@ -93,13 +93,11 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
     }
   }, [currentPlayer, isTwoPlayer, player1TotalScore, player2TotalScore]);
 
-  // Inject test dice after rolling, for stable tests
-useEffect(() => {
-  if (testOverrideDice && hasRolled) {
-    setDice(testOverrideDice);
-  }
-}, [testOverrideDice, hasRolled]);
-
+  useEffect(() => {
+    if (testOverrideDice && hasRolled) {
+      setDice(testOverrideDice);
+    }
+  }, [testOverrideDice, hasRolled]);
 
   const updateScores = (newTotalScore: number) => {
     if (isTwoPlayer) {
@@ -134,12 +132,11 @@ useEffect(() => {
     setShowFlash(true);
   };
 
-  const playerClass = isTwoPlayer ? (currentPlayer === 1 ? 'bg-green-100' : 'bg-blue-100') : 'bg-gray-100';
-  const buttonClass = currentPlayer === 1 ? 'bg-green-500 hover:bg-green-700' : 'bg-blue-500 hover:bg-blue-700';
-
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-start p-4 md:p-8 ${playerClass}`}>
-      <h1 className="text-3xl mb-4">{isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player'}</h1>
+    <div className="min-h-screen flex flex-col items-center justify-start p-4 md:p-8 bg-deepBlack text-mintGlow">
+      <h1 className="text-3xl font-bold text-neonYellow mb-4 animate-pulse-glow">
+        {isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player'}
+      </h1>
       <DiceControl
         dice={dice}
         heldDice={heldDice}
@@ -155,7 +152,7 @@ useEffect(() => {
         currentScore={calculateMaximumScore(dice, hasRolled, getUsedCategories())}
         totalScore={isTwoPlayer ? (currentPlayer === 1 ? player1TotalScore : player2TotalScore) : totalScore}
       />
-      {hasRolled && <h2 className="text-2xl mb-2">Lock In Score:</h2>}
+      {hasRolled && <h2 className="text-2xl text-neonYellow mb-2">Lock In Score:</h2>}
       <CategoryButtons
         dice={dice}
         hasRolled={hasRolled}
@@ -190,67 +187,65 @@ useEffect(() => {
           hasRolled={hasRolled} 
         />
       )}
-      {showScoreCard && <h2 className="text-2xl mb-2">Score Card:</h2>}
+      {showScoreCard && <h2 className="text-2xl text-neonYellow mb-2">Score Card:</h2>}
       <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8">
         {showScoreCard && (
-          <>
-            {windowSize < 1050 ? (
-              <div className="relative p-4 w-full">
+          windowSize < 1050 ? (
+            <div className="relative p-4 w-full">
+              <ScoreCard
+                player1ScoreHistory={player1ScoreHistory}
+                player2ScoreHistory={player2ScoreHistory}
+                player1TotalScore={player1TotalScore}
+                player2TotalScore={player2TotalScore}
+                currentPlayer={currentMobileScoreCard}
+                isTwoPlayer={isTwoPlayer}
+              />
+              {isTwoPlayer && (
+                <center>
+                  <button
+                    onClick={() => setCurrentMobileScoreCard(currentMobileScoreCard === 1 ? 2 : 1)}
+                    className="mt-4 mx-auto text-deepBlack bg-neonCyan hover:bg-electricPink font-bold py-2 px-4 rounded-full w-20 transition duration-300 ease-in-out transform hover:scale-105"
+                  >
+                    <FontAwesomeIcon icon={currentMobileScoreCard === 1 ? faArrowRight : faArrowLeft} />
+                  </button>
+                </center>
+              )}
+            </div>
+          ) : (
+            <div className="flex w-full space-x-8">
+              <div className="flex-1">
                 <ScoreCard
                   player1ScoreHistory={player1ScoreHistory}
                   player2ScoreHistory={player2ScoreHistory}
                   player1TotalScore={player1TotalScore}
                   player2TotalScore={player2TotalScore}
-                  currentPlayer={currentMobileScoreCard}
+                  currentPlayer={1}
                   isTwoPlayer={isTwoPlayer}
                 />
-                {isTwoPlayer && (
-                  <center>
-                    <button
-                      onClick={() => setCurrentMobileScoreCard(currentMobileScoreCard === 1 ? 2 : 1)}
-                      className={`mt-4 mx-auto text-white py-2 px-4 rounded-full w-20 transition duration-300 ease-in-out transform hover:scale-105 ${buttonClass}`}
-                    >
-                      <FontAwesomeIcon icon={currentMobileScoreCard === 1 ? faArrowRight : faArrowLeft} />
-                    </button>
-                  </center>
-                )}
               </div>
-            ) : (
-              <div className="flex w-full space-x-8">
+              {isTwoPlayer && (
                 <div className="flex-1">
                   <ScoreCard
                     player1ScoreHistory={player1ScoreHistory}
                     player2ScoreHistory={player2ScoreHistory}
                     player1TotalScore={player1TotalScore}
                     player2TotalScore={player2TotalScore}
-                    currentPlayer={1}
+                    currentPlayer={2}
                     isTwoPlayer={isTwoPlayer}
                   />
                 </div>
-                {isTwoPlayer && (
-                  <div className="flex-1">
-                    <ScoreCard
-                      player1ScoreHistory={player1ScoreHistory}
-                      player2ScoreHistory={player2ScoreHistory}
-                      player1TotalScore={player1TotalScore}
-                      player2TotalScore={player2TotalScore}
-                      currentPlayer={2}
-                      isTwoPlayer={isTwoPlayer}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </>
+              )}
+            </div>
+          )
         )}
       </div>
       {isTwoPlayer && (
         <div className="flex space-x-8 mt-4">
           <div>
-            <center><h2 className="text-xl">Player 1 : {player1TotalScore}</h2></center>
+            <center><h2 className="text-xl text-neonCyan">Player 1 : {player1TotalScore}</h2></center>
           </div>
           <div>
-            <center><h2 className="text-xl">Player 2 : {player2TotalScore}</h2></center>
+            <center><h2 className="text-xl text-electricPink">Player 2 : {player2TotalScore}</h2></center>
           </div>
         </div>
       )}
