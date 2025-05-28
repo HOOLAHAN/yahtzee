@@ -864,3 +864,10 @@ body {
   color: #00ffcc;
   font-family: 'Courier New', monospace;
 }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #0d0d0d;
+}

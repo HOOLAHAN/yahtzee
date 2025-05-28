@@ -114,7 +114,7 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
               className="w-12 h-12 rounded-full bg-neonCyan hover:bg-electricPink shadow-lg flex items-center justify-center transition transform hover:scale-110 border-2 border-neonYellow"
               aria-label="Menu"
             >
-              <FontAwesomeIcon icon={faBars} className="text-deepBlack text-xl" />
+              <FontAwesomeIcon icon={faBars} className="text-deepBlack text-xl animate-pulse-glow" />
             </button>
           </div>
         </div>

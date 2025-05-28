@@ -1,5 +1,3 @@
-// CreateScoreButton.tsx
-
 import React, { useState } from 'react';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/api';
@@ -61,9 +59,11 @@ const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score, isMobile, 
     <button
       onClick={handleSubmitScore}
       disabled={loading}
-      className={`w-full md:w-auto transition duration-300 ease-in-out transform py-2 px-4 rounded text-white 
-        ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} 
-        focus:ring focus:ring-green-200`}
+      className={`w-full md:w-auto py-2 px-4 rounded-xl font-bold shadow-md transition duration-300 ease-in-out transform 
+        ${loading
+          ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+          : 'bg-neonCyan text-deepBlack hover:bg-electricPink hover:text-white hover:scale-105 focus:ring focus:ring-electricPink'
+        }`}
     >
       {loading ? 'Submitting...' : isMobile ? 'Submit' : 'Submit Score'}
     </button>

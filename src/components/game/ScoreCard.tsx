@@ -24,32 +24,35 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
 }) => {
   const { userDetails } = useAuth();
   const scoreHistory = currentPlayer === 1 ? player1ScoreHistory : player2ScoreHistory;
-  const totalScore = currentPlayer === 1 ? player1TotalScore : player2TotalScore;
+  const totalScore = scoreHistory.reduce((sum, entry) => sum + entry.roundScore, 0);
   const pdfDivId = currentPlayer === 1 ? 'pdf-div-player1' : 'pdf-div-player2';
 
   return (
     <div id={pdfDivId} className="w-full max-w-4xl mx-auto overflow-x-auto">
-      <table className="min-w-full bg-white text-gray-800 shadow-lg rounded-md">
-        <thead className="bg-gray-100">
+      <table className="min-w-full bg-deepBlack text-neonCyan shadow-lg overflow-hidden rounded-md">
+        <thead className="bg-deepBlack">
           <tr>
-            <th colSpan={4} className="py-3 px-4 border-b border-gray-300 text-center text-lg font-semibold">
+            <th
+              colSpan={4}
+              className="py-3 px-4 border-b border-gray-600 text-center text-lg font-semibold rounded-t-md"
+            >
               {isTwoPlayer ? `Player ${currentPlayer}` : userDetails?.preferred_username || 'Player 1'}
             </th>
           </tr>
           <tr>
-            <th className="py-2 px-3 border-b border-gray-300 text-left text-sm md:text-base">Round</th>
-            <th className="py-2 px-3 border-b border-gray-300 text-left text-sm md:text-base">Score</th>
-            <th className="py-2 px-3 border-b border-gray-300 text-left text-sm md:text-base">Category</th>
-            <th className="py-2 px-3 border-b border-gray-300 text-left text-sm md:text-base">Dice</th>
+            <th className="py-2 px-3 border-b border-gray-700 text-left text-sm md:text-base">Round</th>
+            <th className="py-2 px-3 border-b border-gray-700 text-left text-sm md:text-base">Score</th>
+            <th className="py-2 px-3 border-b border-gray-700 text-left text-sm md:text-base">Category</th>
+            <th className="py-2 px-3 border-b border-gray-700 text-left text-sm md:text-base">Dice</th>
           </tr>
         </thead>
         <tbody>
           {scoreHistory.map((entry, index) => (
-            <tr key={index} className="hover:bg-gray-50">
-              <td className="py-2 px-3 border-b border-gray-200 text-sm text-left">{index + 1}</td>
-              <td className="py-2 px-3 border-b border-gray-200 text-sm">{entry.roundScore}</td>
-              <td className="py-2 px-3 border-b border-gray-200 text-sm">{entry.category}</td>
-              <td className="py-2 px-3 border-b border-gray-200">
+            <tr key={index} className="hover:bg-gray-800 transition-colors">
+              <td className="py-2 px-3 border-b border-gray-700 text-sm text-left">{index + 1}</td>
+              <td className="py-2 px-3 border-b border-gray-700 text-sm">{entry.roundScore}</td>
+              <td className="py-2 px-3 border-b border-gray-700 text-sm">{entry.category}</td>
+              <td className="py-2 px-3 border-b border-gray-700">
                 <div className="flex flex-wrap gap-1">
                   {entry.dice.map((value, i) => (
                     <Die
@@ -70,10 +73,15 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={3} className="py-3 px-3 border-t border-gray-300 text-right font-semibold text-sm md:text-base">
+            <td
+              colSpan={3}
+              className="py-3 px-3 border-t border-gray-600 text-right font-semibold text-sm md:text-base"
+            >
               Total Score
             </td>
-            <td className="py-3 px-3 border-t border-gray-300 font-semibold text-sm md:text-base">
+            <td
+              className="py-3 px-3 border-t border-gray-600 font-semibold text-sm md:text-base"
+            >
               {totalScore}
             </td>
           </tr>

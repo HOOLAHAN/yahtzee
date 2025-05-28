@@ -44,8 +44,8 @@ const Menu: React.FC<MenuProps> = ({
       <div className="flex flex-col h-full justify-between p-6">
         {/* Header with close button */}
         <div>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">Menu</h2>
+          <div className="flex items-center justify-between mb-6 animate-pulse-glow">
+            <h2 className="text-3xl font-bold text-neonYellow">Menu</h2>
             <button
               onClick={onClose}
               className="text-3xl text-neonCyan hover:text-electricPink"
@@ -56,7 +56,7 @@ const Menu: React.FC<MenuProps> = ({
           </div>
 
           {isUserSignedIn && userDetails && (
-            <div className="mb-4 text-sm text-mintGlow">
+            <div className="mb-4 text-sm text-electricPink">
               {userDetails.preferred_username} signed in
             </div>
           )}

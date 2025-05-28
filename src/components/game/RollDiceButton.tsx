@@ -17,7 +17,9 @@ const RollDiceButton: React.FC<RollDiceButtonProps> = ({
     <button
       className={`w-full md:w-auto py-2 px-4 rounded-xl font-bold shadow-md transition duration-300 ease-in-out transform ${
         canRoll
-          ? 'bg-neonCyan text-deepBlack hover:bg-electricPink hover:text-white hover:scale-105 focus:ring focus:ring-electricPink'
+          ? `bg-neonCyan text-deepBlack hover:bg-electricPink hover:text-white hover:scale-105 focus:ring focus:ring-electricPink ${
+              rollsLeft === 3 ? 'animate-glow-border' : ''
+            }`
           : 'bg-gray-700 text-gray-400 cursor-not-allowed'
       }`}
       onClick={onRollDice}
