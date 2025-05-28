@@ -43,15 +43,13 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
   };
 
   return (
-    <form onSubmit={handleSignUp} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <h2 className="block text-gray-700 text-lg font-bold mb-2">Sign Up</h2>
+    <form onSubmit={handleSignUp} className="bg-deepBlack text-mintGlow shadow-xl border border-neonCyan rounded-xl px-8 pt-6 pb-8 mb-4 w-full">
+      <h2 className="text-neonYellow text-2xl font-bold mb-6 text-center">Sign Up</h2>
+
       <div className="mb-4">
-        <label htmlFor="signUpEmail" className="block text-gray-700 text-sm font-bold mb-2">
-          Email:
-        </label>
+        <label htmlFor="signUpEmail" className="block text-sm font-semibold mb-2">Email</label>
         <input
           id="signUpEmail"
-          name="email"
           type="email"
           value={username}
           onChange={(e) => {
@@ -59,17 +57,15 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
             setGeneralError('');
           }}
           required
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
         />
-        {errors.email && <p className="text-red-500 text-xs italic">{errors.email}</p>}
+        {errors.email && <p className="text-red-500 text-xs italic mt-1">{errors.email}</p>}
       </div>
+
       <div className="mb-4">
-        <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">
-          Username:
-        </label>
+        <label htmlFor="username" className="block text-sm font-semibold mb-2">Username</label>
         <input
           id="username"
-          name="preferredUsername"
           type="text"
           value={preferred_username}
           onChange={(e) => {
@@ -77,47 +73,50 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
             setGeneralError('');
           }}
           required
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
         />
-        {errors.preferred_username && <p className="text-red-500 text-xs italic">{errors.preferred_username}</p>}
+        {errors.preferred_username && <p className="text-red-500 text-xs italic mt-1">{errors.preferred_username}</p>}
       </div>
+
       <div className="mb-6">
-        <label htmlFor="signUpPassword" className="block text-gray-700 text-sm font-bold mb-2">
-          Password:
-        </label>
+        <label htmlFor="signUpPassword" className="block text-sm font-semibold mb-2">Password</label>
         <input
           id="signUpPassword"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value) }
+          onChange={(e) => setPassword(e.target.value)}
           required
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-2 leading-tight focus:outline-none focus:shadow-outline"
+          className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
         />
-        {errors.password && <p className="text-red-500 text-xs italic mb-2">{errors.password}</p>}
+        {errors.password && <p className="text-red-500 text-xs italic mt-1">{errors.password}</p>}
         {generalError && (
-        <div className="mb-2">
-          {generalError && (
-            <div className="mb-2">
-              <p className="text-red-500 text-xs italic">{generalError}</p>
-              {generalError.includes("already exists") && onSwitchToVerifyEmail && (
-                <button
-                  type="button"
-                  onClick={() => onSwitchToVerifyEmail(username)}
-                  className="text-blue-500 hover:text-blue-800 text-sm font-bold"
-                >
-                  Click here to verify your email.
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+          <div className="mt-2">
+            <p className="text-red-500 text-xs italic">{generalError}</p>
+            {generalError.includes("already exists") && onSwitchToVerifyEmail && (
+              <button
+                type="button"
+                onClick={() => onSwitchToVerifyEmail(username)}
+                className="mt-1 text-electricPink hover:underline text-sm"
+              >
+                Click here to verify your email.
+              </button>
+            )}
+          </div>
+        )}
       </div>
-      <div className="flex items-center justify-between">
-        <button type="submit" className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200 mr-4">
+
+      <div className="mt-6 space-y-3">
+        <button
+          type="submit"
+          className="w-full py-2 bg-neonCyan text-black font-bold rounded-xl hover:bg-electricPink transition hover:scale-105 shadow-md"
+        >
           Sign Up
         </button>
-        <button type="button" onClick={onSwitch} className="text-blue-500 hover:text-blue-800 text-sm cursor-pointer" >
+        <button
+          type="button"
+          onClick={onSwitch}
+          className="block text-center w-full text-neonCyan hover:text-electricPink text-sm"
+        >
           Already have an account? Login
         </button>
       </div>

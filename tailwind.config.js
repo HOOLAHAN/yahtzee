@@ -1,8 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 
 module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx}', './public/index.html'], // updated from 'purge'
-  darkMode: false, // or 'class' if you want to support dark mode toggle
+  content: ['./src/**/*.{js,ts,jsx,tsx}', './public/index.html'],
+  safelist: [
+    'bg-neonCyan',
+    'hover:bg-electricPink',
+    'text-neonCyan',
+    'text-electricPink',
+  ],
   theme: {
     extend: {
       colors: {

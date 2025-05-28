@@ -24,40 +24,45 @@ const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChang
     setCurrentForm('login');
   };
 
-  // Function to switch to the verification form
   const handleSwitchToVerifyEmail = (email: string) => {
     setUserEmail(email);
     setCurrentForm('verifyEmail');
   };
 
   useEffect(() => {
-    if(onFormChange) {
+    if (onFormChange) {
       onFormChange(currentForm);
     }
   }, [currentForm, onFormChange]);
 
   return (
-    <div>
+    <div className="flex justify-center items-center min-h-[400px] p-4 bg-deepBlack rounded-xl shadow-lg">
       {currentForm === 'login' && (
-        <LoginForm 
-          onSwitch={() => setCurrentForm('signup')} 
-          onClose={handleLoginSuccess} 
-          onSwitchToVerifyEmail={handleSwitchToVerifyEmail}
-        />
+        <div className="transition-opacity duration-300 ease-in-out w-full max-w-md">
+          <LoginForm
+            onSwitch={() => setCurrentForm('signup')}
+            onClose={handleLoginSuccess}
+            onSwitchToVerifyEmail={handleSwitchToVerifyEmail}
+          />
+        </div>
       )}
       {currentForm === 'signup' && (
-        <SignUpForm
-          onSwitch={() => setCurrentForm('login')}
-          onClose={onClose}
-          onSignUpSuccess={handleSignUpSuccess}
-          onSwitchToVerifyEmail={handleSwitchToVerifyEmail}
-        />
+        <div className="transition-opacity duration-300 ease-in-out w-full max-w-md">
+          <SignUpForm
+            onSwitch={() => setCurrentForm('login')}
+            onClose={onClose}
+            onSignUpSuccess={handleSignUpSuccess}
+            onSwitchToVerifyEmail={handleSwitchToVerifyEmail}
+          />
+        </div>
       )}
       {currentForm === 'verifyEmail' && (
-        <EmailVerificationForm 
-          userEmail={userEmail} 
-          onVerified={handleVerificationSuccess} 
-        />
+        <div className="transition-opacity duration-300 ease-in-out w-full max-w-md">
+          <EmailVerificationForm
+            userEmail={userEmail}
+            onVerified={handleVerificationSuccess}
+          />
+        </div>
       )}
     </div>
   );

@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 const LoginForm: React.FC<{
   onSwitch: () => void;
   onClose: () => void;
-  onSwitchToVerifyEmail?: (email: string) => void
+  onSwitchToVerifyEmail?: (email: string) => void;
 }> = ({ onSwitch, onClose, onSwitchToVerifyEmail }) => {
   const [loginEmail, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,28 +23,24 @@ const LoginForm: React.FC<{
     } catch (error) {
       console.error('Error signing in:', error);
       if (error instanceof Error) {
-        // Check for NotAuthorizedException
         if (error.name === "NotAuthorizedException") {
           if (error.message.includes("Incorrect username or password.")) {
             setError('Incorrect username or password.');
           } else if (error.message.includes("Unauthenticated access is not supported for this identity pool.")) {
             setError('Your account requires verification.');
           } else {
-            setError(error.message); // For any other NotAuthorizedException messages
+            setError(error.message);
           }
-        } 
-        // Check for UserNotFoundException
-        else if (error.name === "UserNotFoundException" || error.message.includes("User does not exist.")) {
+        } else if (error.name === "UserNotFoundException" || error.message.includes("User does not exist.")) {
           setError("Account does not exist. Please follow the sign up link below.");
-        } 
-        else {
+        } else {
           setError('An unexpected error occurred. Please try again.');
         }
       } else {
         setError('An unexpected error occurred. Please try again.');
       }
     }
-  };  
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,104 +82,99 @@ const LoginForm: React.FC<{
   };
 
   return (
-    <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <h2 className="text-gray-700 text-lg font-bold mb-2">
+    <div className="bg-deepBlack text-mintGlow shadow-xl border border-neonCyan rounded-xl px-8 pt-6 pb-8 mb-4 w-full">
+      <h2 className="text-neonYellow text-2xl font-bold mb-6 text-center">
         {showResetForm ? 'Reset Password' : 'Login'}
       </h2>
       <form onSubmit={handleSubmit}>
-        {/* Common email input field */}
         <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
-            Email:
-          </label>
+          <label htmlFor="email" className="block text-sm font-semibold mb-2">Email</label>
           <input
             id="email"
             type="email"
             value={loginEmail}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
           />
         </div>
 
-        {/* Toggle between reset password form and login form */}
         {showResetForm ? (
           <>
-            {resetCodeSent ? (
+            {resetCodeSent && (
               <>
                 <div className="mb-4">
-                  <label htmlFor="verificationCode" className="block text-gray-700 text-sm font-bold mb-2">
-                    Verification Code:
-                  </label>
+                  <label htmlFor="verificationCode" className="block text-sm font-semibold mb-2">Verification Code</label>
                   <input
                     id="verificationCode"
                     type="text"
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value)}
                     required
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
                   />
                 </div>
-                <div className="mb-6">
-                  <label htmlFor="newPassword" className="block text-gray-700 text-sm font-bold mb-2">
-                    New Password:
-                  </label>
+                <div className="mb-4">
+                  <label htmlFor="newPassword" className="block text-sm font-semibold mb-2">New Password</label>
                   <input
                     id="newPassword"
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                    className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
                   />
                 </div>
               </>
-            ) : null}
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            )}
+            <button type="submit" className="w-full py-2 mt-4 bg-neonCyan text-black font-bold rounded-xl hover:bg-electricPink transition hover:scale-105 shadow-md">
               {resetCodeSent ? 'Reset Password' : 'Send Reset Code'}
             </button>
           </>
         ) : (
           <>
             <div className="mb-6">
-              <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-                Password:
-              </label>
+              <label htmlFor="password" className="block text-sm font-semibold mb-2">Password</label>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
               />
             </div>
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button
+              type="submit"
+              className="w-full py-2 mt-2 bg-neonCyan text-black font-bold rounded-xl hover:bg-electricPink transition hover:scale-105 shadow-md"
+            >
               Login
             </button>
           </>
         )}
+
         {error && <p className="text-red-500 text-xs italic mt-2">{error}</p>}
+        
         {error === 'Your account requires verification.' && onSwitchToVerifyEmail && (
-        <button
-          onClick={() => onSwitchToVerifyEmail(loginEmail)}
-          className="mt-4 text-blue-500 hover:text-blue-800 text-sm cursor-pointer" 
-        >
-          Click here to verify your email.
-        </button>
-      )}
+          <button
+            onClick={() => onSwitchToVerifyEmail(loginEmail)}
+            className="mt-4 text-electricPink hover:underline text-sm"
+          >
+            Click here to verify your email.
+          </button>
+        )}
+
         {!showResetForm && (
-          <p className="mt-4 text-blue-500 hover:text-blue-800 text-sm cursor-pointer" onClick={() => setShowResetForm(true)}>
+          <p className="mt-4 text-neonCyan hover:text-electricPink text-sm cursor-pointer" onClick={() => setShowResetForm(true)}>
             Forgot Password?
           </p>
         )}
-        <div className="mt-4">
-          {!showResetForm && (
-            <p className="mt-2 text-blue-500 hover:text-blue-800 text-sm cursor-pointer" onClick={onSwitch}>
-              Don't have an account? Sign up
-            </p>
-          )}
-        </div>
+
+        {!showResetForm && (
+          <p className="mt-2 text-neonCyan hover:text-electricPink text-sm cursor-pointer" onClick={onSwitch}>
+            Don’t have an account? Sign up
+          </p>
+        )}
       </form>
     </div>
   );
