@@ -129,7 +129,7 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
 
       {/* Leaderboard Drawer */}
       {leaderboardDisplay !== 'closed' && (
-        <div id="leaderboard-drawer" className='bg-gray-200 mx-5'>
+        <div id="leaderboard-drawer" className='bg-deepBlack m-5'>
           <Leaderboard showUserScores={leaderboardDisplay === 'userScores'}/>
         </div>
       )}
