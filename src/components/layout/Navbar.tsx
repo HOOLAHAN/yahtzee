@@ -8,6 +8,8 @@ import { useAuth } from '../../context/AuthContext';
 import Leaderboard from '../common/Leaderboard';
 import Menu from './Menu';
 import Settings from '../common/Settings';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars } from '@fortawesome/free-solid-svg-icons';
 
 interface NavbarProps {
   isTwoPlayer: boolean;
@@ -92,22 +94,27 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
     
   return (
     <>
-      <nav className="bg-green-600 text-white p-2">
+      <nav className="bg-deepBlack text-white p-3 shadow-lg border-b-4 border-neonCyan">
         <div className="container mx-auto flex items-center justify-between">
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="focus:outline-none">
-            <div className="w-16 h-16 sm:w-12 sm:h-12 md:w-20 md:h-20 hover:scale-110 transform transition duration-200 ease-in-out">
-              <img src={`${process.env.PUBLIC_URL}/yahtzee_logo.png`} alt="Yahtzee Logo" className="w-full h-full object-contain" />
-            </div>
-          </button>
+          <div className="w-16 h-16 sm:w-14 sm:h-14 md:w-20 md:h-20 transform transition duration-200 ease-in-out">
+            <img
+              src={`${process.env.PUBLIC_URL}/yahtzee_dice_logo.png`} 
+              alt="Yahtzee Dice Logo"
+              className="w-full h-full object-contain"
+            />
+          </div>
           <div className="text-center">
-            <h1 className="text-3xl sm:text-2xl md:text-5xl font-semibold">Yahtzee!</h1>
+            <h1 className="text-3xl sm:text-2xl md:text-5xl font-semibold text-neonYellow animate-pulse-glow">
+              Yahtzee!
+            </h1>
           </div>
           <div>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="transition duration-300 ease-in-out transform hover:scale-105 py-2 px-4 text-sm sm:text-lg bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-200"
+              className="w-12 h-12 rounded-full bg-neonCyan hover:bg-electricPink shadow-lg flex items-center justify-center transition transform hover:scale-110 border-2 border-neonYellow"
+              aria-label="Menu"
             >
-              Menu
+              <FontAwesomeIcon icon={faBars} className="text-deepBlack text-xl" />
             </button>
           </div>
         </div>

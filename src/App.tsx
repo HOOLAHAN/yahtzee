@@ -19,7 +19,7 @@ const App = () => {
   return (
     <LeaderboardRefreshProvider>
       <AuthProvider>
-        <div className="App bg-gray-200">
+        <div className="App min-h-screen bg-deepBlack text-mintGlow font-mono">
           <Navbar isTwoPlayer={isTwoPlayer} toggleTwoPlayerMode={toggleTwoPlayerMode} />
           <Game key={resetGameKey} isTwoPlayer={isTwoPlayer} setIsTwoPlayer={setIsTwoPlayer} />
         </div>
