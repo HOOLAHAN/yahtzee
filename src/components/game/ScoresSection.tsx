@@ -17,31 +17,34 @@ const ScoresSection: React.FC<ScoresSectionProps> = ({ dice, hasRolled }) => {
   if (!hasRolled) return null;
 
   return (
-    <div className="scores-section">
-      <div className="w-full text-center">
-        <h2 className="text-2xl mb-2 inline-block">Scores: </h2>
+    <div className="w-full mt-6 text-neonCyan bg-deepBlack p-4 rounded-lg shadow-lg border border-neonCyan">
+      <div className="text-center mb-4">
+        <h2 className="text-2xl font-bold animate-pulse-glow">Available Scores</h2>
       </div>
-      <div className="flex justify-between">
-        <div className='mr-10'>
-          <div className="mb-1">Ones: { calculateNumberScore('Ones', dice) }</div>
-          <div className="mb-1">Twos: { calculateNumberScore('Twos', dice) }</div>
-          <div className="mb-1">Threes: { calculateNumberScore('Threes', dice) }</div>
-          <div className="mb-1">Fours: { calculateNumberScore('Fours', dice) }</div>
-          <div className="mb-1">Fives: { calculateNumberScore('Fives', dice) }</div>
-          <div className="mb-1">Sixes: { calculateNumberScore('Sixes', dice) }</div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-base sm:text-lg justify-items-start md:justify-items-center">
+        <div className="space-y-1">
+          <div>Ones: <span className="text-electricPink">{calculateNumberScore('Ones', dice)}</span></div>
+          <div>Twos: <span className="text-electricPink">{calculateNumberScore('Twos', dice)}</span></div>
+          <div>Threes: <span className="text-electricPink">{calculateNumberScore('Threes', dice)}</span></div>
+          <div>Fours: <span className="text-electricPink">{calculateNumberScore('Fours', dice)}</span></div>
+          <div>Fives: <span className="text-electricPink">{calculateNumberScore('Fives', dice)}</span></div>
+          <div>Sixes: <span className="text-electricPink">{calculateNumberScore('Sixes', dice)}</span></div>
         </div>
-        <div>
-          <div className="mb-1">Three of a Kind: { calculateScore('ThreeOfAKind', dice) }</div>
-          <div className="mb-1">Four of a Kind: { calculateScore('FourOfAKind', dice) }</div>
-          <div className="mb-1">Full House: { calculateFullHouse(dice) }</div>
-          <div className="mb-1">Small Straight: { isStraight(dice, 4) ? 30 : 0 }</div>
-          <div className="mb-1">Large Straight: { isStraight(dice, 5) ? 40 : 0 }</div>
-          <div className="mb-1">Chance: { calculateChance(dice) }</div>
-          <div className="mb-1">Yahtzee: { calculateScore('Yahtzee', dice) }</div>
+
+        <div className="space-y-1">
+          <div>Three of a Kind: <span className="text-electricPink">{calculateScore('ThreeOfAKind', dice)}</span></div>
+          <div>Four of a Kind: <span className="text-electricPink">{calculateScore('FourOfAKind', dice)}</span></div>
+          <div>Full House: <span className="text-electricPink">{calculateFullHouse(dice)}</span></div>
+          <div>Small Straight: <span className="text-electricPink">{isStraight(dice, 4) ? 30 : 0}</span></div>
+          <div>Large Straight: <span className="text-electricPink">{isStraight(dice, 5) ? 40 : 0}</span></div>
+          <div>Chance: <span className="text-electricPink">{calculateChance(dice)}</span></div>
+          <div>Yahtzee: <span className="text-electricPink">{calculateScore('Yahtzee', dice)}</span></div>
         </div>
       </div>
     </div>
   );
 };
+
 
 export default ScoresSection;

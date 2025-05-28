@@ -19,10 +19,28 @@ module.exports = {
       },
       animation: {
         'pulse-glow': 'pulseGlow 2s infinite',
+        'ping-glow': 'pingGlow 2s ease-in-out',
         shake: 'shake 0.5s ease-in-out',
         'spin-wiggle': 'spinWiggle 0.8s ease-in-out',
       },
       keyframes: {
+        pingGlow: {
+          '0%': {
+            transform: 'scale(0.95)',
+            opacity: '0.7',
+            boxShadow: '0 0 10px #00f7ff, 0 0 20px #00f7ff',
+          },
+          '50%': {
+            transform: 'scale(1.05)',
+            opacity: '1',
+            boxShadow: '0 0 20px #00f7ff, 0 0 30px #00f7ff',
+          },
+          '100%': {
+            transform: 'scale(1)',
+            opacity: '0',
+            boxShadow: '0 0 10px #00f7ff, 0 0 20px #00f7ff',
+          },
+        },
         pulseGlow: {
           '0%, 100%': {
             opacity: 1,
