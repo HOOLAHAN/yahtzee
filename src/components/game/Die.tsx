@@ -53,7 +53,7 @@ const Die: React.FC<DieProps> = ({
   return (
     <div
       className={`flex items-center justify-center ${className || 'h-16 w-16'} ${
-        canHold ? 'cursor-pointer transition duration-300 ease-in-out transform hover:scale-105' : ''
+        canHold ? 'cursor-pointer transition duration-300 ease-in-out transform hover:scale-125' : ''
       }`}
       onClick={canHold ? onToggleHold : undefined}
       role="button"
