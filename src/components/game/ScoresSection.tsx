@@ -31,7 +31,10 @@ const ScoresSection: React.FC<ScoresSectionProps> = ({ dice, hasRolled, usedCate
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto mt-6 text-neonCyan bg-deepBlack p-4 rounded-lg shadow-lg border border-neonCyan">
+    <div
+      data-testid="score-section"
+      className="w-full max-w-5xl mx-auto mt-6 text-neonCyan bg-deepBlack p-4 rounded-lg shadow-lg border border-neonCyan"
+    >
       <div className="text-center mb-4">
         <h2 className="text-2xl font-bold animate-pulse-glow">Dice Scores</h2>
       </div>
@@ -40,8 +43,9 @@ const ScoresSection: React.FC<ScoresSectionProps> = ({ dice, hasRolled, usedCate
         <div className="bg-deepBlack rounded-md px-4 text-center">
           {['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes'].map(label => {
             const score = calculateNumberScore(label as any, dice);
+            const testId = `score-${label.toLowerCase()}`;
             return (
-              <div key={label} data-testid={`score-${label.toLowerCase()}`}>
+              <div key={label} data-testid={testId}>
                 {label}: {formatScore(label, score)}
               </div>
             );
@@ -50,15 +54,15 @@ const ScoresSection: React.FC<ScoresSectionProps> = ({ dice, hasRolled, usedCate
 
         <div className="bg-deepBlack rounded-md px-4 text-center">
           {[
-            { label: 'Three of a Kind', key: 'ThreeOfAKind' },
-            { label: 'Four of a Kind', key: 'FourOfAKind' },
-            { label: 'Full House', key: 'FullHouse' },
-          ].map(({ label, key }) => {
+            { label: 'Three of a Kind', key: 'ThreeOfAKind', testId: 'score-three-of-a-kind' },
+            { label: 'Four of a Kind', key: 'FourOfAKind', testId: 'score-four-of-a-kind' },
+            { label: 'Full House', key: 'FullHouse', testId: 'score-full-house' },
+          ].map(({ label, key, testId }) => {
             const score = key === 'FullHouse'
               ? calculateFullHouse(dice)
               : calculateScore(key as any, dice);
             return (
-              <div key={key} data-testid={`score-${key.toLowerCase()}`}>
+              <div key={key} data-testid={testId}>
                 {label}: {formatScore(key, score)}
               </div>
             );
@@ -67,12 +71,32 @@ const ScoresSection: React.FC<ScoresSectionProps> = ({ dice, hasRolled, usedCate
 
         <div className="bg-deepBlack rounded-md px-4 text-center">
           {[
-            { label: 'Small Straight', key: 'SmallStraight', score: isStraight(dice, 4) ? 30 : 0 },
-            { label: 'Large Straight', key: 'LargeStraight', score: isStraight(dice, 5) ? 40 : 0 },
-            { label: 'Chance', key: 'Chance', score: calculateChance(dice) },
-            { label: 'Yahtzee', key: 'Yahtzee', score: calculateScore('Yahtzee', dice) },
-          ].map(({ label, key, score }) => (
-            <div key={key} data-testid={`score-${key.toLowerCase()}`}>
+            {
+              label: 'Small Straight',
+              key: 'SmallStraight',
+              score: isStraight(dice, 4) ? 30 : 0,
+              testId: 'score-small-straight',
+            },
+            {
+              label: 'Large Straight',
+              key: 'LargeStraight',
+              score: isStraight(dice, 5) ? 40 : 0,
+              testId: 'score-large-straight',
+            },
+            {
+              label: 'Chance',
+              key: 'Chance',
+              score: calculateChance(dice),
+              testId: 'score-chance',
+            },
+            {
+              label: 'Yahtzee',
+              key: 'Yahtzee',
+              score: calculateScore('Yahtzee', dice),
+              testId: 'score-yahtzee',
+            },
+          ].map(({ label, key, score, testId }) => (
+            <div key={key} data-testid={testId}>
               {label}: {formatScore(key, score)}
             </div>
           ))}
