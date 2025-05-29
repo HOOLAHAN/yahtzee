@@ -61,8 +61,9 @@ export const getButtonClass = (score: number) => {
   }
 };
 
-export const getDieSize = (windowSize: number) => {
-  if (windowSize < 640) return '3x';
+export const getDieSize = (windowSize: number): '2x' | '3x' | '4x' | '5x' => {
+  if (windowSize < 400) return '2x';
+  if (windowSize >= 400 && windowSize < 640) return '3x';
   if (windowSize >= 640 && windowSize < 1024) return '4x';
   return '5x';
-}
+};
