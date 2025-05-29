@@ -1,6 +1,6 @@
 import React from 'react';
 import Die from './Die';
-import { FontAwesomeSize } from '../../lib/types'; // Import the shared type
+import { FontAwesomeSize } from '../../lib/types';
 
 interface DiceDisplayProps {
   dice: number[];
