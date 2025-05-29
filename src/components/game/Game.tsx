@@ -143,7 +143,15 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start p-4 md:p-8 bg-deepBlack text-mintGlow">
-      <h1 className="text-3xl font-bold text-neonYellow mb-4 animate-pulse-glow">
+      <h1
+        className={`text-3xl font-bold mb-4 animate-pulse-glow ${
+          isTwoPlayer
+            ? currentPlayer === 1
+              ? 'text-neonCyan'
+              : 'text-electricPink'
+            : 'text-neonYellow'
+        }`}
+      >
         {isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player'}
       </h1>
       <DiceControl
