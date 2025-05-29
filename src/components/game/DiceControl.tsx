@@ -45,7 +45,7 @@ const DiceControl: React.FC<DiceControlProps> = ({
         shouldShake={shouldShake}
         dieSize={dieSize}
       />
-      <div className="flex justify-center space-x-2">
+      <div className="flex justify-center space-x-2 mb-2">
         <RollDiceButton
           rollsLeft={rollsLeft}
           usedCategoriesSize={usedCategoriesSize}
