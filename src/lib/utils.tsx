@@ -52,12 +52,11 @@ export const printDocument = (isTwoPlayer: boolean) => {
   });
 };
 
-
 export const getButtonClass = (score: number) => {
   if (score > 0) {
-    return 'px-3 py-2 rounded-md font-semibold text-deepBlack bg-neonYellow shadow-[0_0_10px_#faff00] hover:brightness-110 transition duration-300 ease-in-out transform hover:scale-105';
+    return 'px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base rounded-md font-semibold text-deepBlack bg-neonYellow shadow-[0_0_10px_#faff00] hover:brightness-110 transition duration-300 ease-in-out transform hover:scale-105';
   } else {
-    return 'px-3 py-2 rounded-md font-semibold text-white bg-electricPink shadow-md hover:bg-red-700 scale-75 transition duration-300 ease-in-out transform hover:scale-105';
+    return 'px-2 py-1 sm:px-3 sm:py-2 text-sm sm:text-base rounded-md font-semibold text-white bg-electricPink shadow-md hover:bg-red-700 scale-75 transition duration-300 ease-in-out transform hover:scale-105';
   }
 };
 
