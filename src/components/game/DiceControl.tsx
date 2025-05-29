@@ -29,13 +29,20 @@ const DiceControl: React.FC<DiceControlProps> = ({
 }) => {
   return (
     <div className="bg-deepBlack text-mintGlow p-4 rounded-lg shadow-md">
-      <h2
-        className={`text-electricPink text-center mb-2 font-semibold text-sm uppercase transition-opacity duration-200 ${
-          rollsLeft <= 2 && rollsLeft > 0 ? 'visible opacity-100' : 'invisible opacity-0'
-        }`}
-      >
-        Toggle to Hold Dice
-      </h2>
+    <h2
+      className={`text-center mb-2 font-semibold text-electricPink text-sm uppercase transition-opacity duration-200 ${
+        rollsLeft > 0 ? 'visible opacity-100' : 'invisible opacity-0'
+      }`}
+    >
+      {usedCategoriesSize === 13
+        ? "🎉 Game Complete!"
+        : rollsLeft === 3
+          ? usedCategoriesSize === 0
+            ? "ROLL DICE TO BEGIN"
+            : `Round ${usedCategoriesSize + 1} — ROLL DICE TO BEGIN`
+          : "Toggle to Hold Dice"}
+    </h2>
+
       <DiceDisplay
         dice={dice}
         heldDice={heldDice}
