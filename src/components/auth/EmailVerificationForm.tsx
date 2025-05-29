@@ -60,14 +60,14 @@ const EmailVerificationForm: React.FC<{ userEmail: string; onVerified: () => voi
       <div className="space-y-3 mt-6">
         <button
           type="submit"
-          className="w-full py-2 bg-neonCyan text-black font-bold rounded-xl hover:bg-electricPink transition hover:scale-105 shadow-md"
+          className="w-full py-2 mt-2 text-electricPink font-bold rounded-xl border border-electricPink hover:bg-electricPink hover:text-black transition hover:scale-105 shadow-md"
         >
           Verify Email
         </button>
         <button
           type="button"
           onClick={handleResendCode}
-          className="w-full py-2 bg-mintGlow text-black font-bold rounded-xl hover:bg-electricPink transition hover:scale-105 shadow-md"
+          className="w-full py-2 mt-2 text-electricPink font-bold rounded-xl border border-electricPink hover:bg-electricPink hover:text-black transition hover:scale-105 shadow-md"
         >
           Resend Code
         </button>

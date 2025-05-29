@@ -108,7 +108,7 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
       <div className="mt-6 space-y-3">
         <button
           type="submit"
-          className="w-full py-2 bg-neonCyan text-black font-bold rounded-xl hover:bg-electricPink transition hover:scale-105 shadow-md"
+          className="w-full py-2 mt-2 text-electricPink font-bold rounded-xl border border-electricPink hover:bg-electricPink hover:text-black transition hover:scale-105 shadow-md"
         >
           Sign Up
         </button>

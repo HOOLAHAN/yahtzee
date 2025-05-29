@@ -127,7 +127,7 @@ const LoginForm: React.FC<{
                 </div>
               </>
             )}
-            <button type="submit" className="w-full py-2 mt-4 bg-neonCyan text-black font-bold rounded-xl hover:bg-electricPink transition hover:scale-105 shadow-md">
+            <button type="submit" className="w-full py-2 mt-2 text-electricPink font-bold rounded-xl border border-electricPink hover:bg-electricPink hover:text-black transition hover:scale-105 shadow-md">
               {resetCodeSent ? 'Reset Password' : 'Send Reset Code'}
             </button>
           </>
@@ -146,8 +146,7 @@ const LoginForm: React.FC<{
             </div>
             <button
               type="submit"
-              className="w-full py-2 mt-2 bg-neonCyan text-black font-bold rounded-xl hover:bg-electricPink transition hover:scale-105 shadow-md"
-            >
+              className="w-full py-2 mt-2 text-electricPink font-bold rounded-xl border border-electricPink hover:bg-electricPink hover:text-black transition hover:scale-105 shadow-md"           >
               Login
             </button>
           </>
