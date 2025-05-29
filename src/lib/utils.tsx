@@ -1,56 +1,55 @@
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
-export const printDocument = (isTwoPlayer: boolean) => {
-  const input = document.createElement('div');
+export const shareScorecard = async (isTwoPlayer: boolean) => {
   const player1ScoreCard = document.getElementById('pdf-div-player1');
   const player2ScoreCard = document.getElementById('pdf-div-player2');
 
   if (!player1ScoreCard) return;
 
-  // Clone and append the player 1 scorecard to the input div
-  const player1Clone = player1ScoreCard.cloneNode(true);
-  input.appendChild(player1Clone);
+  const wrapper = document.createElement('div');
+  const p1Clone = player1ScoreCard.cloneNode(true);
+  wrapper.appendChild(p1Clone);
 
-  // If in two-player mode, clone and append the player 2 scorecard to the input div
   if (isTwoPlayer && player2ScoreCard) {
-    const player2Clone = player2ScoreCard.cloneNode(true);
-    input.appendChild(player2Clone);
+    const p2Clone = player2ScoreCard.cloneNode(true);
+    wrapper.appendChild(p2Clone);
   }
 
-  // Temporarily append the input div to the body
-  document.body.appendChild(input);
+  wrapper.style.position = 'fixed';
+  wrapper.style.top = '0';
+  wrapper.style.left = '0';
+  wrapper.style.zIndex = '-9999';
+  document.body.appendChild(wrapper);
 
-  html2canvas(input).then((canvas) => {
-    const imgData = canvas.toDataURL('image/png');
-    
-    const imgWidth = 100;
-    const pageHeight = 295;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    let position = 0;
+  try {
+    const canvas = await html2canvas(wrapper);
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
 
-    pdf.addImage(imgData, 'PNG', 50, position + 30, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    document.body.removeChild(wrapper);
 
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 50, position + 30, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+    if (!blob) {
+      alert("⚠️ Could not generate image.");
+      return;
     }
 
-    // Remove the input div from the body
-    document.body.removeChild(input);
+    const file = new File([blob], "scorecard.png", { type: "image/png" });
 
-    pdf.save('score-card.pdf');
-  }).catch((error) => {
-    console.error('Error generating PDF:', error);
-    document.body.removeChild(input);
-  });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: "Check out my Yahtzee score!",
+        files: [file],
+      });
+    } else {
+      // fallback: open the image or copy to clipboard
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    }
+  } catch (err) {
+    console.error("❌ Sharing failed", err);
+    document.body.removeChild(wrapper);
+  }
 };
+
 
 export const getButtonClass = (score: number) => {
   if (score > 0) {

@@ -1,12 +1,12 @@
 import CreateScoreButton from './CreateScoreButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import { faShareNodes } from '@fortawesome/free-solid-svg-icons';
 import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
-import { printDocument } from '../../lib/utils'; 
+import { shareScorecard } from '../../lib/utils'; 
 
 interface GameControlButtonsProps {
   onResetGame: () => void;
-  onPrintDocument: () => void;
+  onShareScorecard: () => void;
   isMobile: boolean;
   totalScore: number;
   usedCategories: number;
@@ -36,18 +36,16 @@ const GameControlButtons: React.FC<GameControlButtonsProps> = ({
         {isMobile ? "Reset" : "Reset Game"}
       </button>
 
-      {/* Score Card Button */}
-      {usedCategories === 13 && (
-        <button 
-          className="px-4 py-2 rounded-md font-bold text-deepBlack bg-neonYellow
-                     hover:brightness-110 transition duration-300 transform hover:scale-105 
-                     shadow-[0_0_10px_#faff00]"
-          onClick={() => printDocument(isTwoPlayer)}
-        >
-          <FontAwesomeIcon icon={faFilePdf} className="mr-2" />
-          {isMobile ? "" : "Score Card"}
-        </button>
-      )}
+      {/* Share Score Card Button */}
+      <button 
+        className="px-4 py-2 rounded-md font-bold text-deepBlack bg-neonYellow
+                  hover:brightness-110 transition duration-300 transform hover:scale-105 
+                  shadow-[0_0_10px_#faff00]"
+        onClick={() => shareScorecard(isTwoPlayer)}
+      >
+        <FontAwesomeIcon icon={faShareNodes} className="mr-2" />
+        {isMobile ? "Share" : "Share Scorecard"}
+      </button>
 
       {/* Submit Score to Leaderboard Button */}
       {usedCategories === 13 && isUserSignedIn && !isTwoPlayer && (

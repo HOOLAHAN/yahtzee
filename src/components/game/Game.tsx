@@ -14,7 +14,7 @@ import { calculateCurrentCategoryScore, calculateMaximumScore } from '../../lib/
 import { toggleHoldDie } from '../../lib/diceLogic';
 import { resetGame, startNewRound } from '../../lib/gameControl';
 import { ScoreEntry } from '../../lib/types';
-import { getDieSize, printDocument } from '../../lib/utils';
+import { getDieSize, shareScorecard } from '../../lib/utils';
 import { useWindowSize } from '../../hooks/useWindowSize';
 import { handleRollDice } from '../../lib/handleRollDice';
 import { useAuth } from '../../context/AuthContext';
@@ -132,8 +132,8 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
     return result;
   };
 
-  const handlePrintDocument = () => {
-    printDocument(isTwoPlayer);
+  const handleShareScorecard = () => {
+    shareScorecard(isTwoPlayer);
   };
 
   const handleScoreLockIn = (category: string) => {
@@ -270,7 +270,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
       {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && (
         <GameControlButtons
           onResetGame={handleResetGame}
-          onPrintDocument={handlePrintDocument} 
+          onShareScorecard={handleShareScorecard} 
           isMobile={windowSize < 640}
           totalScore={totalScore}
           usedCategories={getUsedCategories().size}
