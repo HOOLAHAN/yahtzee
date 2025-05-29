@@ -27,14 +27,16 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
   const totalScore = scoreHistory.reduce((sum, entry) => sum + entry.roundScore, 0);
   const pdfDivId = currentPlayer === 1 ? 'pdf-div-player1' : 'pdf-div-player2';
 
+  const textColorClass = currentPlayer === 2 ? 'text-electricPink' : 'text-neonCyan';
+
   return (
     <div id={pdfDivId} className="w-full max-w-4xl mx-auto overflow-x-auto">
-      <table className="min-w-full bg-deepBlack text-neonCyan shadow-lg overflow-hidden rounded-md">
+      <table className={`min-w-full bg-deepBlack ${textColorClass} shadow-lg overflow-hidden rounded-md`}>
         <thead className="bg-deepBlack">
           <tr>
             <th
               colSpan={4}
-              className="py-3 px-4 border-b border-gray-600 text-center text-lg font-semibold rounded-t-md"
+              className={`py-3 px-4 border-b border-gray-600 text-center text-lg font-semibold rounded-t-md ${textColorClass}`}
             >
               {isTwoPlayer ? `Player ${currentPlayer}` : userDetails?.preferred_username || 'Player 1'}
             </th>
