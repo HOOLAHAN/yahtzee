@@ -187,7 +187,7 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
           hasRolled={hasRolled} 
         />
       )}
-      {showScoreCard && <h2 className="text-2xl text-neonYellow mb-2">Score Card:</h2>}
+      {showScoreCard && <h2 className="text-2xl text-neonYellow mb-2 mt-4">Score Card:</h2>}
       <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8">
         {showScoreCard && (
           windowSize < 1050 ? (
