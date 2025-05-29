@@ -83,8 +83,12 @@ jobs:
       - name: Deploy to S3
         run: aws s3 sync ./build s3://yahtzeehub --delete
 
-      - name: Invalidate CloudFront Cache
+      - name: Invalidate CloudFront Caches
         run: |
           aws cloudfront create-invalidation \
             --distribution-id E3H21E49WJYL7I \
             --paths "/" "/index.html" "/yahtzee" "/yahtzee/" "/yahtzee/*"
+
+          aws cloudfront create-invalidation \
+            --distribution-id E1KXD6BYPFG5AF \
+            --paths "/*"
