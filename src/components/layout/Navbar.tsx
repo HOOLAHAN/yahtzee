@@ -111,10 +111,10 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
           <div>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="w-12 h-12 rounded-full bg-neonCyan hover:bg-electricPink shadow-lg flex items-center justify-center transition transform hover:scale-110 border-2 border-neonYellow"
+              className="w-8 h-8 rounded-full bg-neonCyan hover:bg-electricPink shadow-lg flex items-center justify-center transition transform hover:scale-110"
               aria-label="Menu"
             >
-              <FontAwesomeIcon icon={faBars} className="text-deepBlack text-xl animate-pulse-glow" />
+              <FontAwesomeIcon icon={faBars} className="text-deepBlack text-sm animate-pulse-glow" />
             </button>
           </div>
         </div>
