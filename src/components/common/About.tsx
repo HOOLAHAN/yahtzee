@@ -9,12 +9,12 @@ interface AboutProps {
 const About: React.FC<AboutProps> = ({ onClose }) => {
   return (
     <section
-      className="p-6 sm:p-8 h-full overflow-y-auto relative animate-fadeIn bg-deepBlack text-neonCyan border border-neonCyan rounded-xl shadow-lg"
+      className="m-4 p-6 sm:p-8 h-full overflow-y-auto relative animate-fadeIn bg-deepBlack text-neonCyan border border-neonCyan rounded-xl shadow-lg"
       aria-labelledby="about-title"
     >
       <button
         onClick={onClose}
-        className="absolute top-2 right-2 text-3xl text-electricPink hover:text-neonYellow transition"
+        className="absolute top-3 right-4 text-3xl text-electricPink hover:text-neonYellow transition"
         aria-label="Close"
       >
         &times;
