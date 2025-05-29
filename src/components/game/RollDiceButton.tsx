@@ -15,6 +15,7 @@ const RollDiceButton: React.FC<RollDiceButtonProps> = ({
 
   return (
     <button
+      data-testid="roll-dice-button"
       className={`w-full md:w-auto py-2 px-4 rounded-xl font-bold shadow-md transition duration-300 ease-in-out transform ${
         canRoll
           ? `bg-neonCyan text-deepBlack hover:bg-electricPink hover:text-white hover:scale-105 focus:ring focus:ring-electricPink ${
