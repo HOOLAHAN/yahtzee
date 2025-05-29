@@ -25,12 +25,12 @@ const GameControlButtons: React.FC<GameControlButtonsProps> = ({
   const { toggleRefreshLeaderboard } = useLeaderboardRefresh();
 
   return (
-    <div className={`flex ${isMobile ? 'flex-col space-y-3' : 'flex-row space-x-4'} mt-6 justify-center`}>
+    <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-6 mb-10">
       {/* Reset Game Button */}
       <button 
-        className="px-4 py-2 rounded-md font-bold text-red-400 border border-red-500 bg-deepBlack
-                   hover:text-white hover:bg-red-800 hover:border-red-400
-                   transition duration-300 transform hover:scale-105 shadow-[0_0_10px_#ff0000]"
+        className={`${isMobile ? 'px-3 py-1 text-sm' : 'px-4 py-2 text-base'} rounded-md font-bold text-red-400 border border-red-500 bg-deepBlack
+            hover:text-white hover:bg-red-800 hover:border-red-400
+            transition duration-300 transform hover:scale-105 shadow-[0_0_10px_#ff0000]`}
         onClick={onResetGame}
       >
         {isMobile ? "Reset" : "Reset Game"}
@@ -38,9 +38,9 @@ const GameControlButtons: React.FC<GameControlButtonsProps> = ({
 
       {/* Share Score Card Button */}
       <button 
-        className="px-4 py-2 rounded-md font-bold text-deepBlack bg-neonYellow
-                  hover:brightness-110 transition duration-300 transform hover:scale-105 
-                  shadow-[0_0_10px_#faff00]"
+        className={`${isMobile ? 'px-3 py-1 text-sm' : 'px-4 py-2 text-base'} rounded-md font-bold text-deepBlack bg-neonYellow
+            hover:brightness-110 transition duration-300 transform hover:scale-105 
+            shadow-[0_0_10px_#faff00]`}
         onClick={() => shareScorecard(isTwoPlayer)}
       >
         <FontAwesomeIcon icon={faShareNodes} className="mr-2" />
