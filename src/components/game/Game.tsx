@@ -123,6 +123,15 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
     }
   };
 
+  const getUsedCategoryScores = () => {
+    const currentHistory = currentPlayer === 1 ? player1ScoreHistory : player2ScoreHistory;
+    const result: { [category: string]: number } = {};
+    currentHistory.forEach(entry => {
+      result[entry.category] = entry.roundScore;
+    });
+    return result;
+  };
+
   const handlePrintDocument = () => {
     printDocument(isTwoPlayer);
   };
@@ -184,7 +193,8 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
       {hasRolled && (
         <ScoresSection 
           dice={dice} 
-          hasRolled={hasRolled} 
+          hasRolled={hasRolled}
+          usedCategories={getUsedCategoryScores()} 
         />
       )}
       {showScoreCard && <h2 className="text-2xl text-neonYellow mb-2 mt-4">Score Card:</h2>}
