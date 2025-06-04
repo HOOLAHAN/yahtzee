@@ -10,42 +10,55 @@ Access the live application [here](https://d2q1p79jvmctkj.cloudfront.net/).
 
 ## Features
 
-- Interactive dice rolling experience with 5 virtual dice
-- Option to 'hold' dice between rolls
-- Score tabulation following Yahtzee's scoring categories:
-  - Three of a Kind
-  - Four of a Kind
-  - Full House
-  - Small Straight
-  - Large Straight
-  - Yahtzee
-  - Chance
-- Functional game reset
-- User authentication for secure access
-- Leaderboard feature to track high scores
+🎲 Interactive Dice Mechanics: Roll 5 virtual dice per turn, with glowing feedback and animations.
+
+✋ Hold Dice Between Rolls: Toggle individual dice to lock their values before re-rolling remaining dice (up to 3 rolls per turn).
+
+🧮 Smart Score Detection: Automatically calculates valid scoring options based on current dice, with highlights and tooltips.
+
+📊 Complete Yahtzee Scoring System, including:
+
+- Ones through Sixes
+- Three of a Kind
+- Four of a Kind
+- Full House
+- Small Straight
+- Large Straight
+- Yahtzee
+- Chance
+
+🔐 User Authentication: Secure sign-up, login, and password reset flows via AWS Cognito.
+
+🧑‍🤝‍🧑 Single & Two Player Modes: Play solo or against a friend with alternating turns and separate score tracking.
+
+🏆 Leaderboard: Global ranking system with DynamoDB backend — see how your score stacks up!
+
+📱 Responsive UI: Mobile-friendly layout with clean scaling and glowing theme aesthetics.
+
+💡 Dynamic UI Feedback: Score locking, animated buttons, visual dice states, and themed colour transitions.
+
+🔁 Game Reset & Score Sharing: Start a new round anytime or share your completed scorecard.
+
+🧭 In-App Navigation: Toggleable menu for switching between gameplay, leaderboard, settings, and about screens.
+
 
 ## Demo
 
 ### 🔐 User Authentication
 
-**Landing Page**  
-Shows the welcome screen with access to login and sign-up:
-
-![Landing Page](./docs/demo/landing_page.png)
-
-**Login Form**  
+**Login/Sign Up Form**  
 Secure user sign-in using AWS Cognito:
 
 ![Login Form](./docs/demo/login_form.png)
 
+**Sign Up Form**  
+Users can create accounts with email verification:
+
+![Sign Up](./docs/demo/signup_form.png)
+
 ---
 
 ### 🎮 Gameplay (Single Player)
-
-**Rolling Dice**  
-User rolls five dice with visual feedback on remaining rolls:
-
-![Roll Dice](./docs/demo/single_player_roll_dice.png)
 
 **Holding Dice**  
 Clicking dice allows players to hold values between rolls:
@@ -53,9 +66,14 @@ Clicking dice allows players to hold values between rolls:
 ![Hold Dice](./docs/demo/single_player_hold_dice.png)
 
 **Locking in Scores**  
-Once a valid combination is rolled, users can lock in scores (e.g., Full House, Three of a Kind):
+Once a valid combination is rolled, users can lock in scores:
 
 ![Lock In Score](./docs/demo/single_player_lock_in_score.png)
+
+**Scorecard View**  
+Displays category, dice, and cumulative score:
+
+![Score Card](./docs/demo/score_card.png)
 
 ---
 
@@ -73,6 +91,14 @@ Alternate turns and separate scoring tracked between players:
 Access key features such as the game, leaderboard, about, and settings:
 
 ![Menu](./docs/demo/menu.png)
+
+---
+
+### 📝 About Page
+
+Detailed instructions and rules for new users:
+
+![About](./docs/demo/about.png)
 
 ---
 
@@ -99,7 +125,6 @@ The application's frontend is built using React and TypeScript, with state manag
 ## Project Structure
 
 ```
-.
 ├── .github/workflows       # CI/CD pipelines
 ├── .vscode                 # VSCode workspace settings
 ├── amplify                 # AWS Amplify backend resources
@@ -140,26 +165,15 @@ The application's frontend is built using React and TypeScript, with state manag
 
 ## Setup
 
-### Cloning the Repository
-
 ```bash
 git clone https://github.com/yourusername/yahtzee.git
 cd yahtzee
-```
-
-### Installing Dependencies
-
-```bash
 npm install
 ```
 
-### AWS Configuration
-
-To interact with the leaderboard, set up AWS Amplify, Cognito, and DynamoDB. Follow the `aws-setup-instructions.md` to configure your AWS resources.
-
 ### Environment Variables
 
-Create a `.env` file in the root directory with:
+Create a `.env` file with:
 
 ```env
 REACT_APP_USER_POOL_ID=your_cognito_user_pool_id
@@ -171,8 +185,6 @@ REACT_APP_AWS_COGNITO_IDENTITY_POOL_ID=your_cognito_identity_pool_id
 REACT_APP_AWS_USER_POOLS_ID=your_cognito_user_pools_id
 REACT_APP_AWS_POOLS_WEB_CLIENT_ID=your_cognito_user_pools_web_client_id
 ```
-
-Replace values with your actual AWS credentials.
 
 ## Running the Game Locally
 
