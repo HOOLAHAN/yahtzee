@@ -11,12 +11,14 @@ interface LeaderboardProps {
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
   const [scores, setScores] = useState<ScoreItem[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
   const { userDetails } = useAuth();
   const { refreshLeaderboard } = useLeaderboardRefresh();
 
   useEffect(() => {
     const loadScores = async () => {
       try {
+        setErrorMessage('');
         let fetchedScores = [];
         if (showUserScores && userDetails) {
           fetchedScores = await fetchUserScores(userDetails.userId);
@@ -26,6 +28,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
         setScores(fetchedScores);
       } catch (error) {
         console.error('Error fetching scores:', error);
+        setScores([]);
+        setErrorMessage(error instanceof Error ? error.message : 'Failed to load leaderboard.');
       }
     };
 
@@ -63,6 +67,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
             </li>
           ))}
         </ul>
+      ) : errorMessage ? (
+        <p className="text-center text-red-400 mt-6">{errorMessage}</p>
       ) : (
         <p className="text-center text-gray-400 mt-6">No scores available.</p>
       )}
@@ -71,4 +77,3 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
 };
 
 export default Leaderboard;
-

@@ -1,12 +1,7 @@
 // scoreboardUtils.tsx
 
-import { generateClient } from 'aws-amplify/api';
-import config from '../amplifyconfiguration.json';
 import { listScores, listUserScores } from '../graphql/queries';
-import { Amplify } from 'aws-amplify';
-
-Amplify.configure(config);
-const client = generateClient();
+import { client } from './amplifyClient';
 
 export interface ScoreItem {
   id: string;
@@ -22,9 +17,17 @@ export const fetchScores = async (): Promise<ScoreItem[]> => {
   try {
     const result = await client.graphql({
       query: listScores,
+      variables: {
+        limit: 100,
+      },
     });
+    if ('errors' in result && result.errors?.length) {
+      throw new Error(result.errors.map((error) => error.message).join(', '));
+    }
+
     if ('data' in result && result.data && result.data.listScores && result.data.listScores.items) {
       const sortedScores: ScoreItem[] = result.data.listScores.items
+        .filter((item: ScoreItem | null) => Boolean(item))
         .sort((a: ScoreItem, b: ScoreItem) => b.score - a.score)
         .slice(0, 10);
       return sortedScores;
@@ -46,8 +49,13 @@ export const fetchUserScores = async (userId: string, limit: number = 10): Promi
         limit: limit,
       },
     });
+    if ('errors' in result && result.errors?.length) {
+      throw new Error(result.errors.map((error) => error.message).join(', '));
+    }
+
     if ('data' in result && result.data && result.data.listScores && result.data.listScores.items) {
       const userScores: ScoreItem[] = result.data.listScores.items
+        .filter((item: ScoreItem | null) => Boolean(item))
         .sort((a: ScoreItem, b: ScoreItem) => b.score - a.score);
       return userScores;
     } else {

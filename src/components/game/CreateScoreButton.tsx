@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
-import { Amplify } from 'aws-amplify';
-import { generateClient } from 'aws-amplify/api';
-import config from '../../amplifyconfiguration.json';
 import { createScore } from '../../graphql/mutations';
 import { useAuth } from '../../context/AuthContext';
-
-Amplify.configure(config);
-const client = generateClient();
+import { client } from '../../lib/amplifyClient';
 
 interface CreateScoreButtonProps {
   score: number;
@@ -43,6 +38,10 @@ const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score, isMobile, 
         query: createScore,
         variables: { input },
       });
+
+      if ('errors' in result && result.errors?.length) {
+        throw new Error(result.errors.map((error) => error.message).join(', '));
+      }
 
       console.log('Submitted score:', result);
       onClick?.();
