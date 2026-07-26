@@ -7,6 +7,15 @@
 #if($util.isNullOrBlank($username))
   #set($username = $ctx.identity.claims.get("cognito:username"))
 #end
+#if($util.isNullOrBlank($username))
+  #set($username = $ctx.identity.claims.get("username"))
+#end
+#if($util.isNullOrBlank($username))
+  #set($username = $ctx.identity.username)
+#end
+#if($util.isNullOrBlank($username))
+  #set($username = "Player")
+#end
 {
   "version": "2018-05-29",
   "operation": "PutItem",

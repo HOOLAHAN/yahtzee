@@ -22,11 +22,10 @@ export const fetchScores = async (): Promise<ScoreItem[]> => {
         limit: 100,
       },
     });
-    if ('errors' in result && result.errors?.length) {
-      throw new Error(result.errors.map((error) => error.message).join(', '));
-    }
-
     if ('data' in result && result.data && result.data.listScores && result.data.listScores.items) {
+      if ('errors' in result && result.errors?.length) {
+        console.warn('Some leaderboard entries could not be loaded:', result.errors);
+      }
       const sortedScores: ScoreItem[] = result.data.listScores.items
         .filter((item: ScoreItem | null) => Boolean(item))
         .sort((a: ScoreItem, b: ScoreItem) => b.score - a.score)
@@ -51,11 +50,10 @@ export const fetchUserScores = async (userId: string, limit: number = 10): Promi
         limit: limit,
       },
     });
-    if ('errors' in result && result.errors?.length) {
-      throw new Error(result.errors.map((error) => error.message).join(', '));
-    }
-
     if ('data' in result && result.data && result.data.listScores && result.data.listScores.items) {
+      if ('errors' in result && result.errors?.length) {
+        console.warn('Some user score entries could not be loaded:', result.errors);
+      }
       const userScores: ScoreItem[] = result.data.listScores.items
         .filter((item: ScoreItem | null) => Boolean(item))
         .sort((a: ScoreItem, b: ScoreItem) => b.score - a.score);
