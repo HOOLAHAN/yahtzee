@@ -2,8 +2,8 @@
 // this is an auto generated file. This will be overwritten
 
 export const submitScore = /* GraphQL */ `
-  mutation SubmitScore($userId: String!, $username: String!, $score: Int!) {
-    submitScore(userId: $userId, username: $username, score: $score) {
+  mutation SubmitScore($score: Int!) {
+    submitScore(score: $score) {
       id
       userId
       username

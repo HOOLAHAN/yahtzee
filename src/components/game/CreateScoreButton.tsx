@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createScore } from '../../graphql/mutations';
+import { submitScore } from '../../graphql/mutations';
 import { useAuth } from '../../context/AuthContext';
 import { client } from '../../lib/amplifyClient';
 
@@ -7,10 +7,6 @@ interface CreateScoreButtonProps {
   score: number;
   isMobile: boolean;
   onClick?: () => void;
-}
-
-function generateUniqueId(): string {
-  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
 }
 
 const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score, isMobile, onClick }) => {
@@ -22,22 +18,15 @@ const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score, isMobile, 
 
     setLoading(true);
     try {
-      const userId = userDetails?.userId;
-      const username = userDetails?.preferred_username;
-      const timestamp = new Date().toISOString();
-      const id = generateUniqueId();
-
-      if (!userId || !username || typeof score !== 'number') {
+      if (!userDetails?.userId || typeof score !== 'number') {
         console.error('Invalid input');
         return;
       }
 
-      const input = { id, userId, username, score, timestamp };
-
       const result = await client.graphql({
-        query: createScore,
-        authMode: 'apiKey',
-        variables: { input },
+        query: submitScore,
+        authMode: 'userPool',
+        variables: { score },
       });
 
       if ('errors' in result && result.errors?.length) {

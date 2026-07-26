@@ -122,6 +122,8 @@ UI adapts for smaller screens with clean layout and functionality:
 
 The application's frontend is built using React and TypeScript, with state management handled via React's Context API. AWS Amplify facilitates the frontend deployment and hosting, AWS Cognito provides user authentication services, and AWS DynamoDB is used for storing and retrieving leaderboard data.
 
+The AppSync API uses API-key authorization for public leaderboard reads and Cognito user-pool authorization for score writes. Score identity is derived by the AppSync resolver from Cognito claims, so neither the website nor the mobile app can choose the stored user ID or username. Frontend environment variables are public build-time configuration; never place AWS IAM secret access keys in them.
+
 ## Project Structure
 
 ```
