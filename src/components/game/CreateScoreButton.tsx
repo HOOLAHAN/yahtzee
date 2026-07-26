@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { submitScore } from '../../graphql/mutations';
 import { useAuth } from '../../context/AuthContext';
 import { client } from '../../lib/amplifyClient';
@@ -23,9 +24,15 @@ const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score, isMobile, 
         return;
       }
 
+      const session = await fetchAuthSession({ forceRefresh: true });
+      if (!session.tokens?.idToken) {
+        throw new Error('Your sign-in session has expired. Please sign in again.');
+      }
+
       const result = await client.graphql({
         query: submitScore,
         authMode: 'userPool',
+        authToken: session.tokens.idToken.toString(),
         variables: { score },
       });
 
