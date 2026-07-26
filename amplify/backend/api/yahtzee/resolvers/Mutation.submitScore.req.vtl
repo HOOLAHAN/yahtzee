@@ -1,4 +1,4 @@
-#set($id = $util.autoId())
+#set($id = $util.defaultIfNull($ctx.args.id, $util.autoId()))
 #set($timestamp = $util.time.nowISO8601())
 #set($username = $ctx.identity.claims.get("preferred_username"))
 #if($util.isNullOrBlank($username))

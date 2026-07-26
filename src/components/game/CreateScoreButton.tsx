@@ -33,7 +33,7 @@ const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score, isMobile, 
         query: submitScore,
         authMode: 'userPool',
         authToken: session.tokens.idToken.toString(),
-        variables: { score },
+        variables: { id: `web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`, score },
       });
 
       if ('errors' in result && result.errors?.length) {

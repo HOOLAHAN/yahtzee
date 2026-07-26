@@ -2,7 +2,7 @@ type Score
   @model
   @auth(rules: [
     { allow: public, provider: apiKey, operations: [read] }
-    { allow: private, provider: userPools, operations: [create] }
+    { allow: private, provider: userPools, operations: [create, read] }
   ]) {
   id: ID!
   userId: String!
@@ -12,5 +12,5 @@ type Score
 }
 
 type Mutation {
-  submitScore(score: Int!): Score @aws_cognito_user_pools
+  submitScore(id: ID, score: Int!): Score @aws_cognito_user_pools
 }
