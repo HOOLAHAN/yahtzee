@@ -6,7 +6,6 @@ const amplifyConfig = {
     Cognito: {
       userPoolId: process.env.REACT_APP_USER_POOL_ID as string,
       userPoolClientId: process.env.REACT_APP_CLIENT_ID as string,
-      identityPoolId: process.env.REACT_APP_AWS_COGNITO_IDENTITY_POOL_ID as string,
     },
   },
   API: {
