@@ -13,4 +13,18 @@ type Score
 
 type Mutation {
   submitScore(id: ID, score: Int!): Score @aws_cognito_user_pools
+  updateMyProfile(username: String!, firstName: String!, lastName: String!): UserProfile @aws_cognito_user_pools
+  deleteMyProfile: Boolean! @aws_cognito_user_pools
+}
+
+type Query {
+  myProfile: UserProfile @aws_cognito_user_pools
+  usernameAvailable(username: String!): Boolean! @aws_api_key
+}
+
+type UserProfile @aws_cognito_user_pools {
+  userId: ID!
+  username: String!
+  firstName: String!
+  lastName: String!
 }

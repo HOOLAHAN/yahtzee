@@ -6,6 +6,7 @@ describe('validateSignUpForm', () => {
       username: '',
       preferred_username: 'testUser',
       password: 'password123',
+      given_name: 'Test', family_name: 'User',
     };
     const expectedErrors = {
       email: 'Email is required.',
@@ -18,6 +19,7 @@ describe('validateSignUpForm', () => {
       username: 'invalidemail',
       preferred_username: 'testUser',
       password: 'password123',
+      given_name: 'Test', family_name: 'User',
     };
     const expectedErrors = {
       email: 'Email is invalid.',
@@ -25,14 +27,15 @@ describe('validateSignUpForm', () => {
     expect(validateSignUpForm(inputs)).toEqual(expectedErrors);
   });
 
-  it('should return an error for a preferred_username longer than 15 characters', () => {
+  it('should return an error for a preferred_username longer than 20 characters', () => {
     const inputs: SignUpFormInputs = {
       username: 'test@test.com',
       preferred_username: 'verylongusernamebeyondlimit',
       password: 'password123',
+      given_name: 'Test', family_name: 'User',
     };
     const expectedErrors = {
-      preferred_username: 'Username must be 15 characters or less.',
+      preferred_username: 'Use 3–20 letters, numbers, or underscores.',
     };
     expect(validateSignUpForm(inputs)).toEqual(expectedErrors);
   });
@@ -42,9 +45,10 @@ describe('validateSignUpForm', () => {
       username: 'test@test.com',
       preferred_username: 'ab',
       password: 'password123',
+      given_name: 'Test', family_name: 'User',
     };
     const expectedErrors = {
-      preferred_username: 'Username must be at least 3 characters',
+      preferred_username: 'Use 3–20 letters, numbers, or underscores.',
     };
     expect(validateSignUpForm(inputs)).toEqual(expectedErrors);
   });
@@ -54,6 +58,7 @@ describe('validateSignUpForm', () => {
       username: 'test@test.com',
       preferred_username: 'testUser',
       password: '',
+      given_name: 'Test', family_name: 'User',
     };
     const expectedErrors = {
       password: 'Password is required.',
@@ -66,6 +71,7 @@ describe('validateSignUpForm', () => {
       username: 'test@test.com',
       preferred_username: 'testUser',
       password: 'short',
+      given_name: 'Test', family_name: 'User',
     };
     const expectedErrors = {
       password: 'Password must be at least 8 characters.',
@@ -78,6 +84,7 @@ describe('validateSignUpForm', () => {
       username: 'test@test.com',
       preferred_username: 'testUser',
       password: 'password123',
+      given_name: 'Test', family_name: 'User',
     };
     expect(validateSignUpForm(inputs)).toEqual({});
   });

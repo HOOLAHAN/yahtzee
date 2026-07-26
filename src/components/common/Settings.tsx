@@ -1,7 +1,8 @@
 // Settings.tsx
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { updateMyProfile } from '../../services/profiles';
 
 interface SettingsProps {
   onClose: () => void;
@@ -12,12 +13,51 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmationCode, setConfirmationCode] = useState('');
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState('');
+  const [profileMessage, setProfileMessage] = useState('');
+  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const {
     deleteUser,
     resetUserPassword, 
     confirmUserPasswordReset,
-    userDetails
+    userDetails,
+    checkAuthStatus,
   } = useAuth();
+
+  useEffect(() => {
+    setUsername(userDetails?.preferred_username ?? '');
+    setFirstName(userDetails?.given_name ?? '');
+    setLastName(userDetails?.family_name ?? '');
+  }, [userDetails]);
+
+  const handleSaveProfile = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setProfileError('');
+    setProfileMessage('');
+    if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
+      setProfileError('Username must be 3–20 letters, numbers, or underscores.');
+      return;
+    }
+    if (!firstName.trim() || !lastName.trim()) {
+      setProfileError('First name and surname are required.');
+      return;
+    }
+    try {
+      setProfileSaving(true);
+      await updateMyProfile(username, firstName.trim(), lastName.trim());
+      await checkAuthStatus();
+      setEditingProfile(false);
+      setProfileMessage('Profile updated. Your new username will be used for future scores.');
+    } catch (error) {
+      setProfileError(error instanceof Error ? error.message : 'Could not update profile.');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
 
   const handleDeleteAccount = async () => {
     await deleteUser();
@@ -64,7 +104,34 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           <h3 className="font-semibold">Account:</h3>
           <p className="text-sm">Username: {userDetails.preferred_username}</p>
           <p className="text-sm">Email: {userDetails.email}</p>
+          <p className="text-sm">Name: {[userDetails.given_name, userDetails.family_name].filter(Boolean).join(' ') || 'Not set'}</p>
+          <p className="text-xs text-gray-400 mt-1">Your name is private. Only your username is shown publicly.</p>
+          {!editingProfile && (
+            <button onClick={() => { setEditingProfile(true); setProfileMessage(''); }} className="w-full py-2 mt-3 border border-neonCyan text-neonCyan rounded-xl font-semibold hover:bg-neonCyan hover:text-black transition">
+              Edit Profile
+            </button>
+          )}
         </div>
+
+        {editingProfile && (
+          <form onSubmit={handleSaveProfile} className="space-y-3">
+            <label className="block text-sm">Username
+              <input value={username} onChange={(e) => setUsername(e.target.value)} autoCapitalize="none" className="mt-1 w-full px-3 py-2 bg-black border border-neonCyan rounded" />
+            </label>
+            <label className="block text-sm">First name
+              <input value={firstName} onChange={(e) => setFirstName(e.target.value)} className="mt-1 w-full px-3 py-2 bg-black border border-neonCyan rounded" />
+            </label>
+            <label className="block text-sm">Surname
+              <input value={lastName} onChange={(e) => setLastName(e.target.value)} className="mt-1 w-full px-3 py-2 bg-black border border-neonCyan rounded" />
+            </label>
+            <div className="flex gap-2">
+              <button type="submit" disabled={profileSaving} className="flex-1 py-2 bg-neonCyan text-black rounded-xl font-semibold disabled:opacity-50">{profileSaving ? 'Saving…' : 'Save'}</button>
+              <button type="button" onClick={() => setEditingProfile(false)} className="flex-1 py-2 border border-gray-500 rounded-xl">Cancel</button>
+            </div>
+          </form>
+        )}
+        {profileError && <p className="text-sm text-red-400">{profileError}</p>}
+        {profileMessage && <p className="text-sm text-mintGlow">{profileMessage}</p>}
 
         {!showConfirmDelete && !showResetPassword && (
           <div>

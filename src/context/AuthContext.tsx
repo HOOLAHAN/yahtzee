@@ -4,13 +4,16 @@ import { signIn as amplifySignIn } from 'aws-amplify/auth';
 import { resendSignUpCode } from 'aws-amplify/auth';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import { deleteUser as amplifyDeleteUser} from 'aws-amplify/auth';
-import { resetPassword, confirmResetPassword, updatePassword } from 'aws-amplify/auth';
+import { resetPassword, confirmResetPassword, updatePassword, fetchAuthSession } from 'aws-amplify/auth';
+import { deleteMyProfile, updateMyProfile } from '../services/profiles';
 
 
 type SignUpParameters = {
   username: string;
   password: string;
-  preferred_username: string
+  preferred_username: string;
+  given_name: string;
+  family_name: string;
 };
 
 interface AuthContextType {
@@ -78,9 +81,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('Please verify your email to continue.');
       }
   
+      if (fetchedAttributes.preferred_username && fetchedAttributes.given_name && fetchedAttributes.family_name) {
+        await updateMyProfile(
+          fetchedAttributes.preferred_username,
+          fetchedAttributes.given_name,
+          fetchedAttributes.family_name,
+        );
+        await fetchAuthSession({ forceRefresh: true });
+      }
+
       setIsUserSignedIn(true);
-      setUserDetails(fetchedAttributes);
-      checkAuthStatus()
+      await checkAuthStatus();
     } catch (error) {
       console.error('Error during sign in or fetching user attributes:', error);
       throw error; 
@@ -91,6 +102,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     username,
     password,
     preferred_username,
+    given_name,
+    family_name,
   }: SignUpParameters) => {
     try {
       await amplifySignUp({
@@ -98,7 +111,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         password,
         options: {
           userAttributes: {
-            preferred_username
+            preferred_username,
+            given_name,
+            family_name,
           },
           autoSignIn: { enabled: true }
         }
@@ -170,6 +185,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   async function deleteUser() {
     try {
+      try {
+        await deleteMyProfile();
+      } catch (profileError) {
+        console.warn('Could not remove the app profile before deleting Cognito user:', profileError);
+      }
       await amplifyDeleteUser();
       await signOut();
     } catch (error) {

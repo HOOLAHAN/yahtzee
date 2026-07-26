@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { validateSignUpForm, SignUpFormErrors } from '../../lib/validationUtils';
+import { isUsernameAvailable } from '../../services/profiles';
 
 interface SignUpFormProps {
   onSwitch: () => void;
@@ -12,13 +13,15 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
   const [username, setEmail] = useState('');
   const [preferred_username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [errors, setErrors] = useState<SignUpFormErrors>({});
   const [generalError, setGeneralError] = useState('');
   const { signUp } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formErrors = validateSignUpForm({ username, preferred_username, password });
+    const formErrors = validateSignUpForm({ username, preferred_username, password, given_name: firstName, family_name: lastName });
 
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
@@ -26,7 +29,11 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
     }
 
     try {
-      await signUp({ username, password, preferred_username });
+      if (!(await isUsernameAvailable(preferred_username))) {
+        setErrors({ preferred_username: 'That username is already taken.' });
+        return;
+      }
+      await signUp({ username, password, preferred_username, given_name: firstName.trim(), family_name: lastName.trim() });
       console.log('Sign-up successful');
       onSignUpSuccess(username);
     } catch (error) {
@@ -61,6 +68,20 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
         />
         {errors.email && <p className="text-red-500 text-xs italic mt-1">{errors.email}</p>}
       </div>
+
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <label htmlFor="firstName" className="block text-sm font-semibold mb-2">First name</label>
+          <input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink" />
+          {errors.given_name && <p className="text-red-500 text-xs italic mt-1">{errors.given_name}</p>}
+        </div>
+        <div>
+          <label htmlFor="lastName" className="block text-sm font-semibold mb-2">Surname</label>
+          <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink" />
+          {errors.family_name && <p className="text-red-500 text-xs italic mt-1">{errors.family_name}</p>}
+        </div>
+      </div>
+      <p className="text-xs text-gray-400 mb-4">Your first name and surname are private and are not shown on leaderboards.</p>
 
       <div className="mb-4">
         <label htmlFor="username" className="block text-sm font-semibold mb-2">Username</label>

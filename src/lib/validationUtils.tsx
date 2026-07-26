@@ -3,12 +3,16 @@
 export interface SignUpFormInputs {
   username: string;
   preferred_username: string;
+  given_name: string;
+  family_name: string;
   password: string;
 }
 
 export interface SignUpFormErrors {
   email?: string;
   preferred_username?: string;
+  given_name?: string;
+  family_name?: string;
   password?: string;
 }
 
@@ -21,13 +25,12 @@ export const validateSignUpForm = (inputs: SignUpFormInputs): SignUpFormErrors =
     errors.email = "Email is invalid.";
   }
 
-  if (inputs.preferred_username.length > 15) {
-    errors.preferred_username = "Username must be 15 characters or less.";
+  if (!/^[A-Za-z0-9_]{3,20}$/.test(inputs.preferred_username)) {
+    errors.preferred_username = 'Use 3–20 letters, numbers, or underscores.';
   }
 
-  if (inputs.preferred_username.length < 3) {
-    errors.preferred_username = 'Username must be at least 3 characters';
-  }
+  if (!inputs.given_name.trim()) errors.given_name = 'First name is required.';
+  if (!inputs.family_name.trim()) errors.family_name = 'Surname is required.';
 
   if (!inputs.password) {
     errors.password = "Password is required.";
