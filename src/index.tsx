@@ -3,10 +3,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { Amplify }from 'aws-amplify';
-import awsConfig from './aws-exports';
+import amplifyConfig from './amplify-config';
 
 // Configure Amplify with configuration file
-Amplify.configure(awsConfig);
+Amplify.configure(amplifyConfig);
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(

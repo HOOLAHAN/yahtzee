@@ -36,6 +36,7 @@ const CreateScoreButton: React.FC<CreateScoreButtonProps> = ({ score, isMobile, 
 
       const result = await client.graphql({
         query: createScore,
+        authMode: 'apiKey',
         variables: { input },
       });
 

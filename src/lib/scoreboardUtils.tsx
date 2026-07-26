@@ -17,6 +17,7 @@ export const fetchScores = async (): Promise<ScoreItem[]> => {
   try {
     const result = await client.graphql({
       query: listScores,
+      authMode: 'apiKey',
       variables: {
         limit: 100,
       },
@@ -44,6 +45,7 @@ export const fetchUserScores = async (userId: string, limit: number = 10): Promi
   try {
     const result = await client.graphql({
       query: listUserScores,
+      authMode: 'apiKey',
       variables: {
         userId: userId,
         limit: limit,
