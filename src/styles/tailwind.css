@@ -878,6 +878,10 @@ html, body, #root {
 .desktop-nav-account { margin-left:.35rem; border:1px solid #315a5e; color:#08d9df; }
 .desktop-nav-icon { display:grid; width:2.7rem; height:2.7rem; place-items:center; border-radius:.75rem; color:#ff00c8; }
 .desktop-nav-icon:hover { background:#351c30; }
+.score-drawer-tab { min-height:3rem; border-radius:.8rem; color:#89969a; font-weight:900; transition:160ms ease; }
+.score-drawer-tab:hover { color:#08d9df; background:#182629; }
+.score-drawer-tab-active { background:#08d9df; color:#071012; box-shadow:0 0 18px rgba(8,217,223,.2); }
+#play { scroll-margin-top: 6.5rem; }
 .mode-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem; max-width: 64rem; margin: 1.5rem auto .25rem; padding: .55rem; border: 1px solid #29383c; border-radius: 1.35rem; background: #101719; box-shadow:0 14px 40px rgba(0,0,0,.25); }
 .mode-tab { position:relative; display:flex; min-height:4.4rem; align-items:center; gap:.75rem; padding:.75rem .8rem; overflow:hidden; border:1px solid transparent; border-radius:1rem; color:#829095; text-align:left; transition:160ms ease; }
 .mode-tab:hover { color:#bafce9; border-color:#315057; background:#182629; transform:translateY(-1px); }

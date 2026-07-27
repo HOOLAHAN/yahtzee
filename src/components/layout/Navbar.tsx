@@ -37,6 +37,11 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
 
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
 
+  const showPlay = () => {
+    setShowAbout(false); setLeaderboardDisplay('closed'); setShowSettings(false); setIsMenuOpen(false);
+    window.requestAnimationFrame(() => document.getElementById('play')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
+
   const toggleLeaderboard = () => {
     setLeaderboardDisplay(prevState =>
       prevState === 'allScores' ? 'closed' : 'allScores'
@@ -91,12 +96,19 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [isMenuOpen, showAbout, leaderboardDisplay, showSettings]);
+
+  useEffect(() => {
+    const drawerOpen = showAbout || leaderboardDisplay !== 'closed' || showSettings;
+    if (drawerOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; };
+  }, [leaderboardDisplay, showAbout, showSettings]);
     
   return (
     <>
       <nav className="sticky top-0 z-30 border-b-2 border-neonCyan bg-deepBlack/95 px-4 py-3 text-white shadow-lg backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
-          <a href="#play" className="flex items-center gap-3">
+          <button onClick={showPlay} className="flex items-center gap-3 text-left">
           <div className="h-14 w-14 transform transition duration-200 ease-in-out lg:h-16 lg:w-16">
             <img
               src={`${process.env.PUBLIC_URL}/yahtzee_dice_logo.png`} 
@@ -110,12 +122,11 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
             </h1>
             <p className="hidden text-xs font-bold text-gray-500 sm:block">Web game & app support</p>
           </div>
-          </a>
+          </button>
 
           <div className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
-            <a href="#play" className="desktop-nav-button">Play</a>
+            <button onClick={showPlay} className="desktop-nav-button">Play</button>
             <button onClick={toggleLeaderboard} className={`desktop-nav-button ${leaderboardDisplay === 'allScores' ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} />Scores</button>
-            {isUserSignedIn && <button onClick={toggleUserScores} className={`desktop-nav-button ${leaderboardDisplay === 'userScores' ? 'desktop-nav-active' : ''}`}>My Scores</button>}
             <button onClick={toggleAbout} className={`desktop-nav-button ${showAbout ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faCircleInfo} />About</button>
             <a href="/support.html" className="desktop-nav-button"><FontAwesomeIcon icon={faHeadset} />Support</a>
             {isUserSignedIn ? <><button onClick={toggleSettings} className={`desktop-nav-button desktop-nav-account ${showSettings ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} />Account</button><button onClick={handleSignOut} aria-label="Sign out" title="Sign out" className="desktop-nav-icon"><FontAwesomeIcon icon={faRightFromBracket} /></button></> : <button onClick={toggleAuthModal} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} />Sign in</button>}
@@ -142,8 +153,16 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
 
       {/* Leaderboard Drawer */}
       {leaderboardDisplay !== 'closed' && (
-        <div id="leaderboard-drawer" className='bg-deepBlack m-5'>
-          <Leaderboard showUserScores={leaderboardDisplay === 'userScores'}/>
+        <div className="fixed inset-0 z-40 bg-black/75 backdrop-blur-sm" onClick={() => setLeaderboardDisplay('closed')}>
+        <aside id="leaderboard-drawer" role="dialog" aria-modal="true" aria-labelledby="scores-title" className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto border-l border-neonCyan bg-deepBlack p-5 shadow-2xl sm:p-7" onClick={(event) => event.stopPropagation()}>
+          <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Shared leaderboard</p><h2 id="scores-title" className="section-heading">High Scores</h2></div><button onClick={() => setLeaderboardDisplay('closed')} aria-label="Close scores" className="text-4xl text-neonCyan hover:text-electricPink">&times;</button></div>
+          <div className="my-6 grid grid-cols-2 gap-2 rounded-2xl border border-[#2d3c40] bg-[#101719] p-1.5">
+            <button onClick={() => setLeaderboardDisplay('allScores')} className={`score-drawer-tab ${leaderboardDisplay === 'allScores' ? 'score-drawer-tab-active' : ''}`}>Global</button>
+            <button disabled={!isUserSignedIn} onClick={() => setLeaderboardDisplay('userScores')} className={`score-drawer-tab ${leaderboardDisplay === 'userScores' ? 'score-drawer-tab-active' : ''} disabled:cursor-not-allowed disabled:opacity-40`}>My Scores</button>
+          </div>
+          {!isUserSignedIn && <div className="mb-5 rounded-xl border border-[#315a5e] bg-[#142225] p-4 text-sm text-mintGlow"><p>Sign in to see scores submitted by your account.</p><button onClick={() => { setLeaderboardDisplay('closed'); setShowAuthModal(true); }} className="mt-3 font-black text-neonCyan hover:text-electricPink">Sign in</button></div>}
+          <Leaderboard showUserScores={leaderboardDisplay === 'userScores'} hideHeading />
+        </aside>
         </div>
       )}
 
@@ -176,6 +195,7 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
         toggleSettings={toggleSettings}
         toggleTwoPlayerMode={toggleTwoPlayerMode}
         isTwoPlayer={isTwoPlayer}
+        onPlay={showPlay}
       />
 
       {/* Settings Component */}

@@ -7,9 +7,10 @@ import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
 
 interface LeaderboardProps {
   showUserScores: boolean;
+  hideHeading?: boolean;
 }
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
+const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading = false }) => {
   const [scores, setScores] = useState<ScoreItem[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const { userDetails } = useAuth();
@@ -44,17 +45,16 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores }) => {
   const heading = showUserScores ? 'My Scores' : 'High Scores';
   
   return (
-    <div className="max-w-xl mx-auto p-6 bg-deepBlack rounded-2xl shadow-xl border-4 border-neonCyan">
-      <h3 className="text-3xl font-bold text-center mb-6 text-neonYellow animate-pulse-glow drop-shadow-[0_0_10px_#faff00]">
+    <div className={hideHeading ? '' : 'max-w-xl mx-auto p-6 bg-deepBlack rounded-2xl shadow-xl border-4 border-neonCyan'}>
+      {!hideHeading && <h3 className="text-3xl font-bold text-center mb-6 text-neonYellow animate-pulse-glow drop-shadow-[0_0_10px_#faff00]">
         {heading}
-      </h3>
+      </h3>}
       {scores.length ? (
         <ul className="space-y-4">
           {scores.map((score, index) => (
             <li
               key={score.id}
-              className={`flex items-center justify-between px-4 py-3 rounded-xl transition transform hover:scale-[1.02] shadow-md
-              ${index % 2 === 0 ? 'bg-black/70' : 'bg-black/50'}`}
+              className="flex items-center justify-between rounded-xl border border-[#2d3c40] bg-[#11191b] px-4 py-4 shadow-md transition hover:border-neonCyan hover:bg-[#162225]"
             >
               <div className="text-neonCyan font-semibold text-lg">
                 {index + 1}. {score.username}

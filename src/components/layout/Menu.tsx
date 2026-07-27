@@ -12,6 +12,7 @@ interface MenuProps {
   toggleSettings?: () => void;
   toggleTwoPlayerMode: () => void;
   isTwoPlayer: boolean;
+  onPlay: () => void;
 }
 
 const Menu: React.FC<MenuProps> = ({
@@ -26,6 +27,7 @@ const Menu: React.FC<MenuProps> = ({
   toggleSettings,
   toggleTwoPlayerMode,
   isTwoPlayer,
+  onPlay,
 }) => {
   const { userDetails } = useAuth();
 
@@ -64,6 +66,12 @@ const Menu: React.FC<MenuProps> = ({
           {/* Buttons */}
           <div className="flex flex-col gap-3">
             <button
+              onClick={() => { onPlay(); onClose(); }}
+              className="px-4 py-2 rounded-xl font-semibold text-black bg-neonYellow hover:bg-neonCyan transition hover:scale-105"
+            >
+              Play
+            </button>
+            <button
               onClick={toggleAbout}
               className="px-4 py-2 rounded-xl font-semibold text-black bg-neonCyan hover:bg-electricPink transition hover:scale-105"
             >
@@ -73,7 +81,7 @@ const Menu: React.FC<MenuProps> = ({
               onClick={toggleLeaderboard}
               className="px-4 py-2 rounded-xl font-semibold text-black bg-neonCyan hover:bg-electricPink transition hover:scale-105"
             >
-              Leaderboard
+              Scores
             </button>
             {isUserSignedIn && (
               <button
