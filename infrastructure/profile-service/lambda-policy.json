@@ -1,0 +1,20 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:TransactWriteItems"
+      ],
+      "Resource": "arn:aws:dynamodb:eu-west-2:974928048532:table/YahtzeeUserProfiles"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "cognito-idp:AdminUpdateUserAttributes",
+      "Resource": "arn:aws:cognito-idp:eu-west-2:974928048532:userpool/eu-west-2_fktkjskrl"
+    }
+  ]
+}
