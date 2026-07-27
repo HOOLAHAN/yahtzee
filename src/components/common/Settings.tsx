@@ -115,23 +115,27 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         </div>
 
         {editingProfile && (
-          <form onSubmit={handleSaveProfile} className="space-y-3">
-            <label className="block text-sm">Username
-              <input value={username} onChange={(e) => setUsername(e.target.value)} autoCapitalize="none" className="mt-1 w-full px-3 py-2 bg-black border border-neonCyan rounded" />
+          <form onSubmit={handleSaveProfile} className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-950/80">
+            <div className="space-y-4 p-4">
+            <div><h3 className="font-black text-white">Edit profile</h3><p className="mt-1 text-xs leading-5 text-gray-400">Your username appears publicly on scores. Your first name and surname stay private.</p></div>
+            <label className="block text-sm font-bold text-mintGlow">Username <span className="ml-1 text-xs font-normal text-gray-500">Public</span>
+              <input value={username} onChange={(e) => { setUsername(e.target.value); setProfileError(''); }} autoCapitalize="none" autoCorrect="off" className="mt-2 w-full rounded-xl border border-neonCyan bg-black px-3 py-3 text-white outline-none focus:ring-2 focus:ring-neonCyan/40" />
             </label>
-            <label className="block text-sm">First name
-              <input value={firstName} onChange={(e) => setFirstName(e.target.value)} className="mt-1 w-full px-3 py-2 bg-black border border-neonCyan rounded" />
+            <label className="block text-sm font-bold text-mintGlow">First name <span className="ml-1 text-xs font-normal text-gray-500">Private</span>
+              <input value={firstName} onChange={(e) => { setFirstName(e.target.value); setProfileError(''); }} autoComplete="given-name" className="mt-2 w-full rounded-xl border border-neonCyan bg-black px-3 py-3 text-white outline-none focus:ring-2 focus:ring-neonCyan/40" />
             </label>
-            <label className="block text-sm">Surname
-              <input value={lastName} onChange={(e) => setLastName(e.target.value)} className="mt-1 w-full px-3 py-2 bg-black border border-neonCyan rounded" />
+            <label className="block text-sm font-bold text-mintGlow">Surname <span className="ml-1 text-xs font-normal text-gray-500">Private</span>
+              <input value={lastName} onChange={(e) => { setLastName(e.target.value); setProfileError(''); }} autoComplete="family-name" className="mt-2 w-full rounded-xl border border-neonCyan bg-black px-3 py-3 text-white outline-none focus:ring-2 focus:ring-neonCyan/40" />
             </label>
-            <div className="flex gap-2">
-              <button type="submit" disabled={profileSaving} className="flex-1 py-2 bg-neonCyan text-black rounded-xl font-semibold disabled:opacity-50">{profileSaving ? 'Saving…' : 'Save'}</button>
-              <button type="button" onClick={() => setEditingProfile(false)} className="flex-1 py-2 border border-gray-500 rounded-xl">Cancel</button>
+            {profileError && <p role="alert" className="rounded-xl border border-red-500/50 bg-red-950/40 p-3 text-sm text-red-300">{profileError}</p>}
+            </div>
+            <div className="sticky bottom-0 flex gap-2 border-t border-slate-700 bg-slate-950 p-3 shadow-[0_-8px_20px_rgba(0,0,0,0.45)]">
+              <button type="button" onClick={() => { setEditingProfile(false); setProfileError(''); }} className="flex-1 rounded-xl border border-gray-500 py-3 font-bold text-gray-300 hover:border-white hover:text-white">Cancel</button>
+              <button type="submit" disabled={profileSaving} className="flex-[1.4] rounded-xl bg-neonCyan py-3 font-black text-black transition hover:bg-neonYellow disabled:cursor-wait disabled:opacity-50">{profileSaving ? 'Saving profile…' : 'Save profile'}</button>
             </div>
           </form>
         )}
-        {profileError && <p className="text-sm text-red-400">{profileError}</p>}
+        {!editingProfile && profileError && <p role="alert" className="text-sm text-red-400">{profileError}</p>}
         {profileMessage && <p className="text-sm text-mintGlow">{profileMessage}</p>}
 
         {!showConfirmDelete && !showResetPassword && (
