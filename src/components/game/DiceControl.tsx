@@ -30,7 +30,7 @@ const DiceControl: React.FC<DiceControlProps> = ({
   return (
     <div className="web-dice-control">
     <h2
-      className={`mb-3 font-black text-electricPink text-xs uppercase tracking-widest transition-opacity duration-200 ${
+      className={`web-roll-helper mb-3 font-black text-xs uppercase tracking-widest transition-opacity duration-200 ${
         rollsLeft > 0 ? 'visible opacity-100' : 'invisible opacity-0'
       }`}
     >

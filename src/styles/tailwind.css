@@ -907,6 +907,16 @@ html, body, #root {
 .mode-tab-active .mode-tab-icon { background:#08d9df; color:#071012; box-shadow:0 0 18px rgba(8,217,223,.3); }.mode-tab-active .mode-tab-copy small{color:#bafce9}.mode-tab-active .mode-tab-status{background:#f4ff00;box-shadow:0 0 8px #f4ff00}
 .web-panel { background: #11191b; border: 1px solid #2d3c40; border-radius: 1.25rem; }
 .real-dice-setup { margin-top: 1.5rem; }
+.web-player-profile .web-die { background: var(--player-accent); border-color: var(--player-accent); box-shadow: 0 0 18px color-mix(in srgb, var(--player-accent) 38%, transparent); }
+.web-player-profile .web-die-held { background: #f4ff00; border-color: #ff00c8; box-shadow: 0 0 22px rgba(244,255,0,.55); }
+.web-player-profile .web-roll-button-active { background: var(--player-accent); box-shadow: 0 0 20px color-mix(in srgb, var(--player-accent) 30%, transparent); }
+.web-player-profile .web-roll-button-active:hover { background: var(--player-score); }
+.web-player-profile .web-roll-helper { color: var(--player-accent); }
+.web-player-profile .scorecard-trigger { border-color: var(--player-accent); color: var(--player-accent); }
+.web-player-profile .web-play-panel { border-color: color-mix(in srgb, var(--player-accent) 28%, #29383c); }
+.web-player-two-text { color: #5cff88; }
+.web-player-totals span:first-child strong { color: #00f0f0; }
+.web-player-totals span:nth-child(2) strong { color: #5cff88; }
 
 /* A short stagger makes the five dice feel physical without delaying play. */
 .web-die-wrap { transform-origin: 50% 65%; }

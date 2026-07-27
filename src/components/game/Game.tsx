@@ -27,16 +27,57 @@ interface GameProps {
 }
 
 const defaultDice = [1, 1, 1, 1, 1];
+const computerCategories: Category[] = ['Ones','Twos','Threes','Fours','Fives','Sixes','ThreeOfAKind','FourOfAKind','FullHouse','SmallStraight','LargeStraight','Yahtzee','Chance'];
+const upperCategories: Category[] = ['Ones','Twos','Threes','Fours','Fives','Sixes'];
+const playerProfiles = [
+  { accent: '#00f0f0', score: '#f4ff00', soft: '#173033' },
+  { accent: '#5cff88', score: '#9dffb7', soft: '#173322' },
+] as const;
 
-const chooseComputerHolds = (computerDice: number[]) => {
+const chooseComputerHolds = (computerDice: number[], used: Set<string>) => {
   const counts = computerDice.reduce<Record<number, number>>((result, die) => ({ ...result, [die]: (result[die] || 0) + 1 }), {});
-  const bestFace = Number(Object.keys(counts).sort((a, b) => counts[Number(b)] - counts[Number(a)] || Number(b) - Number(a))[0]);
-  if (counts[bestFace] >= 2) return new Set(computerDice.map((die, index) => die === bestFace ? index : -1).filter((index) => index >= 0));
-  const lowRun = [1,2,3,4,5]; const highRun = [2,3,4,5,6];
-  const straightRun = lowRun.filter((face) => computerDice.includes(face)).length >= highRun.filter((face) => computerDice.includes(face)).length ? lowRun : highRun;
-  const unique = new Set<number>();
-  return new Set(computerDice.map((die, index) => straightRun.includes(die) && !unique.has(die) ? (unique.add(die), index) : -1).filter((index) => index >= 0));
+  const grouped = Object.entries(counts).map(([face, count]) => [Number(face), count] as const).sort((a, b) => b[1] - a[1] || b[0] - a[0]);
+  const [bestFace, bestCount] = grouped[0];
+  const matchingUpper = upperCategories[bestFace - 1];
+  const straightOpen = !used.has('SmallStraight') || !used.has('LargeStraight');
+  const runs = [[1,2,3,4,5], [2,3,4,5,6]];
+  const target = runs.reduce((best, run) => run.filter((face) => computerDice.includes(face)).length > best.filter((face) => computerDice.includes(face)).length ? run : best);
+  const straightMatches = target.filter((face) => computerDice.includes(face)).length;
+  const groupOpen = !used.has(matchingUpper) || ['ThreeOfAKind','FourOfAKind','Yahtzee'].some((category) => !used.has(category));
+  const fullHouseOpen = !used.has('FullHouse');
+  const holdFace = (face: number) => new Set(computerDice.map((die, index) => die === face ? index : -1).filter((index) => index >= 0));
+  const holdStraight = () => { const seen = new Set<number>(); return new Set(computerDice.map((die, index) => target.includes(die) && !seen.has(die) ? (seen.add(die), index) : -1).filter((index) => index >= 0)); };
+
+  if (bestCount >= 4 && groupOpen) return holdFace(bestFace);
+  if (straightOpen && straightMatches >= 4) return holdStraight();
+  if (fullHouseOpen && grouped[0][1] >= 2 && grouped[1]?.[1] >= 2) {
+    const usefulFaces = new Set(grouped.filter(([, count]) => count >= 2).map(([face]) => face));
+    return new Set(computerDice.map((die, index) => usefulFaces.has(die) ? index : -1).filter((index) => index >= 0));
+  }
+  if (bestCount >= 3 && groupOpen) return holdFace(bestFace);
+  if (straightOpen && straightMatches >= 3) return holdStraight();
+  if (bestCount >= 2 && (groupOpen || fullHouseOpen)) return holdFace(bestFace);
+  if (straightOpen && straightMatches >= 2) return holdStraight();
+  return new Set(computerDice.map((die, index) => die >= 5 ? index : -1).filter((index) => index >= 0));
 };
+
+const sacrificeCost: Record<Category, number> = { Ones:4, Twos:8, Threes:12, Fours:16, Fives:20, Sixes:24, ThreeOfAKind:28, FourOfAKind:24, FullHouse:22, SmallStraight:26, LargeStraight:32, Yahtzee:18, Chance:34 };
+const computerCategoryValue = (category: Category, computerDice: number[], entries: ScoreEntry[]) => {
+  const score = calculateCurrentCategoryScore(category, computerDice);
+  if (score === 0) return -sacrificeCost[category];
+  if (category === 'Yahtzee') return 1200;
+  if (category === 'LargeStraight') return 1000;
+  if (category === 'FullHouse') return 800;
+  if (category === 'SmallStraight') return 700;
+  if (category === 'FourOfAKind') return 420 + score;
+  if (category === 'ThreeOfAKind') return 300 + score;
+  if (category === 'Chance') return 120 + score * 4;
+  const upperSubtotal = entries.filter((entry) => upperCategories.includes(entry.category as Category)).reduce((sum, entry) => sum + entry.roundScore, 0);
+  const face = upperCategories.indexOf(category) + 1;
+  const matchingDice = face > 0 ? score / face : 0;
+  return 180 + score * 5 + matchingDice * 12 + (upperSubtotal < 63 && matchingDice >= 3 ? 35 : 0);
+};
+const chooseComputerCategory = (computerDice: number[], used: Set<string>, entries: ScoreEntry[]) => computerCategories.filter((category) => !used.has(category)).reduce((best, category) => computerCategoryValue(category, computerDice, entries) > computerCategoryValue(best, computerDice, entries) ? category : best);
 
 const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false }) => {
   const [dice, setDice] = useState(initialDice);
@@ -86,15 +127,16 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         computerDice = nextDice;
         if (!cancelled) { setShouldShake(false); setDice(computerDice); setHeldDice(computerHeld); setHasRolled(true); setRollsLeft(2 - roll); }
         if (roll < 2) {
-          computerHeld = chooseComputerHolds(computerDice);
+          const strongCategory = chooseComputerCategory(computerDice, player2UsedCategories, player2ScoreHistory);
+          if (['LargeStraight','FullHouse','Yahtzee'].includes(strongCategory) && calculateCurrentCategoryScore(strongCategory, computerDice) > 0) break;
+          computerHeld = chooseComputerHolds(computerDice, player2UsedCategories);
           if (!cancelled) setHeldDice(computerHeld);
         }
       }
       if (cancelled) return;
       await new Promise((resolve) => setTimeout(resolve, 1100));
       if (cancelled) return;
-      const available = (['Ones','Twos','Threes','Fours','Fives','Sixes','ThreeOfAKind','FourOfAKind','FullHouse','SmallStraight','LargeStraight','Yahtzee','Chance'] as const).filter((category) => !player2UsedCategories.has(category));
-      const category = available.reduce((best, candidate) => calculateCurrentCategoryScore(candidate, computerDice) > calculateCurrentCategoryScore(best, computerDice) ? candidate : best);
+      const category = chooseComputerCategory(computerDice, player2UsedCategories, player2ScoreHistory);
       const points = calculateCurrentCategoryScore(category, computerDice);
       setPlayer2UsedCategories((used) => new Set(used).add(category));
       setPlayer2ScoreHistory((history) => [...history, { category, dice: computerDice, roundScore: points }]);
@@ -105,7 +147,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
     };
     void play();
     return () => { cancelled = true; setShouldShake(false); };
-  }, [currentPlayer, initialDice, isComputerOpponent, player2UsedCategories]);
+  }, [currentPlayer, initialDice, isComputerOpponent, player2ScoreHistory, player2UsedCategories]);
 
   useEffect(() => {
     setCurrentMobileScoreCard(currentPlayer);
@@ -185,17 +227,13 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
 
   const currentTotal = isTwoPlayer ? (currentPlayer === 1 ? player1TotalScore : player2TotalScore) : totalScore;
   const round = Math.min(getUsedCategories().size + 1, 13);
+  const currentProfile = currentPlayer === 1 ? playerProfiles[0] : playerProfiles[1];
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-6xl bg-deepBlack px-4 py-5 text-mintGlow md:px-8">
+    <div className="web-player-profile mx-auto min-h-screen w-full max-w-6xl bg-deepBlack px-4 py-5 text-mintGlow md:px-8" style={{ '--player-accent': currentProfile.accent, '--player-score': currentProfile.score, '--player-soft': currentProfile.soft } as React.CSSProperties}>
       <div className="web-game-heading"><div><h1
-        className={`text-3xl font-black animate-pulse-glow ${
-          isTwoPlayer
-            ? currentPlayer === 1
-              ? 'text-neonCyan'
-              : 'text-electricPink'
-            : 'text-neonYellow'
-        }`}
+        className="text-3xl font-black animate-pulse-glow"
+        style={{ color: currentProfile.accent }}
       >
         {isComputerOpponent ? (currentPlayer === 1 ? 'Your Turn' : 'Computer’s Turn') : isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player'}
       </h1><p>Round {round} of 13{computerThinking ? ' · Computer is thinking' : ''}</p></div><button onClick={() => setShowScoreCard(true)} className="scorecard-trigger"><FontAwesomeIcon icon={faList} /> Scorecard</button></div>

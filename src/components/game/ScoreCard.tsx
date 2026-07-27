@@ -27,7 +27,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
   const totalScore = scoreHistory.reduce((sum, entry) => sum + entry.roundScore, 0);
   const pdfDivId = currentPlayer === 1 ? 'pdf-div-player1' : 'pdf-div-player2';
 
-  const textColorClass = currentPlayer === 2 ? 'text-electricPink' : 'text-neonCyan';
+  const textColorClass = currentPlayer === 2 ? 'web-player-two-text' : 'text-neonCyan';
 
   return (
     <div id={pdfDivId} className="w-full max-w-4xl mx-auto overflow-x-auto">
