@@ -1,65 +1,22 @@
-// About.tsx
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalculator, faComputer, faDice, faPeopleGroup, faShieldHalved, faTrophy } from '@fortawesome/free-solid-svg-icons';
 
-import React from 'react';
+interface AboutProps { onClose: () => void }
 
-interface AboutProps {
-  onClose: () => void;
-}
+const modes = [
+  { name: 'Solo', icon: faDice, copy: 'Play all 13 rounds, submit your final score and climb the shared leaderboard.' },
+  { name: 'Vs Computer', icon: faComputer, copy: 'Battle an automated opponent that rolls and makes logical category choices.' },
+  { name: 'Pass & Play', icon: faPeopleGroup, copy: 'Take turns on one screen with independent scores and scorecards.' },
+  { name: 'Real Dice', icon: faCalculator, copy: 'Keep score for up to six named players while using physical dice.' },
+];
 
-const About: React.FC<AboutProps> = ({ onClose }) => {
-  return (
-    <section
-      className="m-4 p-6 sm:p-8 h-full overflow-y-auto relative animate-fadeIn bg-deepBlack text-neonCyan border border-neonCyan rounded-xl shadow-lg"
-      aria-labelledby="about-title"
-    >
-      <button
-        onClick={onClose}
-        className="absolute top-3 right-4 text-3xl text-electricPink hover:text-neonYellow transition"
-        aria-label="Close"
-      >
-        &times;
-      </button>
-
-      <h2 id="about-title" className="text-3xl font-bold mb-4 text-neonYellow text-center">
-        About <span className="text-electricPink">Yahtzee</span>
-      </h2>
-
-      <p className="mb-4 leading-relaxed">
-        🎲 <span className="text-neonYellow font-semibold">Yahtzee</span> is a classic dice game played with five six-sided dice.
-        The goal is to roll the best combinations and rack up the highest score!
-      </p>
-
-      <h3 className="text-2xl text-electricPink font-semibold mt-6 mb-2 underline underline-offset-4">How to Play</h3>
-      <ul className="list-disc list-inside space-y-1 pl-4 text-mintGlow">
-        <li>🎯 Roll all five dice at the start of your turn.</li>
-        <li>🛑 Hold any dice to lock them before your next roll.</li>
-        <li>🔁 You can re-roll the unheld dice up to two more times.</li>
-        <li>📋 After your rolls, choose a scoring category. Each one can be used only once!</li>
-      </ul>
-
-      <h3 className="text-2xl text-electricPink font-semibold mt-6 mb-2 underline underline-offset-4">Scoring Categories</h3>
-      <ul className="list-disc list-inside space-y-1 pl-4 text-mintGlow">
-        <li><span className="text-neonYellow">Ones - Sixes:</span> Add up all dice showing the number.</li>
-        <li><span className="text-neonYellow">Three of a Kind:</span> Total of all dice if 3+ are the same.</li>
-        <li><span className="text-neonYellow">Four of a Kind:</span> Total of all dice if 4+ are the same.</li>
-        <li><span className="text-neonYellow">Full House:</span> 3 of one number + 2 of another = 25 points.</li>
-        <li><span className="text-neonYellow">Small Straight:</span> 4 consecutive numbers = 30 points.</li>
-        <li><span className="text-neonYellow">Large Straight:</span> 5 consecutive numbers = 40 points.</li>
-        <li><span className="text-neonYellow">Yahtzee:</span> All five dice the same = 50 points!</li>
-        <li><span className="text-neonYellow">Chance:</span> Add up all dice — no conditions!</li>
-      </ul>
-
-      <p className="mt-4 text-neonCyan">
-        💡 <span className="text-electricPink font-semibold">Strategy Tip:</span> Timing your category selections wisely can make or break your final score!
-      </p>
-
-      <p className="mt-4 text-neonCyan">
-        🔒 <strong className="text-neonYellow">Signed in?</strong> Submit your score to the leaderboard and see how you rank against other players!
-      </p>
-
-      <p className="mt-4 text-center text-electricPink text-lg font-semibold">Good luck and happy rolling! 🎲✨</p>
-    </section>
-  );
-};
+const About: React.FC<AboutProps> = ({ onClose }) => <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-xl overflow-y-auto border-l border-neonCyan bg-deepBlack p-6 text-mintGlow shadow-2xl">
+  <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Web and iPhone</p><h2 className="section-heading">About Yahtzee</h2></div><button onClick={onClose} aria-label="Close about" className="text-4xl text-neonCyan hover:text-electricPink">&times;</button></div>
+  <p className="section-copy">One shared account and leaderboard, with four ways to play at home or on the move.</p>
+  <div className="grid sm:grid-cols-2 gap-3">{modes.map((mode) => <section key={mode.name} className="web-panel p-4"><FontAwesomeIcon icon={mode.icon} className="text-neonCyan text-xl" /><h3 className="mt-3 text-neonYellow font-black">{mode.name}</h3><p className="mt-2 text-sm leading-6 text-mintGlow">{mode.copy}</p></section>)}</div>
+  <section className="web-panel p-4 mt-5"><h3 className="text-electricPink font-black"><FontAwesomeIcon icon={faTrophy} className="mr-2" />Scoring and progress</h3><p className="mt-2 text-sm leading-6">Complete scorecards track all categories, totals and turns. Reach 63 in Ones–Sixes for the 35-point upper bonus.</p></section>
+  <section className="web-panel p-4 mt-3"><h3 className="text-neonCyan font-black"><FontAwesomeIcon icon={faShieldHalved} className="mr-2" />Account and privacy</h3><p className="mt-2 text-sm leading-6">Your username is public; email, first name and surname remain private. Account controls include profile editing, password management and permanent deletion.</p></section>
+  <nav className="flex flex-wrap gap-4 mt-6 text-neonCyan font-bold"><a href="/support.html">Support</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/account-deletion.html">Delete account</a></nav>
+</aside>;
 
 export default About;

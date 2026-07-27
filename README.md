@@ -29,7 +29,7 @@ Access the live application [here](https://d2q1p79jvmctkj.cloudfront.net/).
 
 🔐 User Authentication: Secure sign-up, login, and password reset flows via AWS Cognito.
 
-🧑‍🤝‍🧑 Single & Two Player Modes: Play solo or against a friend with alternating turns and separate score tracking.
+Four play modes: Solo, a logical computer opponent, local Pass & Play, and a Real Dice scorekeeper for up to six named players.
 
 🏆 Leaderboard: Global ranking system with DynamoDB backend — see how your score stacks up!
 
@@ -40,6 +40,19 @@ Access the live application [here](https://d2q1p79jvmctkj.cloudfront.net/).
 🔁 Game Reset & Score Sharing: Start a new round anytime or share your completed scorecard.
 
 🧭 In-App Navigation: Toggleable menu for switching between gameplay, leaderboard, settings, and about screens.
+
+Account management: unique editable usernames, private first/surname fields, password controls and verified permanent account deletion.
+
+App support website: public support, privacy, terms and account-deletion pages suitable for App Store Connect.
+
+## App Store Connect URLs
+
+- Support URL: `https://d2q1p79jvmctkj.cloudfront.net/support.html`
+- Privacy Policy URL: `https://d2q1p79jvmctkj.cloudfront.net/privacy.html`
+- Terms of Use URL: `https://d2q1p79jvmctkj.cloudfront.net/terms.html`
+- Account Deletion URL: `https://d2q1p79jvmctkj.cloudfront.net/account-deletion.html`
+
+These files live in `public/`, are copied into the production build, and are deployed by the existing S3/CloudFront workflow.
 
 
 ## Demo

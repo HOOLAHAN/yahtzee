@@ -97,6 +97,12 @@ const Menu: React.FC<MenuProps> = ({
                 Settings
               </button>
             )}
+            <div className="mt-3 border-t border-gray-700 pt-4 flex flex-col gap-3 text-sm font-bold text-neonCyan">
+              <a href="/support.html" className="hover:text-electricPink">Support</a>
+              <a href="/privacy.html" className="hover:text-electricPink">Privacy Policy</a>
+              <a href="/terms.html" className="hover:text-electricPink">Terms of Use</a>
+              <a href="/account-deletion.html" className="hover:text-electricPink">Account Deletion</a>
+            </div>
           </div>
         </div>
 

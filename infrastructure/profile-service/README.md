@@ -12,3 +12,6 @@ part of the public leaderboard schema.
 `lambda-policy.json` records the table and Cognito permissions required by the
 function. DynamoDB transactions still require the corresponding item-level
 `PutItem` and `DeleteItem` permissions.
+
+Account deletion also scans for and removes leaderboard rows owned by the
+authenticated Cognito `sub`, before the client deletes the Cognito user.

@@ -1,10 +1,11 @@
 import { CognitoIdentityProviderClient, AdminUpdateUserAttributesCommand } from '@aws-sdk/client-cognito-identity-provider';
-import { DynamoDBClient, GetItemCommand, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
+import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, ScanCommand, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
 
 const db = new DynamoDBClient({});
 const cognito = new CognitoIdentityProviderClient({});
 const table = process.env.PROFILE_TABLE;
 const pool = process.env.USER_POOL_ID;
+const scoreTable = process.env.SCORE_TABLE;
 const s = (value) => ({ S: value });
 const clean = (value, max = 50) => String(value ?? '').trim().slice(0, max);
 const normalise = (value) => clean(value, 20).toLowerCase();
@@ -24,6 +25,27 @@ async function getProfile(sub) {
     firstName: item.firstName?.S ?? '',
     lastName: item.lastName?.S ?? '',
   } : null;
+}
+
+async function deleteScores(sub) {
+  if (!scoreTable) return;
+  let startKey;
+  do {
+    const result = await db.send(new ScanCommand({
+      TableName: scoreTable,
+      FilterExpression: 'userId = :sub',
+      ExpressionAttributeValues: { ':sub': s(sub) },
+      ProjectionExpression: 'id',
+      ExclusiveStartKey: startKey,
+    }));
+    const ids = (result.Items ?? []).map((item) => item.id).filter(Boolean);
+    for (let index = 0; index < ids.length; index += 25) {
+      await db.send(new BatchWriteItemCommand({ RequestItems: {
+        [scoreTable]: ids.slice(index, index + 25).map((id) => ({ DeleteRequest: { Key: { id } } })),
+      } }));
+    }
+    startKey = result.LastEvaluatedKey;
+  } while (startKey);
 }
 
 export const handler = async (event) => {
@@ -52,16 +74,18 @@ export const handler = async (event) => {
   }
   if (field === 'deleteMyProfile') {
     const current = await getProfile(sub);
-    if (!current) return true;
-    await db.send(new TransactWriteItemsCommand({ TransactItems: [
-      { Delete: { TableName: table, Key: { pk: s(profileKey(sub)) } } },
-      { Delete: {
-        TableName: table,
-        Key: { pk: s(usernameKey(current.username)) },
-        ConditionExpression: 'userId = :sub',
-        ExpressionAttributeValues: { ':sub': s(sub) },
-      } },
-    ] }));
+    await deleteScores(sub);
+    if (current) {
+      await db.send(new TransactWriteItemsCommand({ TransactItems: [
+        { Delete: { TableName: table, Key: { pk: s(profileKey(sub)) } } },
+        { Delete: {
+          TableName: table,
+          Key: { pk: s(usernameKey(current.username)) },
+          ConditionExpression: 'userId = :sub',
+          ExpressionAttributeValues: { ':sub': s(sub) },
+        } },
+      ] }));
+    }
     return true;
   }
   if (field !== 'updateMyProfile') throw new Error('Unsupported operation');

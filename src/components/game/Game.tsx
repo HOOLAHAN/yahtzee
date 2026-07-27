@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/tailwind.css';
@@ -24,9 +24,22 @@ interface GameProps {
   isTwoPlayer: boolean;
   setIsTwoPlayer: (isTwoPlayer: boolean) => void;
   testOverrideDice?: number[];
+  isComputerOpponent?: boolean;
 }
 
-const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer, setIsTwoPlayer, testOverrideDice }) => {
+const defaultDice = [1, 1, 1, 1, 1];
+
+const chooseComputerHolds = (computerDice: number[]) => {
+  const counts = computerDice.reduce<Record<number, number>>((result, die) => ({ ...result, [die]: (result[die] || 0) + 1 }), {});
+  const bestFace = Number(Object.keys(counts).sort((a, b) => counts[Number(b)] - counts[Number(a)] || Number(b) - Number(a))[0]);
+  if (counts[bestFace] >= 2) return new Set(computerDice.map((die, index) => die === bestFace ? index : -1).filter((index) => index >= 0));
+  const lowRun = [1,2,3,4,5]; const highRun = [2,3,4,5,6];
+  const straightRun = lowRun.filter((face) => computerDice.includes(face)).length >= highRun.filter((face) => computerDice.includes(face)).length ? lowRun : highRun;
+  const unique = new Set<number>();
+  return new Set(computerDice.map((die, index) => straightRun.includes(die) && !unique.has(die) ? (unique.add(die), index) : -1).filter((index) => index >= 0));
+};
+
+const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false }) => {
   const [dice, setDice] = useState(initialDice);
   const [heldDice, setHeldDice] = useState(new Set<number>());
   const [currentScore, setCurrentScore] = useState(0);
@@ -50,6 +63,43 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
   const [player1TotalScore, setPlayer1TotalScore] = useState(0);
   const [player2TotalScore, setPlayer2TotalScore] = useState(0);
   const [currentMobileScoreCard, setCurrentMobileScoreCard] = useState(currentPlayer);
+  const [computerThinking, setComputerThinking] = useState(false);
+  const computerRunning = useRef(false);
+
+  useEffect(() => {
+    if (!isComputerOpponent || currentPlayer !== 2 || computerRunning.current || player2UsedCategories.size >= 13) return;
+    let cancelled = false;
+    const play = async () => {
+      computerRunning.current = true; setComputerThinking(true);
+      let computerDice = initialDice;
+      let computerHeld = new Set<number>();
+      for (let roll = 0; roll < 3; roll += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 420));
+        const nextDice = [...computerDice];
+        for (let index = 0; index < nextDice.length; index += 1) {
+          if (!computerHeld.has(index)) nextDice[index] = Math.floor(Math.random() * 6) + 1;
+        }
+        computerDice = nextDice;
+        if (!cancelled) { setDice(computerDice); setHeldDice(computerHeld); setHasRolled(true); setRollsLeft(2 - roll); }
+        if (roll < 2) {
+          computerHeld = chooseComputerHolds(computerDice);
+          if (!cancelled) setHeldDice(computerHeld);
+        }
+      }
+      if (cancelled) return;
+      const available = (['Ones','Twos','Threes','Fours','Fives','Sixes','ThreeOfAKind','FourOfAKind','FullHouse','SmallStraight','LargeStraight','Yahtzee','Chance'] as const).filter((category) => !player2UsedCategories.has(category));
+      const category = available.reduce((best, candidate) => calculateCurrentCategoryScore(candidate, computerDice) > calculateCurrentCategoryScore(best, computerDice) ? candidate : best);
+      const points = calculateCurrentCategoryScore(category, computerDice);
+      setPlayer2UsedCategories((used) => new Set(used).add(category));
+      setPlayer2ScoreHistory((history) => [...history, { category, dice: computerDice, roundScore: points }]);
+      setPlayer2TotalScore((value) => value + points);
+      setFlashCategory(category); setShowFlash(true);
+      startNewRound(setDice, setRollsLeft, setHeldDice, setCurrentScore, setHasRolled, initialDice);
+      setCurrentPlayer(1); computerRunning.current = false; setComputerThinking(false);
+    };
+    void play();
+    return () => { cancelled = true; };
+  }, [currentPlayer, initialDice, isComputerOpponent, player2UsedCategories]);
 
   useEffect(() => {
     if (player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) {
@@ -152,18 +202,18 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
             : 'text-neonYellow'
         }`}
       >
-        {isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player'}
+        {isComputerOpponent ? (currentPlayer === 1 ? 'Your Turn' : 'Computer’s Turn') : isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player'}
       </h1>
       <DiceControl
         dice={dice}
         heldDice={heldDice}
-        toggleHoldDie={(index: number) => toggleHoldDie(index, heldDice, setHeldDice)}
+        toggleHoldDie={(index: number) => !computerThinking && toggleHoldDie(index, heldDice, setHeldDice)}
         rollsLeft={rollsLeft}
         hasRolled={hasRolled}
         shouldShake={shouldShake}
         dieSize={dieSize}
         usedCategoriesSize={getUsedCategories().size}
-        onRollDice={() => handleRollDice(rollsLeft, dice, heldDice, setShouldShake, setHasRolled, setDice, setRollsLeft, setCurrentScore)}
+        onRollDice={() => !computerThinking && handleRollDice(rollsLeft, dice, heldDice, setShouldShake, setHasRolled, setDice, setRollsLeft, setCurrentScore)}
       />
       <ScoreDisplay
         currentScore={calculateMaximumScore(dice, hasRolled, getUsedCategories())}
@@ -276,6 +326,8 @@ const Game: React.FC<GameProps> = ({ initialDice = [1, 1, 1, 1, 1], isTwoPlayer,
           usedCategories={getUsedCategories().size}
           isUserSignedIn={isUserSignedIn}
           isTwoPlayer={isTwoPlayer}
+          allowScoreSubmission={!isTwoPlayer || isComputerOpponent}
+          gameComplete={player1UsedCategories.size === 13 && (!isTwoPlayer || player2UsedCategories.size === 13)}
         />
       )}
     </div>

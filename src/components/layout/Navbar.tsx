@@ -9,7 +9,7 @@ import Leaderboard from '../common/Leaderboard';
 import Menu from './Menu';
 import Settings from '../common/Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faCircleInfo, faHeadset, faRightFromBracket, faRightToBracket, faSliders, faTrophy } from '@fortawesome/free-solid-svg-icons';
 
 interface NavbarProps {
   isTwoPlayer: boolean;
@@ -94,21 +94,34 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
     
   return (
     <>
-      <nav className="bg-deepBlack text-white p-3 shadow-lg border-b-4 border-neonCyan">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="w-16 h-16 sm:w-14 sm:h-14 md:w-20 md:h-20 transform transition duration-200 ease-in-out">
+      <nav className="sticky top-0 z-30 border-b-2 border-neonCyan bg-deepBlack/95 px-4 py-3 text-white shadow-lg backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
+          <a href="#play" className="flex items-center gap-3">
+          <div className="h-14 w-14 transform transition duration-200 ease-in-out lg:h-16 lg:w-16">
             <img
               src={`${process.env.PUBLIC_URL}/yahtzee_dice_logo.png`} 
               alt="Yahtzee Dice Logo"
               className="w-full h-full object-contain"
             />
           </div>
-          <div className="text-center">
-            <h1 className="text-3xl sm:text-2xl md:text-5xl font-semibold text-neonYellow animate-pulse-glow">
+          <div>
+            <h1 className="text-2xl font-black text-neonYellow animate-pulse-glow lg:text-3xl">
               Yahtzee!
             </h1>
+            <p className="hidden text-xs font-bold text-gray-500 sm:block">Web game & app support</p>
           </div>
-          <div>
+          </a>
+
+          <div className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
+            <a href="#play" className="desktop-nav-button">Play</a>
+            <button onClick={toggleLeaderboard} className={`desktop-nav-button ${leaderboardDisplay === 'allScores' ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} />Scores</button>
+            {isUserSignedIn && <button onClick={toggleUserScores} className={`desktop-nav-button ${leaderboardDisplay === 'userScores' ? 'desktop-nav-active' : ''}`}>My Scores</button>}
+            <button onClick={toggleAbout} className={`desktop-nav-button ${showAbout ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faCircleInfo} />About</button>
+            <a href="/support.html" className="desktop-nav-button"><FontAwesomeIcon icon={faHeadset} />Support</a>
+            {isUserSignedIn ? <><button onClick={toggleSettings} className={`desktop-nav-button desktop-nav-account ${showSettings ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} />Account</button><button onClick={handleSignOut} aria-label="Sign out" title="Sign out" className="desktop-nav-icon"><FontAwesomeIcon icon={faRightFromBracket} /></button></> : <button onClick={toggleAuthModal} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} />Sign in</button>}
+          </div>
+
+          <div className="lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="bg-neonCyan w-8 h-8 rounded-full text-deepBlack hover:bg-electricPink hover:text-white hover:scale-110 focus:ring focus:ring-electricPink animate-glow-border"
