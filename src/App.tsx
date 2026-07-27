@@ -23,15 +23,11 @@ const App = () => {
 
   const changeMode = (nextMode: GameMode) => { setMode(nextMode); setResetGameKey((key) => key + 1); };
 
-  const toggleTwoPlayerMode = () => {
-    changeMode(mode === 'pass' ? 'solo' : 'pass');
-  };
-
   return (
     <LeaderboardRefreshProvider>
       <AuthProvider>
         <div className="App min-h-screen bg-deepBlack text-mintGlow font-mono">
-          <Navbar isTwoPlayer={mode === 'pass'} toggleTwoPlayerMode={toggleTwoPlayerMode} />
+          <Navbar />
           <main id="play">
             <div className="mode-picker" aria-label="Game mode">
               {modes.map((item) => <button key={item.value} onClick={() => changeMode(item.value)} aria-pressed={mode === item.value} className={`mode-tab ${mode === item.value ? 'mode-tab-active' : ''}`}><span className="mode-tab-icon"><FontAwesomeIcon icon={item.icon} /></span><span className="mode-tab-copy"><strong>{item.label}</strong><small>{item.description}</small></span><span className="mode-tab-status" /></button>)}

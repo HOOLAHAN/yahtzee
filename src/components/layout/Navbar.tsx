@@ -11,12 +11,7 @@ import Settings from '../common/Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faCircleInfo, faHeadset, faRightFromBracket, faRightToBracket, faSliders, faTrophy } from '@fortawesome/free-solid-svg-icons';
 
-interface NavbarProps {
-  isTwoPlayer: boolean;
-  toggleTwoPlayerMode: () => void;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => {
+const Navbar: React.FC = () => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { isUserSignedIn, signOut } = useAuth();
@@ -45,13 +40,6 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
   const toggleLeaderboard = () => {
     setLeaderboardDisplay(prevState =>
       prevState === 'allScores' ? 'closed' : 'allScores'
-    );
-    setIsMenuOpen(false);
-  };
-
-  const toggleUserScores = () => {
-    setLeaderboardDisplay(prevState =>
-      prevState === 'userScores' ? 'closed' : 'userScores'
     );
     setIsMenuOpen(false);
   };
@@ -98,11 +86,11 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
   }, [isMenuOpen, showAbout, leaderboardDisplay, showSettings]);
 
   useEffect(() => {
-    const drawerOpen = showAbout || leaderboardDisplay !== 'closed' || showSettings;
+    const drawerOpen = isMenuOpen || showAbout || leaderboardDisplay !== 'closed' || showSettings;
     if (drawerOpen) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
     return () => { document.body.style.overflow = ''; };
-  }, [leaderboardDisplay, showAbout, showSettings]);
+  }, [isMenuOpen, leaderboardDisplay, showAbout, showSettings]);
     
   return (
     <>
@@ -191,10 +179,7 @@ const Navbar: React.FC<NavbarProps> = ({ isTwoPlayer, toggleTwoPlayerMode }) => 
         isUserSignedIn={isUserSignedIn}
         handleSignOut={handleSignOut}
         toggleLeaderboard={toggleLeaderboard}
-        toggleUserScores={toggleUserScores}
         toggleSettings={toggleSettings}
-        toggleTwoPlayerMode={toggleTwoPlayerMode}
-        isTwoPlayer={isTwoPlayer}
         onPlay={showPlay}
       />
 

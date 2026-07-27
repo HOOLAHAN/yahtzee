@@ -1,5 +1,5 @@
 import React from 'react';
-import Die from './Die';
+import DiceFace from './DiceFace';
 import { FontAwesomeSize } from '../../lib/types';
 
 interface DiceDisplayProps {
@@ -22,15 +22,15 @@ const DiceDisplay: React.FC<DiceDisplayProps> = ({
   dieSize,
 }) => {
   return (
-    <div className="flex flex-wrap justify-center mb-4">
+    <div className="web-dice-row">
       {dice.map((die, index) => (
-        <Die
+        <DiceFace
           key={index}
           value={die}
           canHold={rollsLeft > 0 && hasRolled}
           isHeld={heldDice.has(index)}
           onToggleHold={() => toggleHoldDie(index)}
-          className="m-2 md:m-4 lg:m-6"
+          className="game-die"
           shake={shouldShake}
           size={dieSize as FontAwesomeSize}
         />

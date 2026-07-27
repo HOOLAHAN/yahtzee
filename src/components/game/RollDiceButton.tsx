@@ -1,5 +1,8 @@
 // RollDiceButton.tsx
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDice } from '@fortawesome/free-solid-svg-icons';
+
 interface RollDiceButtonProps {
   rollsLeft: number;
   usedCategoriesSize: number;
@@ -16,9 +19,9 @@ const RollDiceButton: React.FC<RollDiceButtonProps> = ({
   return (
     <button
       data-testid="roll-dice-button"
-      className={`w-full md:w-auto py-2 px-4 rounded-xl font-bold shadow-md transition duration-300 ease-in-out transform ${
+      className={`web-roll-button ${
         canRoll
-          ? `bg-neonCyan text-deepBlack hover:bg-electricPink hover:text-white hover:scale-105 focus:ring focus:ring-electricPink ${
+          ? `web-roll-button-active ${
               rollsLeft === 3 ? 'animate-glow-border' : ''
             }`
           : 'bg-gray-700 text-gray-400 cursor-not-allowed'
@@ -26,7 +29,7 @@ const RollDiceButton: React.FC<RollDiceButtonProps> = ({
       onClick={onRollDice}
       disabled={!canRoll}
     >
-      🎲 Roll Dice ({rollsLeft} left)
+      <FontAwesomeIcon icon={faDice} /> {rollsLeft === 3 ? 'Roll Dice' : 'Roll Again'} <span>({rollsLeft} left)</span>
     </button>
   );
 };

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ScoreEntry } from '../../lib/types';
-import Die from './Die';
+import DiceFace from './DiceFace';
 import { useAuth } from '../../context/AuthContext';
 
 interface ScoreCardProps {
@@ -57,7 +57,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
               <td className="py-2 px-3 border-b border-gray-700">
                 <div className="flex flex-wrap gap-1">
                   {entry.dice.map((value, i) => (
-                    <Die
+                      <DiceFace
                       key={i}
                       value={value}
                       canHold={false}

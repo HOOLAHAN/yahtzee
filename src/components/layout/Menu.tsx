@@ -1,4 +1,6 @@
 import { useAuth } from '../../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleInfo, faFileContract, faHeadset, faHouse, faRightFromBracket, faRightToBracket, faShieldHalved, faSliders, faTrashCan, faTrophy } from '@fortawesome/free-solid-svg-icons';
 
 interface MenuProps {
   isOpen: boolean;
@@ -8,10 +10,7 @@ interface MenuProps {
   isUserSignedIn: boolean;
   handleSignOut: () => void;
   toggleLeaderboard: () => void;
-  toggleUserScores: () => void;
   toggleSettings?: () => void;
-  toggleTwoPlayerMode: () => void;
-  isTwoPlayer: boolean;
   onPlay: () => void;
 }
 
@@ -23,27 +22,20 @@ const Menu: React.FC<MenuProps> = ({
   toggleAuthModal,
   isUserSignedIn,
   handleSignOut,
-  toggleUserScores,
   toggleSettings,
-  toggleTwoPlayerMode,
-  isTwoPlayer,
   onPlay,
 }) => {
   const { userDetails } = useAuth();
 
-  const handleToggleTwoPlayerMode = () => {
-    toggleTwoPlayerMode();
-    onClose();
-  };
-
   return (
-    <div
+    <><button aria-label="Close menu" onClick={onClose} className={`fixed inset-0 z-40 bg-black/75 backdrop-blur-sm transition-opacity lg:hidden ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`} />
+    <aside
       id="menu"
       className={`${
         isOpen ? 'translate-x-0' : 'translate-x-full'
-      } fixed right-0 top-0 z-40 h-full w-64 bg-deepBlack text-mintGlow shadow-xl transform transition-transform duration-300`}
+      } fixed right-0 top-0 z-50 h-full w-[88vw] max-w-sm overflow-y-auto border-l border-neonCyan bg-deepBlack text-mintGlow shadow-2xl transform transition-transform duration-300 lg:hidden`}
     >
-      <div className="flex flex-col h-full justify-between p-6">
+      <div className="flex min-h-full flex-col justify-between p-6">
         {/* Header with close button */}
         <div>
           <div className="flex items-center justify-between mb-6 animate-pulse-glow">
@@ -64,52 +56,39 @@ const Menu: React.FC<MenuProps> = ({
           )}
 
           {/* Buttons */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <button
               onClick={() => { onPlay(); onClose(); }}
-              className="px-4 py-2 rounded-xl font-semibold text-black bg-neonYellow hover:bg-neonCyan transition hover:scale-105"
+              className="mobile-menu-item mobile-menu-primary"
             >
-              Play
+              <span className="mobile-menu-icon"><FontAwesomeIcon icon={faHouse} /></span><span><strong>Play</strong><small>Choose a game mode</small></span>
             </button>
             <button
               onClick={toggleAbout}
-              className="px-4 py-2 rounded-xl font-semibold text-black bg-neonCyan hover:bg-electricPink transition hover:scale-105"
+              className="mobile-menu-item"
             >
-              About
+              <span className="mobile-menu-icon"><FontAwesomeIcon icon={faCircleInfo} /></span><span><strong>About</strong><small>Modes, rules and scoring</small></span>
             </button>
             <button
               onClick={toggleLeaderboard}
-              className="px-4 py-2 rounded-xl font-semibold text-black bg-neonCyan hover:bg-electricPink transition hover:scale-105"
+              className="mobile-menu-item"
             >
-              Scores
-            </button>
-            {isUserSignedIn && (
-              <button
-                onClick={toggleUserScores}
-                className="px-4 py-2 rounded-xl font-semibold text-black bg-neonCyan hover:bg-electricPink transition hover:scale-105"
-              >
-                My Scores
-              </button>
-            )}
-            <button
-              onClick={handleToggleTwoPlayerMode}
-              className="px-4 py-2 rounded-xl font-semibold text-black bg-neonCyan hover:bg-electricPink transition hover:scale-105"
-            >
-              {isTwoPlayer ? 'Play Single Player' : 'Play Two Player'}
+              <span className="mobile-menu-icon"><FontAwesomeIcon icon={faTrophy} /></span><span><strong>Scores</strong><small>Global and your scores</small></span>
             </button>
             {isUserSignedIn && toggleSettings && (
               <button
                 onClick={toggleSettings}
-                className="px-4 py-2 rounded-xl font-semibold text-black bg-neonCyan hover:bg-electricPink transition hover:scale-105"
+                className="mobile-menu-item"
               >
-                Settings
+                <span className="mobile-menu-icon"><FontAwesomeIcon icon={faSliders} /></span><span><strong>Account</strong><small>Profile and security</small></span>
               </button>
             )}
-            <div className="mt-3 border-t border-gray-700 pt-4 flex flex-col gap-3 text-sm font-bold text-neonCyan">
-              <a href="/support.html" className="hover:text-electricPink">Support</a>
-              <a href="/privacy.html" className="hover:text-electricPink">Privacy Policy</a>
-              <a href="/terms.html" className="hover:text-electricPink">Terms of Use</a>
-              <a href="/account-deletion.html" className="hover:text-electricPink">Account Deletion</a>
+            <div className="mt-4 border-t border-gray-700 pt-4"><p className="mb-2 text-xs font-black uppercase tracking-widest text-gray-500">Support & legal</p><div className="grid grid-cols-2 gap-2">
+              <a href="/support.html" className="mobile-menu-link"><FontAwesomeIcon icon={faHeadset} />Support</a>
+              <a href="/privacy.html" className="mobile-menu-link"><FontAwesomeIcon icon={faShieldHalved} />Privacy</a>
+              <a href="/terms.html" className="mobile-menu-link"><FontAwesomeIcon icon={faFileContract} />Terms</a>
+              <a href="/account-deletion.html" className="mobile-menu-link text-red-400"><FontAwesomeIcon icon={faTrashCan} />Deletion</a>
+            </div>
             </div>
           </div>
         </div>
@@ -118,22 +97,22 @@ const Menu: React.FC<MenuProps> = ({
         <div className="mt-6">
           {!isUserSignedIn ? (
             <button
-              onClick={toggleAuthModal}
-              className="w-full px-4 py-2 rounded-xl font-semibold text-black bg-neonCyan hover:bg-electricPink transition hover:scale-105"
+              onClick={() => { onClose(); toggleAuthModal(); }}
+              className="mobile-auth-button"
             >
-              Login
+              <FontAwesomeIcon icon={faRightToBracket} /> Sign in
             </button>
           ) : (
             <button
-              onClick={handleSignOut}
-              className="w-full px-4 py-2 rounded-xl font-semibold text-black bg-neonCyan hover:bg-electricPink transition hover:scale-105"
+              onClick={() => { onClose(); handleSignOut(); }}
+              className="mobile-auth-button mobile-auth-signout"
             >
-              Log Out
+              <FontAwesomeIcon icon={faRightFromBracket} /> Sign out
             </button>
           )}
         </div>
       </div>
-    </div>
+    </aside></>
   );
 };
 

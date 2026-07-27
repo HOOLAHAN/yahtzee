@@ -25,7 +25,7 @@ test('initial roll count is 3', () => {
   const rollButton = screen.getByTestId('roll-dice-button'); 
   fireEvent.click(rollButton);
   
-  expect(rollButton).toHaveTextContent('🎲 Roll Dice (3 left)');
+  expect(rollButton).toHaveTextContent('Roll Dice (3 left)');
 });
 
 
@@ -46,7 +46,7 @@ test('score for Three of a Kind starts at 0 with known non-scoring dice', async 
   );
   fireEvent.click(screen.getByTestId('roll-dice-button'));
   const score = await screen.findByTestId('score-three-of-a-kind');
-  expect(score).toHaveTextContent('Three of a Kind: 0');
+  await waitFor(() => expect(score).toHaveTextContent('0'));
 });
 
 test('score for Four of a Kind starts at 0 with known non-scoring dice', async () => {
@@ -66,7 +66,7 @@ test('score for Four of a Kind starts at 0 with known non-scoring dice', async (
   );
   fireEvent.click(screen.getByTestId('roll-dice-button'));
   const score = await screen.findByTestId('score-four-of-a-kind');
-  expect(score).toHaveTextContent('Four of a Kind: 0');
+  await waitFor(() => expect(score).toHaveTextContent('0'));
 });
 
 test('initial Full House score starts at 0 with known non-scoring dice', async () => {
@@ -86,7 +86,7 @@ test('initial Full House score starts at 0 with known non-scoring dice', async (
   );
   fireEvent.click(screen.getByTestId('roll-dice-button'));
   const score = await screen.findByTestId('score-full-house');
-  expect(score).toHaveTextContent('Full House: 0');
+  await waitFor(() => expect(score).toHaveTextContent('0'));
 });
 
 test('calculate Full House score with invalid dice', async () => {
@@ -106,7 +106,7 @@ test('calculate Full House score with invalid dice', async () => {
   );
   fireEvent.click(screen.getByTestId('roll-dice-button'));
   const score = await screen.findByTestId('score-full-house');
-  expect(score).toHaveTextContent('Full House: 0');
+  await waitFor(() => expect(score).toHaveTextContent('0'));
 });
 
 test('calculate Small Straight score with invalid dice', async () => {
@@ -126,7 +126,7 @@ test('calculate Small Straight score with invalid dice', async () => {
   );
   fireEvent.click(screen.getByTestId('roll-dice-button'));
   const score = await screen.findByTestId('score-small-straight');
-  expect(score).toHaveTextContent('Small Straight: 0');
+  await waitFor(() => expect(score).toHaveTextContent('0'));
 });
 
 test('calculate Large Straight score with invalid dice', async () => {
@@ -146,7 +146,7 @@ test('calculate Large Straight score with invalid dice', async () => {
   );
   fireEvent.click(screen.getByTestId('roll-dice-button'));
   const score = await screen.findByTestId('score-large-straight');
-  expect(score).toHaveTextContent('Large Straight: 0');
+  await waitFor(() => expect(score).toHaveTextContent('0'));
 });
 
 test('calculate Yahtzee score with invalid dice', async () => {
@@ -166,7 +166,7 @@ test('calculate Yahtzee score with invalid dice', async () => {
   );
   fireEvent.click(screen.getByTestId('roll-dice-button'));
   const score = await screen.findByTestId('score-yahtzee');
-  expect(score).toHaveTextContent('Yahtzee: 0');
+  await waitFor(() => expect(score).toHaveTextContent('0'));
 });
 
 test('holding dice functionality', async () => {

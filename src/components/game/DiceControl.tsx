@@ -28,14 +28,14 @@ const DiceControl: React.FC<DiceControlProps> = ({
   onRollDice,
 }) => {
   return (
-    <div className="bg-deepBlack text-mintGlow p-4 rounded-lg shadow-md">
+    <div className="web-dice-control">
     <h2
-      className={`text-center mb-2 font-semibold text-electricPink text-sm uppercase transition-opacity duration-200 ${
+      className={`mb-3 font-black text-electricPink text-xs uppercase tracking-widest transition-opacity duration-200 ${
         rollsLeft > 0 ? 'visible opacity-100' : 'invisible opacity-0'
       }`}
     >
       {usedCategoriesSize === 13
-        ? "🎉 Game Complete!"
+        ? "Game complete"
         : rollsLeft === 3
           ? usedCategoriesSize === 0
             ? "ROLL DICE TO BEGIN"
@@ -52,7 +52,7 @@ const DiceControl: React.FC<DiceControlProps> = ({
         shouldShake={shouldShake}
         dieSize={dieSize}
       />
-      <div className="flex justify-center space-x-2 mb-2">
+      <div className="mt-4">
         <RollDiceButton
           rollsLeft={rollsLeft}
           usedCategoriesSize={usedCategoriesSize}
@@ -64,4 +64,3 @@ const DiceControl: React.FC<DiceControlProps> = ({
 };
 
 export default DiceControl;
-

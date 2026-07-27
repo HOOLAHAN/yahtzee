@@ -30,7 +30,42 @@ interface CategoryButtonsProps {
   player2TotalScore: number;
   setPlayer1TotalScore: React.Dispatch<React.SetStateAction<number>>;
   setPlayer2TotalScore: React.Dispatch<React.SetStateAction<number>>;
+  showAll?: boolean;
+  selectedCategory?: Category | null;
+  onSelectCategory?: (category: Category) => void;
 }
+
+const categoryLabels: Record<Category, string> = {
+  Ones: 'Ones',
+  Twos: 'Twos',
+  Threes: 'Threes',
+  Fours: 'Fours',
+  Fives: 'Fives',
+  Sixes: 'Sixes',
+  ThreeOfAKind: '3 of a Kind',
+  FourOfAKind: '4 of a Kind',
+  FullHouse: 'Full House',
+  SmallStraight: 'Sm. Straight',
+  LargeStraight: 'Lg. Straight',
+  Yahtzee: 'Yahtzee',
+  Chance: 'Chance',
+};
+
+const categoryTestIds: Record<Category, string> = {
+  Ones: 'score-ones',
+  Twos: 'score-twos',
+  Threes: 'score-threes',
+  Fours: 'score-fours',
+  Fives: 'score-fives',
+  Sixes: 'score-sixes',
+  ThreeOfAKind: 'score-three-of-a-kind',
+  FourOfAKind: 'score-four-of-a-kind',
+  FullHouse: 'score-full-house',
+  SmallStraight: 'score-small-straight',
+  LargeStraight: 'score-large-straight',
+  Yahtzee: 'score-yahtzee',
+  Chance: 'score-chance',
+};
 
 const CategoryButtons: React.FC<CategoryButtonsProps> = ({
   dice,
@@ -58,6 +93,9 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
   player2TotalScore,
   setPlayer1TotalScore,
   setPlayer2TotalScore,
+  showAll = false,
+  selectedCategory,
+  onSelectCategory,
 }) => {
   const categories: Category[] = [
     'Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes',
@@ -66,24 +104,24 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
   ];
 
   return (
-    <div className="flex flex-wrap justify-center gap-3 mt-6 max-w-5xl mx-auto">
+    <div className={showAll ? 'web-category-grid' : 'flex flex-wrap justify-center gap-3 mt-6 max-w-5xl mx-auto'}>
       {categories.map((category) => {
         const canLock = canLockInScore(category, hasRolled, usedCategories);
         const isUsed = usedCategories.has(category);
-        if (!canLock || isUsed) return null;
+        if (!showAll && (!canLock || isUsed)) return null;
 
         const currentCategoryScore = calculateCurrentCategoryScore(category, dice);
         const buttonClass = getButtonClass(currentCategoryScore);
+        const savedScore = scoreHistory.find((entry) => entry.category === category)?.roundScore;
+        const testId = categoryTestIds[category];
 
         return (
           <button
             key={category}
-            className={`
-              ${buttonClass}
-              ${isUsed ? 'cursor-not-allowed opacity-70' : ''}
-              ${!canLock ? 'cursor-not-allowed opacity-40' : ''}
-            `}
+            data-testid={testId}
+            className={showAll ? `web-category-card ${selectedCategory === category ? 'web-category-selected' : ''} ${isUsed ? 'web-category-used' : ''} ${!hasRolled ? 'web-category-locked' : ''}` : `${buttonClass} ${isUsed ? 'cursor-not-allowed opacity-70' : ''} ${!canLock ? 'cursor-not-allowed opacity-40' : ''}`}
             onClick={() => {
+              if (showAll && onSelectCategory) { if (canLock) onSelectCategory(category); return; }
               lockInScore(
                 category,
                 usedCategories,
@@ -113,7 +151,7 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
             }}
             disabled={!canLock || isUsed}
           >
-            {category.replace(/([A-Z])/g, ' $1').trim()} ({currentCategoryScore})
+            <span>{categoryLabels[category]}</span><strong>{isUsed ? savedScore : currentCategoryScore}</strong>
           </button>
         );
       })}

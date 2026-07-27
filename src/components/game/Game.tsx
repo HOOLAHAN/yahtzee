@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faArrowLeft, faList, faLock, faRotate } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/tailwind.css';
 import ScoreCard from './ScoreCard';
 import ScoreFlash from './ScoreFlash';
@@ -8,13 +8,12 @@ import GameControlButtons from './GameControlButtons';
 import ScoreDisplay from './ScoreDisplay';
 import CategoryButtons from './CategoryButtons';
 import DiceControl from './DiceControl';
-import ScoresSection from './ScoresSection';
 
 import { calculateCurrentCategoryScore, calculateMaximumScore } from '../../lib/scoreCalculator';
 import { toggleHoldDie } from '../../lib/diceLogic';
-import { resetGame, startNewRound } from '../../lib/gameControl';
-import { ScoreEntry } from '../../lib/types';
-import { getDieSize, shareScorecard } from '../../lib/utils';
+import { lockInScore, resetGame, startNewRound } from '../../lib/gameControl';
+import { Category, ScoreEntry } from '../../lib/types';
+import { getDieSize } from '../../lib/utils';
 import { useWindowSize } from '../../hooks/useWindowSize';
 import { handleRollDice } from '../../lib/handleRollDice';
 import { useAuth } from '../../context/AuthContext';
@@ -64,6 +63,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const [player2TotalScore, setPlayer2TotalScore] = useState(0);
   const [currentMobileScoreCard, setCurrentMobileScoreCard] = useState(currentPlayer);
   const [computerThinking, setComputerThinking] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const computerRunning = useRef(false);
 
   useEffect(() => {
@@ -102,14 +102,6 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   }, [currentPlayer, initialDice, isComputerOpponent, player2UsedCategories]);
 
   useEffect(() => {
-    if (player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) {
-      setShowScoreCard(true);
-    } else {
-      setShowScoreCard(false);
-    }
-  }, [player1ScoreHistory, player2ScoreHistory]);
-
-  useEffect(() => {
     setCurrentMobileScoreCard(currentPlayer);
   }, [currentPlayer]);
 
@@ -128,6 +120,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   };
 
   const handleResetGame = () => {
+    setSelectedCategory(null); setShowScoreCard(false);
     resetGame(
       setDice, setRollsLeft, setHeldDice, setCurrentScore, 
       setPlayer1ScoreHistory, setPlayer2ScoreHistory,
@@ -173,28 +166,24 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
     }
   };
 
-  const getUsedCategoryScores = () => {
-    const currentHistory = currentPlayer === 1 ? player1ScoreHistory : player2ScoreHistory;
-    const result: { [category: string]: number } = {};
-    currentHistory.forEach(entry => {
-      result[entry.category] = entry.roundScore;
-    });
-    return result;
-  };
-
-  const handleShareScorecard = () => {
-    shareScorecard(isTwoPlayer);
-  };
-
   const handleScoreLockIn = (category: string) => {
     setFlashCategory(category);
     setShowFlash(true);
   };
 
+  const handleConfirmScore = () => {
+    if (!selectedCategory) return;
+    lockInScore(selectedCategory, getUsedCategories(), setUsedCategories, dice, updateScores as React.Dispatch<React.SetStateAction<number>>, totalScore, currentPlayer === 1 ? setPlayer1ScoreHistory : setPlayer2ScoreHistory, currentPlayer === 1 ? player1ScoreHistory : player2ScoreHistory, handleStartNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore, calculateCurrentCategoryScore, isTwoPlayer, currentPlayer, player1TotalScore, player2TotalScore, setPlayer1TotalScore, setPlayer2TotalScore);
+    handleScoreLockIn(selectedCategory); setSelectedCategory(null);
+  };
+
+  const currentTotal = isTwoPlayer ? (currentPlayer === 1 ? player1TotalScore : player2TotalScore) : totalScore;
+  const round = Math.min(getUsedCategories().size + 1, 13);
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start p-4 md:p-8 bg-deepBlack text-mintGlow">
-      <h1
-        className={`text-3xl font-bold mb-4 animate-pulse-glow ${
+    <div className="mx-auto min-h-screen w-full max-w-6xl bg-deepBlack px-4 py-5 text-mintGlow md:px-8">
+      <div className="web-game-heading"><div><h1
+        className={`text-3xl font-black animate-pulse-glow ${
           isTwoPlayer
             ? currentPlayer === 1
               ? 'text-neonCyan'
@@ -203,7 +192,8 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         }`}
       >
         {isComputerOpponent ? (currentPlayer === 1 ? 'Your Turn' : 'Computer’s Turn') : isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player'}
-      </h1>
+      </h1><p>Round {round} of 13{computerThinking ? ' · Computer is thinking' : ''}</p></div><button onClick={() => setShowScoreCard(true)} className="scorecard-trigger"><FontAwesomeIcon icon={faList} /> Scorecard</button></div>
+      <section className="web-play-panel">
       <DiceControl
         dice={dice}
         heldDice={heldDice}
@@ -217,9 +207,10 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       />
       <ScoreDisplay
         currentScore={calculateMaximumScore(dice, hasRolled, getUsedCategories())}
-        totalScore={isTwoPlayer ? (currentPlayer === 1 ? player1TotalScore : player2TotalScore) : totalScore}
+        totalScore={currentTotal}
       />
-      {hasRolled && <h2 className="text-2xl text-neonYellow mb-2">Lock In Score:</h2>}
+      </section>
+      <div className="category-heading"><div><h2>Choose a category</h2><p>{hasRolled ? 'Tap once to preview, then lock it in.' : 'Categories unlock after your first roll.'}</p></div><span>13 categories</span></div>
       <CategoryButtons
         dice={dice}
         hasRolled={hasRolled}
@@ -246,18 +237,14 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         player2TotalScore={player2TotalScore}
         setPlayer1TotalScore={setPlayer1TotalScore}
         setPlayer2TotalScore={setPlayer2TotalScore}
+        showAll
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
       />
       <ScoreFlash category={flashCategory} show={showFlash} onEnd={() => setShowFlash(false)} />
-      {hasRolled && (
-        <ScoresSection 
-          dice={dice} 
-          hasRolled={hasRolled}
-          usedCategories={getUsedCategoryScores()} 
-        />
-      )}
-      {showScoreCard && <h2 className="text-2xl text-neonYellow mb-2 mt-4">Score Card:</h2>}
-      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8">
-        {showScoreCard && (
+      {selectedCategory && <div className="web-lock-bar"><div><small>{selectedCategory.replace(/([A-Z])/g, ' $1').trim()}</small><strong>{calculateCurrentCategoryScore(selectedCategory, dice)} points</strong></div><button onClick={handleConfirmScore}><FontAwesomeIcon icon={faLock} /> Lock In</button></div>}
+      {showScoreCard && <div className="fixed inset-0 z-50 bg-black/80 p-3 backdrop-blur-sm sm:p-6" onClick={() => setShowScoreCard(false)}><section className="scorecard-modal" onClick={(event) => event.stopPropagation()}><div className="scorecard-modal-header"><div><p className="eyebrow">Round {round} of 13</p><h2>Scorecard</h2></div><button onClick={() => setShowScoreCard(false)} aria-label="Close scorecard">&times;</button></div><div className="overflow-y-auto px-4 pb-6 sm:px-6">
+        {(
           windowSize < 1050 ? (
             <div className="relative p-4 w-full">
               <ScoreCard
@@ -306,21 +293,14 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
             </div>
           )
         )}
-      </div>
+      </div></section></div>}
       {isTwoPlayer && (
-        <div className="flex space-x-8 mt-4">
-          <div>
-            <center><h2 className="text-xl text-neonCyan">Player 1 : {player1TotalScore}</h2></center>
-          </div>
-          <div>
-            <center><h2 className="text-xl text-electricPink">Player 2 : {player2TotalScore}</h2></center>
-          </div>
+        <div className="web-player-totals">
+          <span>You <strong>{player1TotalScore}</strong></span><span>{isComputerOpponent ? 'Computer' : 'Player 2'} <strong>{player2TotalScore}</strong></span>
         </div>
       )}
       {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && (
         <GameControlButtons
-          onResetGame={handleResetGame}
-          onShareScorecard={handleShareScorecard} 
           isMobile={windowSize < 640}
           totalScore={totalScore}
           usedCategories={getUsedCategories().size}
@@ -330,6 +310,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
           gameComplete={player1UsedCategories.size === 13 && (!isTwoPlayer || player2UsedCategories.size === 13)}
         />
       )}
+      {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && <button onClick={handleResetGame} className="web-reset"><FontAwesomeIcon icon={faRotate} /> Reset game</button>}
     </div>
   );
 };
