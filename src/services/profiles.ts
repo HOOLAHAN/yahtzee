@@ -45,10 +45,17 @@ export async function updateMyProfile(
   firstName: string,
   lastName: string,
 ): Promise<UserProfile> {
+  // Immediately after sign-in, Amplify's API client can briefly resolve auth
+  // before its implicit token provider has caught up. Supplying the freshly
+  // fetched ID token removes that race on the first authenticated request.
+  const session = await fetchAuthSession({ forceRefresh: true });
+  const authToken = session.tokens?.idToken?.toString();
+  if (!authToken) throw new Error('Sign in required.');
   const result = await (client as any).graphql({
     query: UPDATE_MY_PROFILE,
     variables: { username, firstName, lastName },
     authMode: 'userPool',
+    authToken,
   });
   if (!result.data?.updateMyProfile) throw new Error('Profile update failed.');
   // The profile service also updates Cognito attributes. Refresh the ID token so

@@ -72,8 +72,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signIn = async ({ username, password }: SignInInput) => {
     try {
-      const user = await amplifySignIn({ username, password });
-      console.log('Sign-in successful', user);
+      const result = await amplifySignIn({ username: username.trim(), password });
+      if (!result.isSignedIn) {
+        if (result.nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+          throw new Error('This account requires a permanent password before it can sign in.');
+        }
+        throw new Error(`Additional sign-in step required: ${result.nextStep.signInStep}`);
+      }
+      await fetchAuthSession({ forceRefresh: true });
       const fetchedAttributes = await fetchUserAttributes();
       const isEmailVerified = fetchedAttributes.email_verified === 'true';
   
@@ -82,12 +88,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
   
       if (fetchedAttributes.preferred_username && fetchedAttributes.given_name && fetchedAttributes.family_name) {
-        await updateMyProfile(
-          fetchedAttributes.preferred_username,
-          fetchedAttributes.given_name,
-          fetchedAttributes.family_name,
-        );
-        await fetchAuthSession({ forceRefresh: true });
+        try {
+          await updateMyProfile(
+            fetchedAttributes.preferred_username,
+            fetchedAttributes.given_name,
+            fetchedAttributes.family_name,
+          );
+        } catch (profileError) {
+          // Authentication has already succeeded. A temporary profile-service
+          // problem must not leave the modal claiming that login failed.
+          console.warn('Signed in, but profile synchronization was deferred:', profileError);
+        }
       }
 
       setIsUserSignedIn(true);
