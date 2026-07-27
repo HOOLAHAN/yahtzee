@@ -52,7 +52,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
       await updateMyProfile(username, firstName.trim(), lastName.trim());
       await checkAuthStatus();
       setEditingProfile(false);
-      setProfileMessage('Profile updated. Your new username will be used for future scores.');
+      setProfileMessage('Profile updated. Your leaderboard scores now use your new username.');
     } catch (error) {
       setProfileError(error instanceof Error ? error.message : 'Could not update profile.');
     } finally {
