@@ -74,18 +74,24 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       let computerDice = initialDice;
       let computerHeld = new Set<number>();
       for (let roll = 0; roll < 3; roll += 1) {
-        await new Promise((resolve) => setTimeout(resolve, 420));
+        // Keep each roll and decision visible so the opponent feels like it
+        // is taking a turn rather than instantly calculating a result.
+        await new Promise((resolve) => setTimeout(resolve, roll === 0 ? 700 : 900));
+        if (!cancelled) setShouldShake(true);
+        await new Promise((resolve) => setTimeout(resolve, 850));
         const nextDice = [...computerDice];
         for (let index = 0; index < nextDice.length; index += 1) {
           if (!computerHeld.has(index)) nextDice[index] = Math.floor(Math.random() * 6) + 1;
         }
         computerDice = nextDice;
-        if (!cancelled) { setDice(computerDice); setHeldDice(computerHeld); setHasRolled(true); setRollsLeft(2 - roll); }
+        if (!cancelled) { setShouldShake(false); setDice(computerDice); setHeldDice(computerHeld); setHasRolled(true); setRollsLeft(2 - roll); }
         if (roll < 2) {
           computerHeld = chooseComputerHolds(computerDice);
           if (!cancelled) setHeldDice(computerHeld);
         }
       }
+      if (cancelled) return;
+      await new Promise((resolve) => setTimeout(resolve, 1100));
       if (cancelled) return;
       const available = (['Ones','Twos','Threes','Fours','Fives','Sixes','ThreeOfAKind','FourOfAKind','FullHouse','SmallStraight','LargeStraight','Yahtzee','Chance'] as const).filter((category) => !player2UsedCategories.has(category));
       const category = available.reduce((best, candidate) => calculateCurrentCategoryScore(candidate, computerDice) > calculateCurrentCategoryScore(best, computerDice) ? candidate : best);
@@ -98,7 +104,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       setCurrentPlayer(1); computerRunning.current = false; setComputerThinking(false);
     };
     void play();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; setShouldShake(false); };
   }, [currentPlayer, initialDice, isComputerOpponent, player2UsedCategories]);
 
   useEffect(() => {

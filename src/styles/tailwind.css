@@ -906,6 +906,23 @@ html, body, #root {
 .mode-tab-active { border-color:#08d9df; background:#20383b; color:#08d9df; box-shadow:0 0 22px rgba(8,217,223,.16); }
 .mode-tab-active .mode-tab-icon { background:#08d9df; color:#071012; box-shadow:0 0 18px rgba(8,217,223,.3); }.mode-tab-active .mode-tab-copy small{color:#bafce9}.mode-tab-active .mode-tab-status{background:#f4ff00;box-shadow:0 0 8px #f4ff00}
 .web-panel { background: #11191b; border: 1px solid #2d3c40; border-radius: 1.25rem; }
+.real-dice-setup { margin-top: 1.5rem; }
+
+/* A short stagger makes the five dice feel physical without delaying play. */
+.web-die-wrap { transform-origin: 50% 65%; }
+.web-dice-row > .web-die-wrap:nth-child(2) { animation-delay: 55ms; }
+.web-dice-row > .web-die-wrap:nth-child(3) { animation-delay: 110ms; }
+.web-dice-row > .web-die-wrap:nth-child(4) { animation-delay: 165ms; }
+.web-dice-row > .web-die-wrap:nth-child(5) { animation-delay: 220ms; }
+.animate-spin-wiggle { animation: webDiceTumble 680ms cubic-bezier(.25,.8,.35,1) both; }
+@keyframes webDiceTumble {
+  0% { transform: translateY(0) rotate(0) scale(1); }
+  20% { transform: translate(-5px,-15px) rotate(-55deg) scale(.92); }
+  45% { transform: translate(7px,-22px) rotate(135deg) scale(1.06); }
+  70% { transform: translate(-4px,-8px) rotate(285deg) scale(.96); }
+  88% { transform: translateY(3px) rotate(355deg) scale(1.03); }
+  100% { transform: translateY(0) rotate(360deg) scale(1); }
+}
 .eyebrow { color: #879398; font-size: .75rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
 .section-heading { margin-top: .3rem; color: #f4ff00; font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.05; font-weight: 900; }
 .section-copy { margin-top: .6rem; margin-bottom: 1.4rem; color: #a7f3df; line-height: 1.65; }
