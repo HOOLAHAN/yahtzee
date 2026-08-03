@@ -3,7 +3,7 @@ import { Category, ScoreEntry } from '../../lib/types';
 
 const categories: Category[] = ['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'];
 const labels: Record<Category, string> = { Ones: 'Ones', Twos: 'Twos', Threes: 'Threes', Fours: 'Fours', Fives: 'Fives', Sixes: 'Sixes', ThreeOfAKind: '3 of a Kind', FourOfAKind: '4 of a Kind', FullHouse: 'Full House', SmallStraight: 'Small Straight', LargeStraight: 'Large Straight', Yahtzee: 'Yahtzee', Chance: 'Chance' };
-const accents = ['#08d9df', '#4df27d', '#ff2ac3', '#ffb020', '#a78bfa', '#ff6577'];
+const accents = ['#08d9df', '#4df27d', '#ff2ac3', '#ffb020', '#a78bfa', '#ff6577', '#5ee7ff', '#f97316', '#84cc16', '#f472b6'];
 const namesKey = 'yahtzee.real-dice.names';
 
 interface PlayerState { name: string; scores: ScoreEntry[] }
@@ -13,8 +13,8 @@ export default function RealDiceGame() {
     try { return JSON.parse(localStorage.getItem(namesKey) || '[]') as string[]; } catch { return []; }
   }, []);
   const [setup, setSetup] = useState(true);
-  const [playerCount, setPlayerCount] = useState(Math.max(2, savedNames.length || 2));
-  const [names, setNames] = useState<string[]>(Array.from({ length: 6 }, (_, index) => savedNames[index] || `Player ${index + 1}`));
+  const [playerCount, setPlayerCount] = useState(Math.min(10, Math.max(2, savedNames.length || 2)));
+  const [names, setNames] = useState<string[]>(Array.from({ length: 10 }, (_, index) => savedNames[index] || `Player ${index + 1}`));
   const [players, setPlayers] = useState<PlayerState[]>([]);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<Category | null>(null);
@@ -31,7 +31,7 @@ export default function RealDiceGame() {
     setPlayers((existing) => existing.map((player, index) => index === current ? { ...player, scores: [...player.scores, { category: selected, roundScore: points, dice: [] }] } : player));
     setSelected(null); setScore(''); setCurrent((value) => (value + 1) % players.length);
   };
-  if (setup) return <section className="web-panel real-dice-setup mx-auto max-w-3xl p-5 md:p-8"><p className="eyebrow">Real dice scorekeeper</p><h2 className="section-heading">Who is playing?</h2><p className="section-copy">Use physical dice and let the website manage every turn and scorecard. Names are remembered on this device.</p><label className="field-label">Number of players</label><div className="grid grid-cols-5 gap-2 mb-6">{[2,3,4,5,6].map((count) => <button key={count} onClick={() => setPlayerCount(count)} className={`mode-chip ${playerCount === count ? 'mode-chip-active' : ''}`}>{count}</button>)}</div><div className="grid sm:grid-cols-2 gap-3">{names.slice(0, playerCount).map((name, index) => <label key={index} className="field-label"><span style={{ color: accents[index] }}>Player {index + 1}</span><input value={name} onChange={(event) => setNames((values) => values.map((value, nameIndex) => nameIndex === index ? event.target.value : value))} className="web-input mt-2" /></label>)}</div><button onClick={start} className="primary-action mt-6 w-full">Start scorekeeper</button></section>;
+  if (setup) return <section className="web-panel real-dice-setup mx-auto max-w-3xl p-5 md:p-8"><p className="eyebrow">Real dice scorekeeper</p><h2 className="section-heading">Who is playing?</h2><p className="section-copy">Use physical dice and let the website manage every turn and scorecard. Names are remembered on this device.</p><label className="field-label">Number of players</label><div className="grid grid-cols-5 gap-2 mb-6">{[2,3,4,5,6,7,8,9,10].map((count) => <button key={count} onClick={() => setPlayerCount(count)} className={`mode-chip ${playerCount === count ? 'mode-chip-active' : ''}`}>{count}</button>)}</div><div className="grid sm:grid-cols-2 gap-3">{names.slice(0, playerCount).map((name, index) => <label key={index} className="field-label"><span style={{ color: accents[index] }}>Player {index + 1}</span><input value={name} onChange={(event) => setNames((values) => values.map((value, nameIndex) => nameIndex === index ? event.target.value : value))} className="web-input mt-2" /></label>)}</div><button onClick={start} className="primary-action mt-6 w-full">Start scorekeeper</button></section>;
 
   const active = players[current];
   const used = new Set(active.scores.map((entry) => entry.category));

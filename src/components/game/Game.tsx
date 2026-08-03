@@ -303,7 +303,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
                 <center>
                   <button
                     onClick={() => setCurrentMobileScoreCard(currentMobileScoreCard === 1 ? 2 : 1)}
-                    className="mt-4 mx-auto text-deepBlack bg-neonCyan hover:bg-electricPink font-bold py-2 px-4 rounded-full w-20 transition duration-300 ease-in-out transform hover:scale-105"
+                    className="player-switch mt-4 mx-auto font-bold py-2 px-4 rounded-full w-20 transition duration-300 ease-in-out transform hover:scale-105"
                   >
                     <FontAwesomeIcon icon={currentMobileScoreCard === 1 ? faArrowRight : faArrowLeft} />
                   </button>
