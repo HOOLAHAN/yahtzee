@@ -19,7 +19,7 @@ const App = () => {
     { value: 'solo' as GameMode, label: 'Solo', description: 'Classic game', icon: faDice },
     { value: 'computer' as GameMode, label: 'Computer', description: 'Strategic opponent', icon: faComputer },
     { value: 'pass' as GameMode, label: 'Pass & Play', description: 'Two players', icon: faPeopleGroup },
-    { value: 'virtual' as GameMode, label: 'Virtual Dice', description: 'Roll 1–10 dice', icon: faDice },
+    { value: 'virtual' as GameMode, label: 'Virtual Dice', description: 'Roll 1 or 2 dice', icon: faDice },
     { value: 'real' as GameMode, label: 'Real Dice', description: '2–10 scorecards', icon: faCalculator },
   ];
 

@@ -4,7 +4,7 @@ import { faDice, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import DiceFace from './DiceFace';
 
 const MIN_DICE = 1;
-const MAX_DICE = 10;
+const MAX_DICE = 2;
 
 export default function VirtualDice() {
   const [diceCount, setDiceCount] = useState(1);
