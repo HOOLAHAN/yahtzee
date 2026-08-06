@@ -15,7 +15,7 @@ interface LeaderboardProps {
 const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading = false }) => {
   const [scores, setScores] = useState<ScoreItem[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [period, setPeriod] = useState<'today' | 'week' | 'all'>('today');
+  const [period, setPeriod] = useState<'today' | 'week' | 'all'>('all');
   const { userDetails } = useAuth();
   const { refreshLeaderboard } = useLeaderboardRefresh();
 

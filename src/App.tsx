@@ -18,7 +18,7 @@ const App = () => {
   const [resetGameKey, setResetGameKey] = useState(0);
   const gameModes = [
     { value: 'solo' as GameMode, label: 'Solo', description: 'Play a classic game at your own pace and submit your final score.', icon: faDice },
-    { value: 'daily' as GameMode, label: 'Daily Challenge', description: 'Everyone gets the same dice. Play once today and compare your result.', icon: faDice },
+    { value: 'daily' as GameMode, label: 'Daily Challenge', description: 'Play today’s fixed roll sequence and compare your score. Everyone receives the same candidate dice on each numbered roll, but your holds and category choices are your own.', icon: faDice },
     { value: 'computer' as GameMode, label: 'Vs Computer', description: 'Test your choices against a strategic computer opponent.', icon: faComputer },
     { value: 'pass' as GameMode, label: 'Pass & Play', description: 'Share this device and take turns in a two-player game.', icon: faPeopleGroup },
   ];
