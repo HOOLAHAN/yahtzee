@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { fetchScores, ScoreItem, fetchUserScores } from '../../lib/scoreboardUtils';
 import { useAuth } from '../../context/AuthContext'; 
 import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
+import { fetchDailyResults, fetchWeeklyResults } from '../../services/gameResults';
+import { utcDateKey } from '../../lib/dailyChallenge';
 
 interface LeaderboardProps {
   showUserScores: boolean;
@@ -13,6 +15,7 @@ interface LeaderboardProps {
 const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading = false }) => {
   const [scores, setScores] = useState<ScoreItem[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [period, setPeriod] = useState<'today' | 'week' | 'all'>('today');
   const { userDetails } = useAuth();
   const { refreshLeaderboard } = useLeaderboardRefresh();
 
@@ -20,12 +23,17 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
     const loadScores = async () => {
       try {
         setErrorMessage('');
-        let fetchedScores = [];
-        if (showUserScores && userDetails) {
+        let fetchedScores: ScoreItem[] = [];
+        if (period === 'today') {
+          fetchedScores = await fetchDailyResults(utcDateKey());
+        } else if (period === 'week') {
+          fetchedScores = await fetchWeeklyResults();
+        } else if (showUserScores && userDetails) {
           fetchedScores = await fetchUserScores(userDetails.userId);
         } else {
           fetchedScores = await fetchScores();
         }
+        if (showUserScores && userDetails && period !== 'all') fetchedScores = fetchedScores.filter((score: ScoreItem) => score.userId === userDetails.userId);
         setScores(fetchedScores);
       } catch (error) {
         console.error('Error fetching scores:', error);
@@ -40,7 +48,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
     }
 
     loadScores();
-  }, [showUserScores, userDetails, refreshLeaderboard]);
+  }, [period, showUserScores, userDetails, refreshLeaderboard]);
 
   const heading = showUserScores ? 'My Scores' : 'High Scores';
   
@@ -49,6 +57,9 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
       {!hideHeading && <h3 className="text-3xl font-bold text-center mb-6 text-neonYellow animate-pulse-glow drop-shadow-[0_0_10px_#faff00]">
         {heading}
       </h3>}
+      <div className="mb-5 grid grid-cols-3 gap-2 rounded-xl border border-[#2d3c40] bg-[#101719] p-1.5">
+        {(['today', 'week', 'all'] as const).map((value) => <button key={value} onClick={() => setPeriod(value)} className={`score-drawer-tab ${period === value ? 'score-drawer-tab-active' : ''}`}>{value === 'today' ? 'Today' : value === 'week' ? 'This Week' : 'All Time'}</button>)}
+      </div>
       {scores.length ? (
         <ul className="space-y-4">
           {scores.map((score, index) => (

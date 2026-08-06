@@ -6,6 +6,7 @@ const cognito = new CognitoIdentityProviderClient({});
 const table = process.env.PROFILE_TABLE;
 const pool = process.env.USER_POOL_ID;
 const scoreTable = process.env.SCORE_TABLE;
+const gameResultTable = process.env.GAME_RESULT_TABLE;
 const s = (value) => ({ S: value });
 const clean = (value, max = 50) => String(value ?? '').trim().slice(0, max);
 const normalise = (value) => clean(value, 20).toLowerCase();
@@ -48,6 +49,19 @@ async function deleteScores(sub) {
   } while (startKey);
 }
 
+async function processGameResults(sub, username) {
+  if (!gameResultTable) return;
+  let startKey;
+  do {
+    const result = await db.send(new ScanCommand({ TableName: gameResultTable, FilterExpression: 'userId = :sub', ExpressionAttributeValues: { ':sub': s(sub) }, ExclusiveStartKey: startKey }));
+    const items = result.Items ?? [];
+    for (let index = 0; index < items.length; index += 25) {
+      await db.send(new BatchWriteItemCommand({ RequestItems: { [gameResultTable]: items.slice(index, index + 25).map((item) => username ? { PutRequest: { Item: { ...item, username: s(username) } } } : { DeleteRequest: { Key: { id: item.id } } }) } }));
+    }
+    startKey = result.LastEvaluatedKey;
+  } while (startKey);
+}
+
 export const handler = async (event) => {
   const field = event.field;
   if (field === 'usernameAvailable') {
@@ -75,6 +89,7 @@ export const handler = async (event) => {
   if (field === 'deleteMyProfile') {
     const current = await getProfile(sub);
     await deleteScores(sub);
+    await processGameResults(sub);
     if (current) {
       await db.send(new TransactWriteItemsCommand({ TransactItems: [
         { Delete: { TableName: table, Key: { pk: s(profileKey(sub)) } } },
@@ -133,5 +148,6 @@ export const handler = async (event) => {
       { Name: 'family_name', Value: lastName },
     ],
   }));
+  if (!current || current.username !== username) await processGameResults(sub, username);
   return { userId: sub, username, firstName, lastName };
 };

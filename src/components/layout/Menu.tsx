@@ -11,6 +11,7 @@ interface MenuProps {
   handleSignOut: () => void;
   toggleLeaderboard: () => void;
   toggleSettings?: () => void;
+  toggleProgress?: () => void;
   onPlay: () => void;
 }
 
@@ -23,6 +24,7 @@ const Menu: React.FC<MenuProps> = ({
   isUserSignedIn,
   handleSignOut,
   toggleSettings,
+  toggleProgress,
   onPlay,
 }) => {
   const { userDetails } = useAuth();
@@ -75,6 +77,7 @@ const Menu: React.FC<MenuProps> = ({
             >
               <span className="mobile-menu-icon"><FontAwesomeIcon icon={faTrophy} /></span><span><strong>Scores</strong><small>Global and your scores</small></span>
             </button>
+            <button onClick={() => { toggleProgress?.(); onClose(); }} className="mobile-menu-item"><span className="mobile-menu-icon"><FontAwesomeIcon icon={faTrophy} /></span><span><strong>Progress</strong><small>Streaks and achievements</small></span></button>
             {isUserSignedIn && toggleSettings && (
               <button
                 onClick={toggleSettings}

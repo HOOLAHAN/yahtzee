@@ -9,13 +9,14 @@ export const handleRollDice = (
   setHasRolled: React.Dispatch<React.SetStateAction<boolean>>, // Updated to include setHasRolled
   setDice: React.Dispatch<React.SetStateAction<number[]>>,
   setRollsLeft: React.Dispatch<React.SetStateAction<number>>,
-  setCurrentScore: React.Dispatch<React.SetStateAction<number>>
+  setCurrentScore: React.Dispatch<React.SetStateAction<number>>,
+  rollValues?: number[],
 ) => {
   if (rollsLeft > 0) {
     setShouldShake(true);
     setTimeout(() => {
       setShouldShake(false);
-      rollDice(rollsLeft, dice, heldDice, setHasRolled, setDice, setRollsLeft, setCurrentScore);
+      rollDice(rollsLeft, dice, heldDice, setHasRolled, setDice, setRollsLeft, setCurrentScore, rollValues);
     }, 900);
   }
 };

@@ -14,7 +14,10 @@
     {
       "Effect": "Allow",
       "Action": ["dynamodb:Scan", "dynamodb:BatchWriteItem"],
-      "Resource": "arn:aws:dynamodb:eu-west-2:974928048532:table/Score-lg4sjpo3qndy7pfa3pxvp3uzsa-dev"
+      "Resource": [
+        "arn:aws:dynamodb:eu-west-2:974928048532:table/Score-lg4sjpo3qndy7pfa3pxvp3uzsa-dev",
+        "arn:aws:dynamodb:eu-west-2:974928048532:table/GameResult-*-dev"
+      ]
     },
     {
       "Effect": "Allow",

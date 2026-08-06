@@ -10,6 +10,7 @@ import Menu from './Menu';
 import Settings from '../common/Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faCircleInfo, faHeadset, faRightFromBracket, faRightToBracket, faSliders, faTrophy } from '@fortawesome/free-solid-svg-icons';
+import Progress from '../common/Progress';
 
 const Navbar: React.FC = () => {
   const [showAbout, setShowAbout] = useState(false);
@@ -18,6 +19,7 @@ const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [leaderboardDisplay, setLeaderboardDisplay] = useState('closed');
   const [showSettings, setShowSettings] = useState(false);
+  const [showProgress, setShowProgress] = useState(false);
   const [currentForm, setCurrentForm] = useState('');
 
   const toggleSettings = () => {
@@ -33,7 +35,7 @@ const Navbar: React.FC = () => {
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
 
   const showPlay = () => {
-    setShowAbout(false); setLeaderboardDisplay('closed'); setShowSettings(false); setIsMenuOpen(false);
+    setShowAbout(false); setLeaderboardDisplay('closed'); setShowSettings(false); setShowProgress(false); setIsMenuOpen(false);
     window.requestAnimationFrame(() => document.getElementById('play')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   };
 
@@ -86,11 +88,11 @@ const Navbar: React.FC = () => {
   }, [isMenuOpen, showAbout, leaderboardDisplay, showSettings]);
 
   useEffect(() => {
-    const drawerOpen = isMenuOpen || showAbout || leaderboardDisplay !== 'closed' || showSettings;
+    const drawerOpen = isMenuOpen || showAbout || leaderboardDisplay !== 'closed' || showSettings || showProgress;
     if (drawerOpen) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
     return () => { document.body.style.overflow = ''; };
-  }, [isMenuOpen, leaderboardDisplay, showAbout, showSettings]);
+  }, [isMenuOpen, leaderboardDisplay, showAbout, showProgress, showSettings]);
     
   return (
     <>
@@ -115,6 +117,7 @@ const Navbar: React.FC = () => {
           <div className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
             <button onClick={showPlay} className="desktop-nav-button">Play</button>
             <button onClick={toggleLeaderboard} className={`desktop-nav-button ${leaderboardDisplay === 'allScores' ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} />Scores</button>
+            <button onClick={() => setShowProgress(true)} className={`desktop-nav-button ${showProgress ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} />Progress</button>
             <button onClick={toggleAbout} className={`desktop-nav-button ${showAbout ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faCircleInfo} />About</button>
             <a href="/support.html" className="desktop-nav-button"><FontAwesomeIcon icon={faHeadset} />Support</a>
             {isUserSignedIn ? <><button onClick={toggleSettings} className={`desktop-nav-button desktop-nav-account ${showSettings ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} />Account</button><button onClick={handleSignOut} aria-label="Sign out" title="Sign out" className="desktop-nav-icon"><FontAwesomeIcon icon={faRightFromBracket} /></button></> : <button onClick={toggleAuthModal} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} />Sign in</button>}
@@ -180,6 +183,7 @@ const Navbar: React.FC = () => {
         handleSignOut={handleSignOut}
         toggleLeaderboard={toggleLeaderboard}
         toggleSettings={toggleSettings}
+        toggleProgress={() => setShowProgress(true)}
         onPlay={showPlay}
       />
 
@@ -189,6 +193,7 @@ const Navbar: React.FC = () => {
           <Settings onClose={toggleSettings} />
         </div>
       )}
+      {showProgress && <Progress onClose={() => setShowProgress(false)} />}
     </>
   );
 };

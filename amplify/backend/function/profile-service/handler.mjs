@@ -6,6 +6,7 @@ const cognito = new CognitoIdentityProviderClient({});
 const table = process.env.PROFILE_TABLE;
 const pool = process.env.USER_POOL_ID;
 const scoreTable = process.env.SCORE_TABLE;
+const gameResultTable = process.env.GAME_RESULT_TABLE;
 const s = (value) => ({ S: value });
 const clean = (value, max = 50) => String(value ?? '').trim().slice(0, max);
 const normalise = (value) => clean(value, 20).toLowerCase();
@@ -55,6 +56,17 @@ async function renameScores(sub, username) {
   } while (startKey);
 }
 
+async function renameGameResults(sub, username) {
+  if (!gameResultTable) return;
+  let startKey;
+  do {
+    const result = await db.send(new ScanCommand({ TableName: gameResultTable, FilterExpression: 'userId = :sub', ExpressionAttributeValues: { ':sub': s(sub) }, ExclusiveStartKey: startKey }));
+    const items = (result.Items ?? []).map((item) => ({ ...item, username: s(username) }));
+    for (let index = 0; index < items.length; index += 25) await writeAll({ [gameResultTable]: items.slice(index, index + 25).map((item) => ({ PutRequest: { Item: item } })) });
+    startKey = result.LastEvaluatedKey;
+  } while (startKey);
+}
+
 async function deleteScores(sub) {
   if (!scoreTable) return;
   let startKey;
@@ -70,6 +82,23 @@ async function deleteScores(sub) {
     for (let index = 0; index < ids.length; index += 25) {
       await writeAll({
         [scoreTable]: ids.slice(index, index + 25).map((id) => ({ DeleteRequest: { Key: { id } } })),
+      });
+    }
+    startKey = result.LastEvaluatedKey;
+  } while (startKey);
+}
+
+async function deleteGameResults(sub) {
+  if (!gameResultTable) return;
+  let startKey;
+  do {
+    const result = await db.send(new ScanCommand({ TableName: gameResultTable, FilterExpression: 'userId = :sub', ExpressionAttributeValues: { ':sub': s(sub) }, ProjectionExpression: 'id', ExclusiveStartKey: startKey }));
+    const ids = (result.Items ?? []).map((item) => item.id).filter(Boolean);
+    for (let index = 0; index < ids.length; index += 25) {
+      await writeAll({
+        [gameResultTable]: ids.slice(index, index + 25).map((id) => ({
+          DeleteRequest: { Key: { id } },
+        })),
       });
     }
     startKey = result.LastEvaluatedKey;
@@ -103,6 +132,7 @@ export const handler = async (event) => {
   if (field === 'deleteMyProfile') {
     const current = await getProfile(sub);
     await deleteScores(sub);
+    await deleteGameResults(sub);
     if (current) {
       await db.send(new TransactWriteItemsCommand({ TransactItems: [
         { Delete: { TableName: table, Key: { pk: s(profileKey(sub)) } } },
@@ -162,6 +192,6 @@ export const handler = async (event) => {
     ],
   }));
 
-  if (!current || current.username !== username) await renameScores(sub, username);
+  if (!current || current.username !== username) await Promise.all([renameScores(sub, username), renameGameResults(sub, username)]);
   return { userId: sub, username, firstName, lastName };
 };

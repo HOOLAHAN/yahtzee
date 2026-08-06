@@ -15,10 +15,11 @@ export const rollDice = (
   setDice: React.Dispatch<React.SetStateAction<number[]>>,
   setRollsLeft: React.Dispatch<React.SetStateAction<number>>,
   setCurrentScore: React.Dispatch<React.SetStateAction<number>>,
+  rollValues?: number[],
 ) => {
   if (rollsLeft > 0) {
     setHasRolled(true);
-    const newDice = dice.map((d, i) => (heldDice.has(i) ? d : rollDie()));
+    const newDice = dice.map((d, i) => (heldDice.has(i) ? d : rollValues?.[i] ?? rollDie()));
     setDice(newDice);
     const newRollsLeft = rollsLeft - 1;
     setRollsLeft(newRollsLeft);

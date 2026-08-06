@@ -17,6 +17,8 @@ import { getDieSize } from '../../lib/utils';
 import { useWindowSize } from '../../hooks/useWindowSize';
 import { handleRollDice } from '../../lib/handleRollDice';
 import { useAuth } from '../../context/AuthContext';
+import { dailyDiceForThrow, utcDateKey } from '../../lib/dailyChallenge';
+import { createGameResult, fetchDailyResults, resultMetrics } from '../../services/gameResults';
 
 interface GameProps {
   initialDice?: number[];
@@ -24,6 +26,7 @@ interface GameProps {
   setIsTwoPlayer: (isTwoPlayer: boolean) => void;
   testOverrideDice?: number[];
   isComputerOpponent?: boolean;
+  isDailyChallenge?: boolean;
 }
 
 const defaultDice = [1, 1, 1, 1, 1];
@@ -79,7 +82,7 @@ const computerCategoryValue = (category: Category, computerDice: number[], entri
 };
 const chooseComputerCategory = (computerDice: number[], used: Set<string>, entries: ScoreEntry[]) => computerCategories.filter((category) => !used.has(category)).reduce((best, category) => computerCategoryValue(category, computerDice, entries) > computerCategoryValue(best, computerDice, entries) ? category : best);
 
-const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false }) => {
+const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false, isDailyChallenge = false }) => {
   const [dice, setDice] = useState(initialDice);
   const [heldDice, setHeldDice] = useState(new Set<number>());
   const [currentScore, setCurrentScore] = useState(0);
@@ -94,7 +97,13 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const [showScoreCard, setShowScoreCard] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [flashCategory, setFlashCategory] = useState('');
-  const { isUserSignedIn } = useAuth();
+  const { isUserSignedIn, userDetails } = useAuth();
+  const [dailyDate] = useState(utcDateKey);
+  const [dailyThrowIndex, setDailyThrowIndex] = useState(0);
+  const [progressRecorded, setProgressRecorded] = useState(false);
+  const [yahtzeeOnFinalRoll, setYahtzeeOnFinalRoll] = useState(false);
+  const [dailyStanding, setDailyStanding] = useState('');
+  const gameId = useRef(`web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
 
   const windowSize = useWindowSize();
   const dieSize = getDieSize(windowSize);
@@ -168,7 +177,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   };
 
   const handleResetGame = () => {
-    setSelectedCategory(null); setShowScoreCard(false);
+    setSelectedCategory(null); setShowScoreCard(false); setDailyThrowIndex(0); setProgressRecorded(false); setYahtzeeOnFinalRoll(false); setDailyStanding(''); gameId.current = `web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
     resetGame(
       setDice, setRollsLeft, setHeldDice, setCurrentScore, 
       setPlayer1ScoreHistory, setPlayer2ScoreHistory,
@@ -221,6 +230,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
 
   const handleConfirmScore = () => {
     if (!selectedCategory) return;
+    if (selectedCategory === 'Yahtzee' && calculateCurrentCategoryScore(selectedCategory, dice) === 50 && rollsLeft === 0) setYahtzeeOnFinalRoll(true);
     lockInScore(selectedCategory, getUsedCategories(), setUsedCategories, dice, updateScores as React.Dispatch<React.SetStateAction<number>>, totalScore, currentPlayer === 1 ? setPlayer1ScoreHistory : setPlayer2ScoreHistory, currentPlayer === 1 ? player1ScoreHistory : player2ScoreHistory, handleStartNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore, calculateCurrentCategoryScore, isTwoPlayer, currentPlayer, player1TotalScore, player2TotalScore, setPlayer1TotalScore, setPlayer2TotalScore);
     handleScoreLockIn(selectedCategory); setSelectedCategory(null);
   };
@@ -228,6 +238,19 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const currentTotal = isTwoPlayer ? (currentPlayer === 1 ? player1TotalScore : player2TotalScore) : totalScore;
   const round = Math.min(getUsedCategories().size + 1, 13);
   const currentProfile = currentPlayer === 1 ? playerProfiles[0] : playerProfiles[1];
+  const gameComplete = player1UsedCategories.size === 13 && (!isTwoPlayer || player2UsedCategories.size === 13);
+
+  useEffect(() => {
+    if (!gameComplete || progressRecorded || isTwoPlayer || !isUserSignedIn || !userDetails?.userId) return;
+    const metrics = resultMetrics(player1ScoreHistory);
+    void createGameResult({
+      id: isDailyChallenge ? `daily:${dailyDate}:${userDetails.userId}` : gameId.current,
+      mode: isDailyChallenge ? 'DAILY' : 'SOLO',
+      modeDate: isDailyChallenge ? `DAILY#${dailyDate}` : 'SOLO#ALL',
+      challengeDate: isDailyChallenge ? dailyDate : undefined,
+      completedAt: new Date().toISOString(), ...metrics, yahtzeeOnFinalRoll,
+    }).then(async (savedResult) => { setProgressRecorded(true); if (isDailyChallenge) { const board = await fetchDailyResults(dailyDate); const rank = board.findIndex((result) => result.userId === savedResult.userId) + 1; if (rank > 0) setDailyStanding(`#${rank} today · Top ${Math.max(1, Math.ceil((rank / board.length) * 100))}%`); } }).catch((error) => { if (isDailyChallenge && /ConditionalCheckFailed|conditional request|already exists/i.test(error instanceof Error ? error.message : String(error))) setProgressRecorded(true); else console.error('[gameResults.create]', error); });
+  }, [dailyDate, gameComplete, isDailyChallenge, isTwoPlayer, isUserSignedIn, player1ScoreHistory, progressRecorded, userDetails?.userId, yahtzeeOnFinalRoll]);
 
   return (
     <div className="web-player-profile mx-auto min-h-screen w-full max-w-6xl bg-deepBlack px-4 py-5 text-mintGlow md:px-8" style={{ '--player-accent': currentProfile.accent, '--player-score': currentProfile.score, '--player-soft': currentProfile.soft } as React.CSSProperties}>
@@ -235,8 +258,9 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         className="text-3xl font-black animate-pulse-glow"
         style={{ color: currentProfile.accent }}
       >
-        {isComputerOpponent ? (currentPlayer === 1 ? 'Your Turn' : 'Computer’s Turn') : isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Single Player'}
-      </h1><p>Round {round} of 13{computerThinking ? ' · Computer is thinking' : ''}</p></div><button onClick={() => setShowScoreCard(true)} className="scorecard-trigger"><FontAwesomeIcon icon={faList} /> Scorecard</button></div>
+        {isComputerOpponent ? (currentPlayer === 1 ? 'Your Turn' : 'Computer’s Turn') : isTwoPlayer ? `Player ${currentPlayer}'s Turn` : isDailyChallenge ? 'Daily Challenge' : 'Single Player'}
+      </h1><p>{isDailyChallenge ? `${dailyDate} · ` : ''}Round {round} of 13{computerThinking ? ' · Computer is thinking' : ''}</p></div><button onClick={() => setShowScoreCard(true)} className="scorecard-trigger"><FontAwesomeIcon icon={faList} /> Scorecard</button></div>
+      {dailyStanding && <div className="mb-4 rounded-xl border border-neonYellow bg-[#272b13] px-4 py-3 text-center font-black text-neonYellow">{dailyStanding}</div>}
       <section className="web-play-panel">
       <DiceControl
         dice={dice}
@@ -247,7 +271,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         shouldShake={shouldShake}
         dieSize={dieSize}
         usedCategoriesSize={getUsedCategories().size}
-        onRollDice={() => !computerThinking && handleRollDice(rollsLeft, dice, heldDice, setShouldShake, setHasRolled, setDice, setRollsLeft, setCurrentScore)}
+        onRollDice={() => { if (computerThinking || shouldShake) return; const rollValues = isDailyChallenge ? dailyDiceForThrow(dailyDate, dailyThrowIndex) : undefined; if (isDailyChallenge) setDailyThrowIndex((index) => index + 1); handleRollDice(rollsLeft, dice, heldDice, setShouldShake, setHasRolled, setDice, setRollsLeft, setCurrentScore, rollValues); }}
       />
       <ScoreDisplay
         currentScore={calculateMaximumScore(dice, hasRolled, getUsedCategories())}
@@ -351,7 +375,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
           isUserSignedIn={isUserSignedIn}
           isTwoPlayer={isTwoPlayer}
           allowScoreSubmission={!isTwoPlayer || isComputerOpponent}
-          gameComplete={player1UsedCategories.size === 13 && (!isTwoPlayer || player2UsedCategories.size === 13)}
+          gameComplete={gameComplete}
         />
       )}
       {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && <button onClick={handleResetGame} className="web-reset"><FontAwesomeIcon icon={faRotate} /> Reset game</button>}

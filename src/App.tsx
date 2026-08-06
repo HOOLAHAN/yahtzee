@@ -12,11 +12,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalculator, faComputer, faDice, faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
 
 const App = () => {
-  type GameMode = 'solo' | 'computer' | 'pass' | 'virtual' | 'real';
+  type GameMode = 'solo' | 'daily' | 'computer' | 'pass' | 'virtual' | 'real';
   const [mode, setMode] = useState<GameMode>('solo');
   const [resetGameKey, setResetGameKey] = useState(0);
   const modes = [
     { value: 'solo' as GameMode, label: 'Solo', description: 'Classic game', icon: faDice },
+    { value: 'daily' as GameMode, label: 'Daily', description: 'One shared challenge', icon: faDice },
     { value: 'computer' as GameMode, label: 'Computer', description: 'Strategic opponent', icon: faComputer },
     { value: 'pass' as GameMode, label: 'Pass & Play', description: 'Two players', icon: faPeopleGroup },
     { value: 'virtual' as GameMode, label: 'Virtual Dice', description: 'Roll 1 or 2 dice', icon: faDice },
@@ -34,7 +35,7 @@ const App = () => {
             <div className="mode-picker" aria-label="Game mode">
               {modes.map((item) => <button key={item.value} onClick={() => changeMode(item.value)} aria-pressed={mode === item.value} className={`mode-tab ${mode === item.value ? 'mode-tab-active' : ''}`}><span className="mode-tab-icon"><FontAwesomeIcon icon={item.icon} /></span><span className="mode-tab-copy"><strong>{item.label}</strong><small>{item.description}</small></span><span className="mode-tab-status" /></button>)}
             </div>
-            {mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} /> : <Game key={resetGameKey} isTwoPlayer={mode !== 'solo'} isComputerOpponent={mode === 'computer'} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}
+            {mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} /> : <Game key={resetGameKey} isTwoPlayer={mode === 'pass' || mode === 'computer'} isComputerOpponent={mode === 'computer'} isDailyChallenge={mode === 'daily'} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}
           </main>
           <footer className="site-footer"><div><strong>Yahtzee!</strong><span>Play on web and iPhone with one shared account.</span></div><nav><a href="/support.html">Support</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/account-deletion.html">Delete account</a></nav><p>Yahtzee is a trademark of Hasbro. This independent game is not affiliated with or endorsed by Hasbro.</p></footer>
         </div>
