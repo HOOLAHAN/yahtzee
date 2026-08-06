@@ -12,7 +12,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faRightToBracket, faSliders, faTrophy } from '@fortawesome/free-solid-svg-icons';
 import Progress from '../common/Progress';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  onPlay?: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onPlay }) => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { isUserSignedIn, signOut } = useAuth();
@@ -36,6 +40,7 @@ const Navbar: React.FC = () => {
 
   const showPlay = () => {
     setShowAbout(false); setLeaderboardDisplay('closed'); setShowSettings(false); setShowProgress(false); setIsMenuOpen(false);
+    onPlay?.();
     window.requestAnimationFrame(() => document.getElementById('play')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   };
 
@@ -115,7 +120,7 @@ const Navbar: React.FC = () => {
           </button>
 
           <div className="ml-auto hidden items-center gap-1 sm:flex" aria-label="Primary navigation">
-            <button onClick={showPlay} className="desktop-nav-button">Play</button>
+            <button onClick={showPlay} className="desktop-nav-button">Games</button>
             <button onClick={toggleLeaderboard} className={`desktop-nav-button ${leaderboardDisplay === 'allScores' ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} />Scores</button>
             {isUserSignedIn ? <button onClick={toggleSettings} className={`desktop-nav-button desktop-nav-account ${showSettings ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} />Account</button> : <button onClick={toggleAuthModal} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} />Sign in</button>}
           </div>

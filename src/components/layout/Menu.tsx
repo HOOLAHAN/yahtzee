@@ -63,7 +63,7 @@ const Menu: React.FC<MenuProps> = ({
               onClick={() => { onPlay(); onClose(); }}
               className="mobile-menu-item mobile-menu-primary"
             >
-              <span className="mobile-menu-icon"><FontAwesomeIcon icon={faHouse} /></span><span><strong>Play</strong><small>Choose a game mode</small></span>
+              <span className="mobile-menu-icon"><FontAwesomeIcon icon={faHouse} /></span><span><strong>Games</strong><small>Choose how to play</small></span>
             </button>
             <button
               onClick={toggleAbout}
