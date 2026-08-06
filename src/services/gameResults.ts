@@ -28,11 +28,10 @@ export async function createGameResult(input: Omit<GameResult, 'userId' | 'usern
   const session = await fetchAuthSession();
   const token = session.tokens?.idToken;
   if (!token) throw new Error('Sign in to save progress and join the leaderboard.');
-  const userId = String(token.payload.sub);
-  const username = String(token.payload.preferred_username ?? token.payload.email ?? 'Player');
-  const result = await (client as any).graphql({ query: `mutation CreateGameResult($input:CreateGameResultInput!){createGameResult(input:$input){${fields}}}`, authMode: 'userPool', authToken: token.toString(), variables: { input: { ...input, userId, username } } });
-  if (!result.data?.createGameResult) throw new Error(result.errors?.map((error: { message: string }) => error.message).join(', ') || 'Unable to save game progress.');
-  return result.data.createGameResult as GameResult;
+  const { modeDate: _modeDate, completedAt: _completedAt, challengeDate, ...metrics } = input;
+  const result = await (client as any).graphql({ query: `mutation SubmitGameResult($input:SubmitGameResultInput!){submitGameResult(input:$input){${fields}}}`, authMode: 'userPool', authToken: token.toString(), variables: { input: { ...metrics, challengeDate } } });
+  if (!result.data?.submitGameResult) throw new Error(result.errors?.map((error: { message: string }) => error.message).join(', ') || 'Unable to save game progress.');
+  return result.data.submitGameResult as GameResult;
 }
 
 export async function fetchDailyResults(dateKey: string): Promise<GameResult[]> {
