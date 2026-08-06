@@ -9,7 +9,7 @@ import Leaderboard from '../common/Leaderboard';
 import Menu from './Menu';
 import Settings from '../common/Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faCircleInfo, faHeadset, faRightFromBracket, faRightToBracket, faSliders, faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faRightToBracket, faSliders, faTrophy } from '@fortawesome/free-solid-svg-icons';
 import Progress from '../common/Progress';
 
 const Navbar: React.FC = () => {
@@ -114,22 +114,21 @@ const Navbar: React.FC = () => {
           </div>
           </button>
 
-          <div className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
+          <div className="ml-auto hidden items-center gap-1 sm:flex" aria-label="Primary navigation">
             <button onClick={showPlay} className="desktop-nav-button">Play</button>
             <button onClick={toggleLeaderboard} className={`desktop-nav-button ${leaderboardDisplay === 'allScores' ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} />Scores</button>
-            <button onClick={() => setShowProgress(true)} className={`desktop-nav-button ${showProgress ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} />Progress</button>
-            <button onClick={toggleAbout} className={`desktop-nav-button ${showAbout ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faCircleInfo} />About</button>
-            <a href="/support.html" className="desktop-nav-button"><FontAwesomeIcon icon={faHeadset} />Support</a>
-            {isUserSignedIn ? <><button onClick={toggleSettings} className={`desktop-nav-button desktop-nav-account ${showSettings ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} />Account</button><button onClick={handleSignOut} aria-label="Sign out" title="Sign out" className="desktop-nav-icon"><FontAwesomeIcon icon={faRightFromBracket} /></button></> : <button onClick={toggleAuthModal} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} />Sign in</button>}
+            {isUserSignedIn ? <button onClick={toggleSettings} className={`desktop-nav-button desktop-nav-account ${showSettings ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} />Account</button> : <button onClick={toggleAuthModal} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} />Sign in</button>}
           </div>
 
-          <div className="lg:hidden">
+          <div>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="bg-neonCyan w-8 h-8 rounded-full text-deepBlack hover:bg-electricPink hover:text-white hover:scale-110 focus:ring focus:ring-electricPink animate-glow-border"
-              aria-label="Menu"
+              className="flex h-9 items-center gap-2 rounded-full bg-neonCyan px-3 font-black text-deepBlack transition hover:scale-105 hover:bg-electricPink hover:text-white focus:ring focus:ring-electricPink sm:h-10"
+              aria-label="More navigation options"
+              aria-expanded={isMenuOpen}
             >
-              <FontAwesomeIcon icon={faBars} className="text-deepBlack text-sm animate-pulse-glow" />
+              <FontAwesomeIcon icon={faBars} className="text-sm" />
+              <span className="hidden lg:inline">More</span>
             </button>
           </div>
         </div>

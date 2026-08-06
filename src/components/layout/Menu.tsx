@@ -30,12 +30,12 @@ const Menu: React.FC<MenuProps> = ({
   const { userDetails } = useAuth();
 
   return (
-    <><button aria-label="Close menu" onClick={onClose} className={`fixed inset-0 z-40 bg-black/75 backdrop-blur-sm transition-opacity lg:hidden ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`} />
+    <><button aria-label="Close menu" onClick={onClose} className={`fixed inset-0 z-40 bg-black/75 backdrop-blur-sm transition-opacity ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`} />
     <aside
       id="menu"
       className={`${
         isOpen ? 'translate-x-0' : 'translate-x-full'
-      } fixed right-0 top-0 z-50 h-full w-[88vw] max-w-sm overflow-y-auto border-l border-neonCyan bg-deepBlack text-mintGlow shadow-2xl transform transition-transform duration-300 lg:hidden`}
+      } fixed right-0 top-0 z-50 h-full w-[88vw] max-w-sm overflow-y-auto border-l border-neonCyan bg-deepBlack text-mintGlow shadow-2xl transform transition-transform duration-300`}
     >
       <div className="flex min-h-full flex-col justify-between p-6">
         {/* Header with close button */}
