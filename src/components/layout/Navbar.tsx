@@ -154,12 +154,8 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
         <div className="fixed inset-0 z-40 bg-black/75 backdrop-blur-sm" onClick={() => setLeaderboardDisplay('closed')}>
         <aside id="leaderboard-drawer" role="dialog" aria-modal="true" aria-labelledby="scores-title" className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto border-l border-neonCyan bg-deepBlack p-5 shadow-2xl sm:p-7" onClick={(event) => event.stopPropagation()}>
           <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Shared leaderboard</p><h2 id="scores-title" className="section-heading">High Scores</h2></div><button onClick={() => setLeaderboardDisplay('closed')} aria-label="Close scores" className="text-4xl text-neonCyan hover:text-electricPink">&times;</button></div>
-          <div className="my-6 grid grid-cols-2 gap-2 rounded-2xl border border-[#2d3c40] bg-[#101719] p-1.5">
-            <button onClick={() => setLeaderboardDisplay('allScores')} className={`score-drawer-tab ${leaderboardDisplay === 'allScores' ? 'score-drawer-tab-active' : ''}`}>Global</button>
-            <button disabled={!isUserSignedIn} onClick={() => setLeaderboardDisplay('userScores')} className={`score-drawer-tab ${leaderboardDisplay === 'userScores' ? 'score-drawer-tab-active' : ''} disabled:cursor-not-allowed disabled:opacity-40`}>My Scores</button>
-          </div>
           {!isUserSignedIn && <div className="mb-5 rounded-xl border border-[#315a5e] bg-[#142225] p-4 text-sm text-mintGlow"><p>Sign in to see scores submitted by your account.</p><button onClick={() => { setLeaderboardDisplay('closed'); setShowAuthModal(true); }} className="mt-3 font-black text-neonCyan hover:text-electricPink">Sign in</button></div>}
-          <Leaderboard showUserScores={leaderboardDisplay === 'userScores'} hideHeading />
+          <Leaderboard showUserScores={leaderboardDisplay === 'userScores'} onShowUserScoresChange={(mine) => setLeaderboardDisplay(mine ? 'userScores' : 'allScores')} canShowUserScores={isUserSignedIn} hideHeading />
         </aside>
         </div>
       )}

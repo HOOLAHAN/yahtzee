@@ -91,8 +91,8 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
   };
 
   return (
-    <div className="fixed right-0 top-0 z-50 h-full w-full max-w-md overflow-y-auto bg-deepBlack text-mintGlow shadow-xl transform transition-transform duration-300 border-l-4 border-neonCyan">
-      <div className="relative p-5 space-y-6">
+    <div className="fixed right-0 top-0 z-50 h-full w-full max-w-lg overflow-y-auto border-l border-neonCyan bg-deepBlack text-mintGlow shadow-2xl">
+      <div className="relative space-y-5 p-5 sm:p-7">
         <button
           onClick={onClose}
           className="absolute top-0 right-0 mt-4 mr-4 text-3xl text-neonCyan hover:text-electricPink"
@@ -101,28 +101,26 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
           &times;
         </button>
 
-        <h2 className="text-2xl font-bold text-neonYellow animate-pulse-glow">Settings</h2>
+        <div><p className="eyebrow">Your space</p><h2 className="section-heading">Account</h2><p className="mt-1 text-sm text-gray-400">Manage your profile, gameplay preferences and security.</p></div>
 
-        <section className="rounded-2xl border border-slate-700 bg-slate-950/80 p-4">
-          <h3 className="font-black text-white">Gameplay</h3>
+        <section className="account-panel">
+          <div className="account-panel-heading"><span className="account-panel-icon">⚙</span><div><h3>Gameplay</h3><p>Preferences saved on this device</p></div></div>
           <label className="mt-3 flex cursor-pointer items-center justify-between gap-4">
             <span><strong className="block text-mintGlow">Score suggestions</strong><small className="mt-1 block leading-5 text-gray-400">Show the best available score after each roll.</small></span>
-            <input type="checkbox" checked={scoreSuggestionsEnabled} onChange={(event) => onScoreSuggestionsChange?.(event.target.checked)} className="h-5 w-5 accent-cyan-400" />
+            <input type="checkbox" checked={scoreSuggestionsEnabled} onChange={(event) => onScoreSuggestionsChange?.(event.target.checked)} className="account-toggle" />
           </label>
         </section>
 
-        <div>
-          <h3 className="font-semibold">Account:</h3>
-          <p className="text-sm">Username: {userDetails.preferred_username}</p>
-          <p className="text-sm">Email: {userDetails.email}</p>
-          <p className="text-sm">Name: {[userDetails.given_name, userDetails.family_name].filter(Boolean).join(' ') || 'Not set'}</p>
-          <p className="text-xs text-gray-400 mt-1">Your name is private. Only your username is shown publicly.</p>
+        <section className="account-panel">
+          <div className="account-panel-heading"><span className="account-avatar">{(userDetails.preferred_username || '?').charAt(0).toUpperCase()}</span><div><h3>{userDetails.preferred_username}</h3><p>Public player profile</p></div></div>
+          <dl className="account-details"><div><dt>Email</dt><dd>{userDetails.email}</dd></div><div><dt>Name</dt><dd>{[userDetails.given_name, userDetails.family_name].filter(Boolean).join(' ') || 'Not set'}</dd></div></dl>
+          <p className="mt-3 text-xs text-gray-400">Your name and email stay private. Only your username appears publicly.</p>
           {!editingProfile && (
             <button onClick={() => { setEditingProfile(true); setProfileMessage(''); }} className="w-full py-2 mt-3 border border-neonCyan text-neonCyan rounded-xl font-semibold hover:bg-neonCyan hover:text-black transition">
               Edit Profile
             </button>
           )}
-        </div>
+        </section>
 
         {editingProfile && (
           <form onSubmit={handleSaveProfile} className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-950/80">
@@ -149,15 +147,15 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
         {profileMessage && <p className="text-sm text-mintGlow">{profileMessage}</p>}
 
         {!showConfirmDelete && !showResetPassword && (
-          <div>
-            <h3 className="font-semibold">Reset Password</h3>
+          <section className="account-panel">
+            <div className="account-panel-heading"><span className="account-panel-icon">⌁</span><div><h3>Security</h3><p>Update your account password</p></div></div>
             <button
               onClick={handleRequestResetPassword}
               className="w-full py-2 px-4 bg-neonCyan text-black rounded-xl font-semibold hover:bg-electricPink transition"
             >
               Send Reset Code
             </button>
-          </div>
+          </section>
         )}
 
         {showResetPassword && (
@@ -190,8 +188,8 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
         )}
 
         {!showResetPassword && (
-          <div className="pb-8">
-            <h3 className="font-semibold text-red-400 mb-2">Delete Account</h3>
+          <section className="account-danger">
+            <h3 className="font-semibold text-red-400 mb-1">Delete account</h3><p className="mb-3 text-xs leading-5 text-gray-500">Permanently remove your account, profile and leaderboard history.</p>
             {!showConfirmDelete ? (
               <button
                 onClick={() => { setDeleteConfirmation(''); setShowConfirmDelete(true); }}
@@ -222,7 +220,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
                 </div>
               </div>
             )}
-          </div>
+          </section>
         )}
       </div>
     </div>

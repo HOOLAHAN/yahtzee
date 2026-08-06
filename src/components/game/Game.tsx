@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faArrowLeft, faList, faLock, faRotate } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faArrowLeft, faGear, faList, faLock, faRotate } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/tailwind.css';
 import ScoreCard from './ScoreCard';
 import ScoreFlash from './ScoreFlash';
@@ -28,6 +28,7 @@ interface GameProps {
   isComputerOpponent?: boolean;
   isDailyChallenge?: boolean;
   scoreSuggestionsEnabled?: boolean;
+  onOpenSettings?: () => void;
 }
 
 const defaultDice = [1, 1, 1, 1, 1];
@@ -83,7 +84,7 @@ const computerCategoryValue = (category: Category, computerDice: number[], entri
 };
 const chooseComputerCategory = (computerDice: number[], used: Set<string>, entries: ScoreEntry[]) => computerCategories.filter((category) => !used.has(category)).reduce((best, category) => computerCategoryValue(category, computerDice, entries) > computerCategoryValue(best, computerDice, entries) ? category : best);
 
-const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false, isDailyChallenge = false, scoreSuggestionsEnabled = true }) => {
+const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false, isDailyChallenge = false, scoreSuggestionsEnabled = true, onOpenSettings }) => {
   const [dice, setDice] = useState(initialDice);
   const [heldDice, setHeldDice] = useState(new Set<number>());
   const [currentScore, setCurrentScore] = useState(0);
@@ -260,7 +261,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         style={{ color: currentProfile.accent }}
       >
         {isComputerOpponent ? (currentPlayer === 1 ? 'Your Turn' : 'Computer’s Turn') : isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Your Turn'}
-      </h1><p>{isDailyChallenge ? `${dailyDate} · ` : ''}Round {round} of 13{computerThinking ? ' · Computer is thinking' : ''}</p></div><button onClick={() => setShowScoreCard(true)} className="scorecard-trigger"><FontAwesomeIcon icon={faList} /> Scorecard</button></div>
+      </h1><p>{isDailyChallenge ? `${dailyDate} · ` : ''}Round {round} of 13{computerThinking ? ' · Computer is thinking' : ''}</p></div></div>
       {dailyStanding && <div className="mb-4 rounded-xl border border-neonYellow bg-[#272b13] px-4 py-3 text-center font-black text-neonYellow">{dailyStanding}</div>}
       <section className="web-play-panel">
       <DiceControl
@@ -311,6 +312,11 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
       />
+      <div className="web-game-actions">
+        <button onClick={() => setShowScoreCard(true)}><FontAwesomeIcon icon={faList} /> Scorecard</button>
+        <button onClick={onOpenSettings}><FontAwesomeIcon icon={faGear} /> Settings</button>
+        <button onClick={handleResetGame}><FontAwesomeIcon icon={faRotate} /> Reset</button>
+      </div>
       <ScoreFlash category={flashCategory} show={showFlash} onEnd={() => setShowFlash(false)} />
       {selectedCategory && <div className="web-lock-bar"><div><small>{selectedCategory.replace(/([A-Z])/g, ' $1').trim()}</small><strong>{calculateCurrentCategoryScore(selectedCategory, dice)} points</strong></div><button onClick={handleConfirmScore}><FontAwesomeIcon icon={faLock} /> Lock In</button></div>}
       {showScoreCard && <div className="fixed inset-0 z-50 bg-black/80 p-3 backdrop-blur-sm sm:p-6" onClick={() => setShowScoreCard(false)}><section className="scorecard-modal" onClick={(event) => event.stopPropagation()}><div className="scorecard-modal-header"><div><p className="eyebrow">Round {round} of 13</p><h2>Scorecard</h2></div><button onClick={() => setShowScoreCard(false)} aria-label="Close scorecard">&times;</button></div><div className="overflow-y-auto px-4 pb-6 sm:px-6">
@@ -380,7 +386,6 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
           gameComplete={gameComplete}
         />
       )}
-      {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && <button onClick={handleResetGame} className="web-reset"><FontAwesomeIcon icon={faRotate} /> Reset game</button>}
     </div>
   );
 };

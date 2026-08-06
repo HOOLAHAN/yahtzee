@@ -6,13 +6,17 @@ import { useAuth } from '../../context/AuthContext';
 import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
 import { fetchAllDailyResults, fetchDailyResults, fetchSoloResults, fetchWeeklyResults, GameResult } from '../../services/gameResults';
 import { utcDateKey } from '../../lib/dailyChallenge';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEarthEurope, faSun, faUser, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 
 interface LeaderboardProps {
   showUserScores: boolean;
   hideHeading?: boolean;
+  onShowUserScoresChange?: (showUserScores: boolean) => void;
+  canShowUserScores?: boolean;
 }
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading = false }) => {
+const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading = false, onShowUserScoresChange, canShowUserScores = true }) => {
   type Competition = 'solo' | 'daily';
   type LeaderboardEntry = ScoreItem & Partial<GameResult> & { aggregate?: boolean };
   const [scores, setScores] = useState<LeaderboardEntry[]>([]);
@@ -60,8 +64,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
         {heading}
       </h3>}
       <p className="mb-4 text-sm text-gray-400">Solo scores and Daily Challenge results are ranked separately.</p>
-      <div className="mb-3 grid grid-cols-2 gap-2 rounded-xl border border-[#2d3c40] bg-[#101719] p-1.5"><button onClick={() => { setCompetition('solo'); setPeriod('all'); }} className={`score-drawer-tab ${competition === 'solo' ? 'score-drawer-tab-active' : ''}`}>Solo</button><button onClick={() => setCompetition('daily')} className={`score-drawer-tab ${competition === 'daily' ? 'score-drawer-tab-active' : ''}`}>Daily Challenge</button></div>
-      {competition === 'daily' && <div className="mb-5 grid grid-cols-3 gap-2 rounded-xl border border-[#2d3c40] bg-[#101719] p-1.5">{(['today', 'week', 'all'] as const).map((value) => <button key={value} onClick={() => setPeriod(value)} className={`score-drawer-tab ${period === value ? 'score-drawer-tab-active' : ''}`}>{value === 'today' ? 'Today' : value === 'week' ? 'This Week' : 'All Time'}</button>)}</div>}
+      <section className="leaderboard-controls" aria-label="Leaderboard filters">
+        <div className="leaderboard-competition"><button onClick={() => { setCompetition('solo'); setPeriod('all'); }} className={competition === 'solo' ? 'active' : ''}><span><FontAwesomeIcon icon={faUser} /></span><span><strong>Solo</strong><small>Classic games</small></span></button><button onClick={() => setCompetition('daily')} className={competition === 'daily' ? 'active' : ''}><span><FontAwesomeIcon icon={faSun} /></span><span><strong>Daily</strong><small>Same rolls</small></span></button></div>
+        <div className="leaderboard-divider" />
+        {competition === 'daily' && <div className="leaderboard-periods">{(['today', 'week', 'all'] as const).map((value) => <button key={value} onClick={() => setPeriod(value)} className={period === value ? 'active' : ''}>{value === 'today' ? 'Today' : value === 'week' ? 'Week' : 'All time'}</button>)}</div>}
+        {onShowUserScoresChange && <div className="leaderboard-audience"><span>SHOWING</span><div><button onClick={() => onShowUserScoresChange(false)} className={!showUserScores ? 'active' : ''}><FontAwesomeIcon icon={faEarthEurope} /> Global</button><button disabled={!canShowUserScores} onClick={() => onShowUserScoresChange(true)} className={showUserScores ? 'active' : ''}><FontAwesomeIcon icon={faUserCircle} /> Mine</button></div></div>}
+      </section>
       {scores.length ? (
         <ul className="space-y-4">
           {scores.map((score, index) => (

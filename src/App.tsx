@@ -29,7 +29,7 @@ const App = () => {
   ];
   const pageTitle: Record<GameMode, string> = { solo: 'Single Player', daily: 'Daily Challenge', computer: 'Vs Computer', pass: 'Pass & Play', virtual: 'Dice Roller', real: 'Scorecard' };
 
-  const changeMode = (nextMode: GameMode) => { setMode(nextMode); setShowGameChooser(false); setResetGameKey((key) => key + 1); };
+  const changeMode = (nextMode: GameMode) => { if (nextMode === mode) { setShowGameChooser(false); return; } setMode(nextMode); setShowGameChooser(false); setResetGameKey((key) => key + 1); };
   const changeScoreSuggestions = (enabled: boolean) => {
     setScoreSuggestionsEnabled(enabled);
     localStorage.setItem('yahtzee.score-suggestions.v1', String(enabled));
@@ -40,7 +40,7 @@ const App = () => {
         <div className="App min-h-screen bg-deepBlack text-mintGlow font-mono">
           <Navbar pageTitle={showGameChooser ? 'Yahtzee!' : pageTitle[mode]} onPlay={() => setShowGameChooser(true)} scoreSuggestionsEnabled={scoreSuggestionsEnabled} onScoreSuggestionsChange={changeScoreSuggestions} />
           <main id="play">
-            {showGameChooser ? <section className="game-chooser" aria-labelledby="game-chooser-heading">
+            {showGameChooser && <section className="game-chooser" aria-labelledby="game-chooser-heading">
               <div className="game-chooser-heading"><p className="eyebrow">Game settings</p><h2 id="game-chooser-heading" className="section-heading">Choose how to play</h2><p className="section-copy">Start a Yahtzee game or open a tool for your physical dice.</p></div>
               <div className="play-picker">
               <section className="game-mode-picker" aria-labelledby="game-mode-heading">
@@ -56,7 +56,8 @@ const App = () => {
                 </div>
               </section>
               </div>
-            </section> : mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} /> : <Game key={resetGameKey} isTwoPlayer={mode === 'pass' || mode === 'computer'} isComputerOpponent={mode === 'computer'} isDailyChallenge={mode === 'daily'} scoreSuggestionsEnabled={scoreSuggestionsEnabled} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}
+            </section>}
+            <div hidden={showGameChooser}>{mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} /> : <Game key={resetGameKey} isTwoPlayer={mode === 'pass' || mode === 'computer'} isComputerOpponent={mode === 'computer'} isDailyChallenge={mode === 'daily'} scoreSuggestionsEnabled={scoreSuggestionsEnabled} onOpenSettings={() => setShowGameChooser(true)} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}</div>
           </main>
           <footer className="site-footer"><div><strong>Yahtzee!</strong><span>Play on web and iPhone with one shared account.</span></div><nav><a href="/support.html">Support</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/account-deletion.html">Delete account</a></nav><p>Yahtzee is a trademark of Hasbro. This independent game is not affiliated with or endorsed by Hasbro.</p></footer>
         </div>
