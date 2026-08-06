@@ -105,6 +105,8 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const [progressRecorded, setProgressRecorded] = useState(false);
   const [yahtzeeOnFinalRoll, setYahtzeeOnFinalRoll] = useState(false);
   const [dailyStanding, setDailyStanding] = useState('');
+  const [dailyAlreadyCompleted, setDailyAlreadyCompleted] = useState(false);
+  const [checkingDailyCompletion, setCheckingDailyCompletion] = useState(false);
   const gameId = useRef(`web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
 
   const windowSize = useWindowSize();
@@ -243,6 +245,27 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const gameComplete = player1UsedCategories.size === 13 && (!isTwoPlayer || player2UsedCategories.size === 13);
 
   useEffect(() => {
+    if (!isDailyChallenge) { setDailyAlreadyCompleted(false); return; }
+    let cancelled = false;
+    const completionKey = `yahtzee.daily.completed.${dailyDate}.${userDetails?.userId ?? 'guest'}`;
+    if (localStorage.getItem(completionKey) === 'true') setDailyAlreadyCompleted(true);
+    if (!isUserSignedIn || !userDetails?.userId) return;
+    setCheckingDailyCompletion(true);
+    void fetchDailyResults(dailyDate).then((results) => {
+      if (!cancelled && results.some((result) => result.userId === userDetails.userId)) {
+        localStorage.setItem(completionKey, 'true');
+        setDailyAlreadyCompleted(true);
+      }
+    }).catch((error) => console.error('[dailyChallenge.check]', error)).finally(() => { if (!cancelled) setCheckingDailyCompletion(false); });
+    return () => { cancelled = true; };
+  }, [dailyDate, isDailyChallenge, isUserSignedIn, userDetails?.userId]);
+
+  useEffect(() => {
+    if (!isDailyChallenge || !gameComplete) return;
+    localStorage.setItem(`yahtzee.daily.completed.${dailyDate}.${userDetails?.userId ?? 'guest'}`, 'true');
+  }, [dailyDate, gameComplete, isDailyChallenge, userDetails?.userId]);
+
+  useEffect(() => {
     if (!gameComplete || progressRecorded || isTwoPlayer || !isUserSignedIn || !userDetails?.userId) return;
     const metrics = resultMetrics(player1ScoreHistory);
     void createGameResult({
@@ -253,6 +276,8 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       completedAt: new Date().toISOString(), ...metrics, yahtzeeOnFinalRoll,
     }).then(async (savedResult) => { setProgressRecorded(true); if (isDailyChallenge) { const board = await fetchDailyResults(dailyDate); const rank = board.findIndex((result) => result.userId === savedResult.userId) + 1; if (rank > 0) setDailyStanding(`#${rank} today · Top ${Math.max(1, Math.ceil((rank / board.length) * 100))}%`); } }).catch((error) => { if (isDailyChallenge && /ConditionalCheckFailed|conditional request|already exists/i.test(error instanceof Error ? error.message : String(error))) setProgressRecorded(true); else console.error('[gameResults.create]', error); });
   }, [dailyDate, gameComplete, isDailyChallenge, isTwoPlayer, isUserSignedIn, player1ScoreHistory, progressRecorded, userDetails?.userId, yahtzeeOnFinalRoll]);
+
+  if (isDailyChallenge && (checkingDailyCompletion || dailyAlreadyCompleted) && !gameComplete) return <div className="mx-auto min-h-[65vh] w-full max-w-2xl px-4 py-12"><section className="daily-complete-card"><span><FontAwesomeIcon icon={checkingDailyCompletion ? faRotate : faLock} /></span><p className="eyebrow">Daily Challenge · {dailyDate}</p><h2>{checkingDailyCompletion ? 'Checking today’s result…' : 'Challenge completed'}</h2><p>{checkingDailyCompletion ? 'Making sure this account has not already played today.' : 'You have already completed today’s fixed-roll challenge. Come back tomorrow for a new sequence.'}</p>{!checkingDailyCompletion && <button onClick={onOpenSettings}><FontAwesomeIcon icon={faGear} /> Choose another game</button>}</section></div>;
 
   return (
     <div className="web-player-profile mx-auto min-h-screen w-full max-w-6xl bg-deepBlack px-4 py-5 text-mintGlow md:px-8" style={{ '--player-accent': currentProfile.accent, '--player-score': currentProfile.score, '--player-soft': currentProfile.soft } as React.CSSProperties}>

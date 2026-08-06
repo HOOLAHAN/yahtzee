@@ -151,7 +151,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
             <div className="account-panel-heading"><span className="account-panel-icon">⌁</span><div><h3>Security</h3><p>Update your account password</p></div></div>
             <button
               onClick={handleRequestResetPassword}
-              className="w-full py-2 px-4 bg-neonCyan text-black rounded-xl font-semibold hover:bg-electricPink transition"
+              className="mt-3 w-full py-2 px-4 bg-neonCyan text-black rounded-xl font-semibold hover:bg-electricPink transition"
             >
               Send Reset Code
             </button>
