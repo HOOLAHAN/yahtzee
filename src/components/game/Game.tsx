@@ -27,6 +27,7 @@ interface GameProps {
   testOverrideDice?: number[];
   isComputerOpponent?: boolean;
   isDailyChallenge?: boolean;
+  scoreSuggestionsEnabled?: boolean;
 }
 
 const defaultDice = [1, 1, 1, 1, 1];
@@ -82,7 +83,7 @@ const computerCategoryValue = (category: Category, computerDice: number[], entri
 };
 const chooseComputerCategory = (computerDice: number[], used: Set<string>, entries: ScoreEntry[]) => computerCategories.filter((category) => !used.has(category)).reduce((best, category) => computerCategoryValue(category, computerDice, entries) > computerCategoryValue(best, computerDice, entries) ? category : best);
 
-const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false, isDailyChallenge = false }) => {
+const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false, isDailyChallenge = false, scoreSuggestionsEnabled = true }) => {
   const [dice, setDice] = useState(initialDice);
   const [heldDice, setHeldDice] = useState(new Set<number>());
   const [currentScore, setCurrentScore] = useState(0);
@@ -276,6 +277,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       <ScoreDisplay
         currentScore={calculateMaximumScore(dice, hasRolled, getUsedCategories())}
         totalScore={currentTotal}
+        showSuggestion={scoreSuggestionsEnabled}
       />
       </section>
       <div className="category-heading"><div><h2>Choose a category</h2><p>{hasRolled ? 'Tap once to preview, then lock it in.' : 'Categories unlock after your first roll.'}</p></div><span>13 categories</span></div>

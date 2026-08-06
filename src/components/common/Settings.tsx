@@ -6,9 +6,11 @@ import { updateMyProfile } from '../../services/profiles';
 
 interface SettingsProps {
   onClose: () => void;
+  scoreSuggestionsEnabled?: boolean;
+  onScoreSuggestionsChange?: (enabled: boolean) => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ onClose }) => {
+const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = true, onScoreSuggestionsChange }) => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmationCode, setConfirmationCode] = useState('');
@@ -100,6 +102,14 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         </button>
 
         <h2 className="text-2xl font-bold text-neonYellow animate-pulse-glow">Settings</h2>
+
+        <section className="rounded-2xl border border-slate-700 bg-slate-950/80 p-4">
+          <h3 className="font-black text-white">Gameplay</h3>
+          <label className="mt-3 flex cursor-pointer items-center justify-between gap-4">
+            <span><strong className="block text-mintGlow">Score suggestions</strong><small className="mt-1 block leading-5 text-gray-400">Show the best available score after each roll.</small></span>
+            <input type="checkbox" checked={scoreSuggestionsEnabled} onChange={(event) => onScoreSuggestionsChange?.(event.target.checked)} className="h-5 w-5 accent-cyan-400" />
+          </label>
+        </section>
 
         <div>
           <h3 className="font-semibold">Account:</h3>

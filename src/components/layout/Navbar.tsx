@@ -15,9 +15,11 @@ import Progress from '../common/Progress';
 interface NavbarProps {
   onPlay?: () => void;
   pageTitle?: string;
+  scoreSuggestionsEnabled?: boolean;
+  onScoreSuggestionsChange?: (enabled: boolean) => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!' }) => {
+const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSuggestionsEnabled = true, onScoreSuggestionsChange }) => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { isUserSignedIn, signOut } = useAuth();
@@ -195,7 +197,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!' }) => {
       {/* Settings Component */}
       {showSettings && (
         <div id="settings-drawer">
-          <Settings onClose={toggleSettings} />
+          <Settings onClose={toggleSettings} scoreSuggestionsEnabled={scoreSuggestionsEnabled} onScoreSuggestionsChange={onScoreSuggestionsChange} />
         </div>
       )}
       {showProgress && <Progress onClose={() => setShowProgress(false)} />}
