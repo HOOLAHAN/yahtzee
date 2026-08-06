@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faDice, faFire, faLock, faMedal, faStar, faTrophy, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/AuthContext';
 import { fetchMyGameResults, GameResult } from '../../services/gameResults';
-import { currentDailyStreak, utcDateKey } from '../../lib/dailyChallenge';
+import { currentDailyStreak, localDateKey } from '../../lib/dailyChallenge';
 
 const badges = [
   { name: 'First Roll', copy: 'Complete a solo game', icon: faDice, earned: (r: GameResult[], s: number) => r.some((x) => x.mode === 'SOLO') },
@@ -27,7 +27,7 @@ const badges = [
 export default function Progress({ onClose }: { onClose: () => void }) {
   const { isUserSignedIn, userDetails } = useAuth(); const [results, setResults] = useState<GameResult[]>([]); const [error, setError] = useState('');
   useEffect(() => { if (!userDetails?.userId) return; void fetchMyGameResults(userDetails.userId).then(setResults).catch((caught) => setError(caught instanceof Error ? caught.message : 'Unable to load progress.')); }, [userDetails?.userId]);
-  const streak = currentDailyStreak(results.filter((result) => result.challengeDate).map((result) => result.challengeDate!), utcDateKey());
+  const streak = currentDailyStreak(results.filter((result) => result.challengeDate).map((result) => result.challengeDate!), localDateKey());
   const unlocked = useMemo(() => badges.filter((badge) => badge.earned(results, streak)).length, [results, streak]);
   const best = results.reduce((score, result) => Math.max(score, result.score), 0); const average = results.length ? Math.round(results.reduce((sum, result) => sum + result.score, 0) / results.length) : 0;
   return <div className="fixed inset-0 z-40 bg-black/75 backdrop-blur-sm" onClick={onClose}><aside className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto border-l border-neonCyan bg-deepBlack p-5 sm:p-7" onClick={(event) => event.stopPropagation()}><div className="flex items-start justify-between"><div><p className="eyebrow">Player journey</p><h2 className="section-heading">Progress</h2></div><button onClick={onClose} aria-label="Close progress" className="text-3xl text-neonCyan"><FontAwesomeIcon icon={faXmark} /></button></div>

@@ -1,4 +1,4 @@
-import { dailyDiceForThrow, utcDateKey } from '../lib/dailyChallenge';
+import { dailyDiceForThrow, localDateKey } from '../lib/dailyChallenge';
 
 test('daily dice are deterministic and valid', () => {
   const first = dailyDiceForThrow('2026-08-06', 0);
@@ -8,6 +8,6 @@ test('daily dice are deterministic and valid', () => {
   expect(dailyDiceForThrow('2026-08-07', 0)).not.toEqual(first);
 });
 
-test('UTC date keys are stable', () => {
-  expect(utcDateKey(new Date('2026-08-06T23:59:59Z'))).toBe('2026-08-06');
+test('date keys follow the local calendar day', () => {
+  expect(localDateKey(new Date(2026, 7, 7, 0, 38))).toBe('2026-08-07');
 });

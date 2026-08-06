@@ -17,7 +17,7 @@ import { getDieSize } from '../../lib/utils';
 import { useWindowSize } from '../../hooks/useWindowSize';
 import { handleRollDice } from '../../lib/handleRollDice';
 import { useAuth } from '../../context/AuthContext';
-import { dailyDiceForThrow, utcDateKey } from '../../lib/dailyChallenge';
+import { dailyDiceForThrow, localDateKey } from '../../lib/dailyChallenge';
 import { createGameResult, fetchDailyResults, resultMetrics } from '../../services/gameResults';
 
 interface GameProps {
@@ -100,7 +100,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const [showFlash, setShowFlash] = useState(false);
   const [flashCategory, setFlashCategory] = useState('');
   const { isUserSignedIn, userDetails } = useAuth();
-  const [dailyDate] = useState(utcDateKey);
+  const [dailyDate, setDailyDate] = useState(localDateKey);
   const [dailyThrowIndex, setDailyThrowIndex] = useState(0);
   const [progressRecorded, setProgressRecorded] = useState(false);
   const [yahtzeeOnFinalRoll, setYahtzeeOnFinalRoll] = useState(false);
@@ -190,6 +190,28 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       initialDice, setPlayer1UsedCategories, setPlayer2UsedCategories
     );
   };
+
+  useEffect(() => {
+    if (!isDailyChallenge) return;
+
+    const advanceDailyChallenge = () => {
+      const today = localDateKey();
+      if (today === dailyDate) return;
+      setDailyDate(today);
+      handleResetGame();
+    };
+
+    const timer = window.setInterval(advanceDailyChallenge, 30_000);
+    window.addEventListener('focus', advanceDailyChallenge);
+    document.addEventListener('visibilitychange', advanceDailyChallenge);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', advanceDailyChallenge);
+      document.removeEventListener('visibilitychange', advanceDailyChallenge);
+    };
+    // handleResetGame intentionally resets the currently mounted game when its local day changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dailyDate, isDailyChallenge]);
 
   useEffect(() => {
     if (isTwoPlayer) {

@@ -5,7 +5,7 @@ import { fetchScores, ScoreItem, fetchUserScores } from '../../lib/scoreboardUti
 import { useAuth } from '../../context/AuthContext'; 
 import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
 import { fetchAllDailyResults, fetchDailyResults, fetchSoloResults, fetchWeeklyResults, GameResult } from '../../services/gameResults';
-import { utcDateKey } from '../../lib/dailyChallenge';
+import { localDateKey } from '../../lib/dailyChallenge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEarthEurope, faSun, faUser, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -37,7 +37,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
           const detailById = new Map(details.map((result) => [result.id, result]));
           fetchedScores = legacy.map((score) => ({ ...score, ...detailById.get(score.id) }));
         } else {
-          fetchedScores = period === 'today' ? await fetchDailyResults(utcDateKey()) : period === 'week' ? (await fetchWeeklyResults()).map((score) => ({ ...score, aggregate: true })) : await fetchAllDailyResults();
+          fetchedScores = period === 'today' ? await fetchDailyResults(localDateKey()) : period === 'week' ? (await fetchWeeklyResults()).map((score) => ({ ...score, aggregate: true })) : await fetchAllDailyResults();
           if (showUserScores && userDetails) fetchedScores = fetchedScores.filter((score) => score.userId === userDetails.userId);
         }
         setScores(fetchedScores.slice(0, 100));
