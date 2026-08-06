@@ -39,6 +39,16 @@ export async function fetchDailyResults(dateKey: string): Promise<GameResult[]> 
   return (result.data?.gameResultsByModeDate?.items ?? []).filter(Boolean);
 }
 
+export async function fetchSoloResults(limit = 500): Promise<GameResult[]> {
+  const result = await (client as any).graphql({ query: `query Solo($modeDate:String!,$limit:Int){gameResultsByModeDate(modeDate:$modeDate,sortDirection:DESC,limit:$limit){items{${fields}}}}`, authMode: 'apiKey', variables: { modeDate: 'SOLO#ALL', limit } });
+  return (result.data?.gameResultsByModeDate?.items ?? []).filter(Boolean);
+}
+
+export async function fetchAllDailyResults(limit = 500): Promise<GameResult[]> {
+  const result = await (client as any).graphql({ query: `query AllDaily($limit:Int){listGameResults(filter:{mode:{eq:DAILY}},limit:$limit){items{${fields}}}}`, authMode: 'apiKey', variables: { limit } });
+  return (result.data?.listGameResults?.items ?? []).filter(Boolean).sort((a: GameResult, b: GameResult) => b.score - a.score);
+}
+
 export async function fetchMyGameResults(userId: string): Promise<GameResult[]> {
   const result = await (client as any).graphql({ query: `query Progress($userId:String!){gameResultsByUser(userId:$userId,sortDirection:DESC,limit:500){items{${fields}}}}`, authMode: 'apiKey', variables: { userId } });
   return (result.data?.gameResultsByUser?.items ?? []).filter(Boolean);

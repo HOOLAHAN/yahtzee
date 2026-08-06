@@ -26,13 +26,14 @@ const App = () => {
     { value: 'virtual' as GameMode, label: 'Dice roller', description: 'Roll 1 or 2 dice', icon: faDice },
     { value: 'real' as GameMode, label: 'Scorecard', description: 'For physical dice', icon: faCalculator },
   ];
+  const pageTitle: Record<GameMode, string> = { solo: 'Single Player', daily: 'Daily Challenge', computer: 'Vs Computer', pass: 'Pass & Play', virtual: 'Dice Roller', real: 'Scorecard' };
 
   const changeMode = (nextMode: GameMode) => { setMode(nextMode); setShowGameChooser(false); setResetGameKey((key) => key + 1); };
   return (
     <LeaderboardRefreshProvider>
       <AuthProvider>
         <div className="App min-h-screen bg-deepBlack text-mintGlow font-mono">
-          <Navbar onPlay={() => setShowGameChooser(true)} />
+          <Navbar pageTitle={showGameChooser ? 'Yahtzee!' : pageTitle[mode]} onPlay={() => setShowGameChooser(true)} />
           <main id="play">
             {showGameChooser ? <section className="game-chooser" aria-labelledby="game-chooser-heading">
               <div className="game-chooser-heading"><p className="eyebrow">Game settings</p><h2 id="game-chooser-heading" className="section-heading">Choose how to play</h2><p className="section-copy">Start a Yahtzee game or open a tool for your physical dice.</p></div>

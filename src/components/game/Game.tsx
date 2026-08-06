@@ -258,7 +258,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         className="text-3xl font-black animate-pulse-glow"
         style={{ color: currentProfile.accent }}
       >
-        {isComputerOpponent ? (currentPlayer === 1 ? 'Your Turn' : 'Computer’s Turn') : isTwoPlayer ? `Player ${currentPlayer}'s Turn` : isDailyChallenge ? 'Daily Challenge' : 'Single Player'}
+        {isComputerOpponent ? (currentPlayer === 1 ? 'Your Turn' : 'Computer’s Turn') : isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Your Turn'}
       </h1><p>{isDailyChallenge ? `${dailyDate} · ` : ''}Round {round} of 13{computerThinking ? ' · Computer is thinking' : ''}</p></div><button onClick={() => setShowScoreCard(true)} className="scorecard-trigger"><FontAwesomeIcon icon={faList} /> Scorecard</button></div>
       {dailyStanding && <div className="mb-4 rounded-xl border border-neonYellow bg-[#272b13] px-4 py-3 text-center font-black text-neonYellow">{dailyStanding}</div>}
       <section className="web-play-panel">

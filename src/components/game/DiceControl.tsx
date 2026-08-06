@@ -29,20 +29,6 @@ const DiceControl: React.FC<DiceControlProps> = ({
 }) => {
   return (
     <div className="web-dice-control">
-    <h2
-      className={`web-roll-helper mb-3 font-black text-xs uppercase tracking-widest transition-opacity duration-200 ${
-        rollsLeft > 0 ? 'visible opacity-100' : 'invisible opacity-0'
-      }`}
-    >
-      {usedCategoriesSize === 13
-        ? "Game complete"
-        : rollsLeft === 3
-          ? usedCategoriesSize === 0
-            ? "ROLL DICE TO BEGIN"
-            : `Round ${usedCategoriesSize + 1} — ROLL DICE TO BEGIN`
-          : "Toggle to Hold Dice"}
-    </h2>
-
       <DiceDisplay
         dice={dice}
         heldDice={heldDice}
@@ -52,7 +38,20 @@ const DiceControl: React.FC<DiceControlProps> = ({
         shouldShake={shouldShake}
         dieSize={dieSize}
       />
-      <div className="mt-4">
+      <h2
+        className={`web-roll-helper my-3 font-black text-xs uppercase tracking-widest transition-opacity duration-200 ${
+          rollsLeft > 0 ? 'visible opacity-100' : 'invisible opacity-0'
+        }`}
+      >
+        {usedCategoriesSize === 13
+          ? "Game complete"
+          : rollsLeft === 3
+            ? usedCategoriesSize === 0
+              ? "ROLL DICE TO BEGIN"
+              : `Round ${usedCategoriesSize + 1} — ROLL DICE TO BEGIN`
+            : "Toggle to Hold Dice"}
+      </h2>
+      <div>
         <RollDiceButton
           rollsLeft={rollsLeft}
           usedCategoriesSize={usedCategoriesSize}

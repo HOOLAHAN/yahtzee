@@ -14,9 +14,10 @@ import Progress from '../common/Progress';
 
 interface NavbarProps {
   onPlay?: () => void;
+  pageTitle?: string;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onPlay }) => {
+const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!' }) => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { isUserSignedIn, signOut } = useAuth();
@@ -25,6 +26,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [currentForm, setCurrentForm] = useState('');
+  const displayTitle = leaderboardDisplay !== 'closed' ? 'High Scores' : showProgress ? 'Progress' : showSettings || showAuthModal ? 'Account' : showAbout ? 'About' : pageTitle;
 
   const toggleSettings = () => {
     setShowSettings(!showSettings);
@@ -103,7 +105,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay }) => {
     <>
       <nav className="sticky top-0 z-30 border-b-2 border-neonCyan bg-deepBlack/95 px-4 py-3 text-white shadow-lg backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
-          <button onClick={showPlay} className="flex items-center gap-3 text-left">
+          <button onClick={showPlay} className="flex min-w-0 items-center gap-3 text-left">
           <div className="h-14 w-14 transform transition duration-200 ease-in-out lg:h-16 lg:w-16">
             <img
               src={`${process.env.PUBLIC_URL}/yahtzee_dice_logo.png`} 
@@ -111,11 +113,10 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay }) => {
               className="w-full h-full object-contain"
             />
           </div>
-          <div>
-            <h1 className="text-2xl font-black text-neonYellow animate-pulse-glow lg:text-3xl">
-              Yahtzee!
+          <div className="min-w-0">
+            <h1 className="max-w-[11rem] truncate text-xl font-black text-neonYellow animate-pulse-glow sm:max-w-xs sm:text-2xl lg:text-3xl">
+              {displayTitle}
             </h1>
-            <p className="hidden text-xs font-bold text-gray-500 sm:block">Web game & app support</p>
           </div>
           </button>
 
