@@ -3,6 +3,8 @@ import { useAuth } from '../../context/AuthContext';
 import { validateSignUpForm, SignUpFormErrors } from '../../lib/validationUtils';
 import { isUsernameAvailable } from '../../services/profiles';
 import { friendlyAuthError } from '../../lib/authUx';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 interface SignUpFormProps {
   onSwitch: () => void;
@@ -116,7 +118,7 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
         <label htmlFor="confirmPassword" className="block text-sm font-semibold mb-2 mt-4">Confirm password</label>
         <input id="confirmPassword" type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" required className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink" />
         {errors.confirmPassword && <p className="text-red-500 text-xs italic mt-1">{errors.confirmPassword}</p>}
-        <button type="button" onClick={() => setShowPassword((value) => !value)} className="mt-2 text-neonCyan text-sm">{showPassword ? 'Hide passwords' : 'Show passwords'}</button>
+        <button type="button" aria-label={showPassword ? 'Hide passwords' : 'Show passwords'} onClick={() => setShowPassword((value) => !value)} className="mt-2 text-neonCyan text-sm"><FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="mr-2" />{showPassword ? 'Hide passwords' : 'Show passwords'}</button>
         {generalError && (
           <div className="mt-2">
             <p className="text-red-500 text-xs italic">{generalError}</p>

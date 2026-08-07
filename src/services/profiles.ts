@@ -6,6 +6,9 @@ export interface UserProfile {
   username: string;
   firstName: string;
   lastName: string;
+  scoreSuggestionsEnabled: boolean;
+  dailyReminderEnabled: boolean;
+  dailyReminderHour: number;
 }
 
 function profileErrorMessage(error: unknown, fallback: string) {
@@ -32,6 +35,9 @@ const UPDATE_MY_PROFILE = /* GraphQL */ `
       username
       firstName
       lastName
+      scoreSuggestionsEnabled
+      dailyReminderEnabled
+      dailyReminderHour
     }
   }
 `;
@@ -49,6 +55,21 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
     authMode: 'apiKey',
   });
   return Boolean(result.data?.usernameAvailable);
+}
+
+export async function getMyProfile(): Promise<UserProfile> {
+  const session = await fetchAuthSession(); const authToken = session.tokens?.idToken?.toString();
+  if (!authToken) throw new Error('Sign in required.');
+  const result = await (client as any).graphql({ query: `query MyProfile { myProfile { userId username firstName lastName scoreSuggestionsEnabled dailyReminderEnabled dailyReminderHour } }`, authMode: 'userPool', authToken });
+  return result.data.myProfile;
+}
+
+export async function updateMyPreferences(scoreSuggestionsEnabled: boolean, dailyReminderEnabled: boolean, dailyReminderHour: number): Promise<UserProfile> {
+  const session = await fetchAuthSession(); const authToken = session.tokens?.idToken?.toString();
+  if (!authToken) throw new Error('Sign in required.');
+  const query = `mutation Preferences($scoreSuggestionsEnabled:Boolean!,$dailyReminderEnabled:Boolean!,$dailyReminderHour:Int!){updateMyPreferences(scoreSuggestionsEnabled:$scoreSuggestionsEnabled,dailyReminderEnabled:$dailyReminderEnabled,dailyReminderHour:$dailyReminderHour){userId username firstName lastName scoreSuggestionsEnabled dailyReminderEnabled dailyReminderHour}}`;
+  const result = await (client as any).graphql({ query, variables: { scoreSuggestionsEnabled, dailyReminderEnabled, dailyReminderHour }, authMode: 'userPool', authToken });
+  return result.data.updateMyPreferences;
 }
 
 export async function updateMyProfile(

@@ -25,6 +25,9 @@ async function getProfile(sub) {
     username: item.username.S,
     firstName: item.firstName?.S ?? '',
     lastName: item.lastName?.S ?? '',
+    scoreSuggestionsEnabled: item.scoreSuggestionsEnabled?.BOOL ?? true,
+    dailyReminderEnabled: item.dailyReminderEnabled?.BOOL ?? false,
+    dailyReminderHour: Number(item.dailyReminderHour?.N ?? 19),
   } : null;
 }
 
@@ -127,6 +130,9 @@ export const handler = async (event) => {
       username: claims.preferred_username ?? '',
       firstName: claims.given_name ?? '',
       lastName: claims.family_name ?? '',
+      scoreSuggestionsEnabled: true,
+      dailyReminderEnabled: false,
+      dailyReminderHour: 19,
     };
   }
   if (field === 'deleteMyProfile') {
@@ -145,6 +151,17 @@ export const handler = async (event) => {
       ] }));
     }
     return true;
+  }
+  if (field === 'updateMyPreferences') {
+    const current = await getProfile(sub);
+    if (!current) throw new Error('Create your profile before saving preferences.');
+    const hour = Math.max(0, Math.min(23, Number(event.args.dailyReminderHour)));
+    const profile = { ...current, scoreSuggestionsEnabled: Boolean(event.args.scoreSuggestionsEnabled), dailyReminderEnabled: Boolean(event.args.dailyReminderEnabled), dailyReminderHour: hour };
+    await db.send(new TransactWriteItemsCommand({ TransactItems: [{ Put: { TableName: table, Item: {
+      pk: s(profileKey(sub)), userId: s(sub), username: s(profile.username), usernameNormalised: s(normalise(profile.username)), firstName: s(profile.firstName), lastName: s(profile.lastName),
+      scoreSuggestionsEnabled: { BOOL: profile.scoreSuggestionsEnabled }, dailyReminderEnabled: { BOOL: profile.dailyReminderEnabled }, dailyReminderHour: { N: String(profile.dailyReminderHour) },
+    } } }] }));
+    return profile;
   }
   if (field !== 'updateMyProfile') throw new Error('Unsupported operation');
 
@@ -165,6 +182,7 @@ export const handler = async (event) => {
     { Put: { TableName: table, Item: {
       pk: s(profileKey(sub)), userId: s(sub), username: s(username),
       usernameNormalised: s(normalise(username)), firstName: s(firstName), lastName: s(lastName),
+      scoreSuggestionsEnabled: { BOOL: current?.scoreSuggestionsEnabled ?? true }, dailyReminderEnabled: { BOOL: current?.dailyReminderEnabled ?? false }, dailyReminderHour: { N: String(current?.dailyReminderHour ?? 19) },
     } } },
   ];
   if (current && normalise(current.username) !== normalise(username)) {
@@ -193,5 +211,5 @@ export const handler = async (event) => {
   }));
 
   if (!current || current.username !== username) await Promise.all([renameScores(sub, username), renameGameResults(sub, username)]);
-  return { userId: sub, username, firstName, lastName };
+  return { userId: sub, username, firstName, lastName, scoreSuggestionsEnabled: current?.scoreSuggestionsEnabled ?? true, dailyReminderEnabled: current?.dailyReminderEnabled ?? false, dailyReminderHour: current?.dailyReminderHour ?? 19 };
 };

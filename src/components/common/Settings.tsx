@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { updateMyProfile } from '../../services/profiles';
+import { getMyProfile, updateMyPreferences, updateMyProfile } from '../../services/profiles';
 
 interface SettingsProps {
   onClose: () => void;
@@ -29,7 +29,16 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
     confirmUserPasswordReset,
     userDetails,
     checkAuthStatus,
+    isUserSignedIn,
   } = useAuth();
+
+  useEffect(() => {
+    if (!isUserSignedIn) return;
+    void getMyProfile().then((profile) => onScoreSuggestionsChange?.(profile.scoreSuggestionsEnabled)).catch(() => undefined);
+    // Load once when authentication becomes available; the callback is intentionally not a trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUserSignedIn]);
+  const changeSuggestions = (enabled: boolean) => { onScoreSuggestionsChange?.(enabled); if (isUserSignedIn) void getMyProfile().then((profile) => updateMyPreferences(enabled, profile.dailyReminderEnabled, profile.dailyReminderHour)).catch(() => setProfileError('Saved in this browser, but could not sync to your account.')); };
 
   useEffect(() => {
     setUsername(userDetails?.preferred_username ?? '');
@@ -107,7 +116,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
           <div className="account-panel-heading"><span className="account-panel-icon">⚙</span><div><h3>Gameplay</h3><p>Preferences saved on this device</p></div></div>
           <label className="mt-3 flex cursor-pointer items-center justify-between gap-4">
             <span><strong className="block text-mintGlow">Score suggestions</strong><small className="mt-1 block leading-5 text-gray-400">Show the best available score after each roll.</small></span>
-            <input type="checkbox" checked={scoreSuggestionsEnabled} onChange={(event) => onScoreSuggestionsChange?.(event.target.checked)} className="account-toggle" />
+            <input type="checkbox" checked={scoreSuggestionsEnabled} onChange={(event) => changeSuggestions(event.target.checked)} className="account-toggle" />
           </label>
         </section>
 

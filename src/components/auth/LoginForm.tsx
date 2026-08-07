@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { cleanVerificationCode, friendlyAuthError, maskEmail } from '../../lib/authUx';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const LoginForm: React.FC<{
   onSwitch: () => void;
@@ -135,7 +137,7 @@ const LoginForm: React.FC<{
                     className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
                   />
                 </div>
-                <div className="mb-4"><label htmlFor="confirmNewPassword" className="block text-sm font-semibold mb-2">Confirm New Password</label><input id="confirmNewPassword" type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink" /><p className="text-gray-400 text-xs mt-1">Use at least 8 characters.</p><button type="button" onClick={() => setShowPassword((value) => !value)} className="mt-2 text-neonCyan text-sm">{showPassword ? 'Hide passwords' : 'Show passwords'}</button></div>
+                <div className="mb-4"><label htmlFor="confirmNewPassword" className="block text-sm font-semibold mb-2">Confirm New Password</label><input id="confirmNewPassword" type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink" /><p className="text-gray-400 text-xs mt-1">Use at least 8 characters.</p><button type="button" aria-label={showPassword ? 'Hide passwords' : 'Show passwords'} onClick={() => setShowPassword((value) => !value)} className="mt-2 text-neonCyan text-sm"><FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="mr-2" />{showPassword ? 'Hide passwords' : 'Show passwords'}</button></div>
               </>
             )}
             <button type="submit" disabled={busy} className="w-full py-2 mt-2 text-electricPink font-bold rounded-xl border border-electricPink hover:bg-electricPink hover:text-black transition hover:scale-105 shadow-md">
