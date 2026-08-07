@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faDice, faFire, faLock, faMedal, faStar, faTrophy, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faDice, faFire, faLock, faMedal, faShareNodes, faStar, faTrophy, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/AuthContext';
 import { fetchMyGameResults, GameResult } from '../../services/gameResults';
 import { currentDailyStreak, localDateKey } from '../../lib/dailyChallenge';
+import { hasSharedApp } from '../../lib/achievements';
 
 const badges = [
   { name: 'First Roll', copy: 'Complete a solo game', icon: faDice, earned: (r: GameResult[], s: number) => r.some((x) => x.mode === 'SOLO') },
@@ -19,6 +20,7 @@ const badges = [
   { name: 'Straight Shooter', copy: 'Score both straights in one game', icon: faCheckCircle, earned: (r: GameResult[], s: number) => r.some((x) => x.completedSmallStraight && x.completedLargeStraight) },
   { name: 'Clean Card', copy: 'Finish without a zero', icon: faCheckCircle, earned: (r: GameResult[], s: number) => r.some((x) => x.noZeroScores) },
   { name: 'Daily Debut', copy: 'Complete a Daily Challenge', icon: faFire, earned: (r: GameResult[], s: number) => r.some((x) => x.mode === 'DAILY') },
+  { name: 'Spread the Word', copy: 'Share Yahtzee Hub with someone', icon: faShareNodes, earned: (_r: GameResult[], _s: number) => hasSharedApp() },
   { name: 'On a Roll', copy: 'Reach a 3-day streak', icon: faFire, earned: (r: GameResult[], s: number) => s >= 3 },
   { name: 'Full Week', copy: 'Reach a 7-day streak', icon: faFire, earned: (r: GameResult[], s: number) => s >= 7 },
   { name: 'Daily Devotion', copy: 'Reach a 30-day streak', icon: faTrophy, earned: (r: GameResult[], s: number) => s >= 30 },
