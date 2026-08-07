@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { validateSignUpForm, SignUpFormErrors } from '../../lib/validationUtils';
 import { isUsernameAvailable } from '../../services/profiles';
+import { friendlyAuthError } from '../../lib/authUx';
 
 interface SignUpFormProps {
   onSwitch: () => void;
@@ -13,6 +14,9 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
   const [username, setEmail] = useState('');
   const [preferred_username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [errors, setErrors] = useState<SignUpFormErrors>({});
@@ -21,31 +25,28 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formErrors = validateSignUpForm({ username, preferred_username, password, given_name: firstName, family_name: lastName });
+    const formErrors = validateSignUpForm({ username, preferred_username, password, confirmPassword, given_name: firstName, family_name: lastName });
 
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       return;
     }
 
+    setBusy(true); setGeneralError('');
     try {
       if (!(await isUsernameAvailable(preferred_username))) {
         setErrors({ preferred_username: 'That username is already taken.' });
         return;
       }
       await signUp({ username, password, preferred_username, given_name: firstName.trim(), family_name: lastName.trim() });
-      console.log('Sign-up successful');
       onSignUpSuccess(username);
     } catch (error) {
       console.error('Error during sign-up:', error);
       // Check if the error is a UsernameExistsException and set a friendly message
       if (error instanceof Error && error.name === "UsernameExistsException") {
         setGeneralError("An account with this email already exists.");
-      } else {
-        // Handle other types of errors or set a general error message
-        setGeneralError("An unexpected error occurred. Please try again later.");
-      }
-    }
+      } else setGeneralError(friendlyAuthError(error));
+    } finally { setBusy(false); }
     
   };
 
@@ -103,13 +104,19 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
         <label htmlFor="signUpPassword" className="block text-sm font-semibold mb-2">Password</label>
         <input
           id="signUpPassword"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => { setPassword(e.target.value); setErrors((value) => ({ ...value, password: undefined })); }}
+          autoComplete="new-password"
           required
           className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
         />
         {errors.password && <p className="text-red-500 text-xs italic mt-1">{errors.password}</p>}
+        <p className="text-gray-400 text-xs mt-1">Use at least 8 characters.</p>
+        <label htmlFor="confirmPassword" className="block text-sm font-semibold mb-2 mt-4">Confirm password</label>
+        <input id="confirmPassword" type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" required className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink" />
+        {errors.confirmPassword && <p className="text-red-500 text-xs italic mt-1">{errors.confirmPassword}</p>}
+        <button type="button" onClick={() => setShowPassword((value) => !value)} className="mt-2 text-neonCyan text-sm">{showPassword ? 'Hide passwords' : 'Show passwords'}</button>
         {generalError && (
           <div className="mt-2">
             <p className="text-red-500 text-xs italic">{generalError}</p>
@@ -128,10 +135,10 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
 
       <div className="mt-6 space-y-3">
         <button
-          type="submit"
+          type="submit" disabled={busy}
           className="w-full py-2 mt-2 text-electricPink font-bold rounded-xl border border-electricPink hover:bg-electricPink hover:text-black transition hover:scale-105 shadow-md"
         >
-          Sign Up
+          {busy ? 'Creating account…' : 'Create Account'}
         </button>
         <button
           type="button"

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { cleanVerificationCode, friendlyAuthError, maskEmail } from '../../lib/authUx';
 
 const LoginForm: React.FC<{
   onSwitch: () => void;
@@ -13,7 +14,12 @@ const LoginForm: React.FC<{
   const [resetCodeSent, setResetCodeSent] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [resendSeconds, setResendSeconds] = useState(0);
   const { signIn, resetUserPassword, confirmUserPasswordReset } = useAuth();
+  useEffect(() => { if (!resendSeconds) return; const timer = window.setInterval(() => setResendSeconds((value) => Math.max(0, value - 1)), 1000); return () => window.clearInterval(timer); }, [resendSeconds]);
 
   const handleSignIn = async () => {
     setError('');
@@ -54,31 +60,35 @@ const LoginForm: React.FC<{
   };
 
   const handleRequestResetCode = async () => {
+    if (!/^\S+@\S+\.\S+$/.test(loginEmail.trim())) return setError('Enter a valid email address.');
+    setBusy(true);
     try {
       await resetUserPassword(loginEmail);
       setResetCodeSent(true);
       setError('');
+      setResendSeconds(30);
       alert('If an account with that email exists, a password reset code has been sent.');
     } catch (error) {
       console.error('Error requesting password reset code:', error);
-      setError('Error sending password reset code.');
-    }
+      setError(friendlyAuthError(error));
+    } finally { setBusy(false); }
   };
 
   const handleResetPassword = async () => {
-    if (!verificationCode || !newPassword) {
-      setError('Please fill in all fields.');
-      return;
-    }
+    if (verificationCode.length !== 6) return setError('Enter the six-digit code from your email.');
+    if (newPassword.length < 8) return setError('Use a password with at least 8 characters.');
+    if (newPassword !== confirmPassword) return setError('The passwords do not match.');
+    setBusy(true);
     try {
       await confirmUserPasswordReset(loginEmail, verificationCode, newPassword);
       alert('Your password has been reset successfully.');
       setShowResetForm(false);
       setResetCodeSent(false);
+      setVerificationCode(''); setNewPassword(''); setConfirmPassword('');
     } catch (error) {
       console.error('Error resetting password:', error);
-      setError('Failed to reset password.');
-    }
+      setError(friendlyAuthError(error));
+    } finally { setBusy(false); }
   };
 
   return (
@@ -104,32 +114,35 @@ const LoginForm: React.FC<{
             {resetCodeSent && (
               <>
                 <div className="mb-4">
-                  <label htmlFor="verificationCode" className="block text-sm font-semibold mb-2">Verification Code</label>
+                  <p className="text-sm mb-4">Enter the six-digit code sent to <strong className="text-neonCyan">{maskEmail(loginEmail)}</strong>.</p><label htmlFor="verificationCode" className="block text-sm font-semibold mb-2">Verification Code</label>
                   <input
                     id="verificationCode"
-                    type="text"
+                    type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6}
                     value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
+                    onChange={(e) => setVerificationCode(cleanVerificationCode(e.target.value))}
                     required
-                    className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
+                    className="w-full px-3 py-3 text-center tracking-[0.6em] text-xl font-black bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
                   />
                 </div>
                 <div className="mb-4">
                   <label htmlFor="newPassword" className="block text-sm font-semibold mb-2">New Password</label>
                   <input
                     id="newPassword"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'} autoComplete="new-password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
                     className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink"
                   />
                 </div>
+                <div className="mb-4"><label htmlFor="confirmNewPassword" className="block text-sm font-semibold mb-2">Confirm New Password</label><input id="confirmNewPassword" type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className="w-full px-3 py-2 bg-black border border-neonCyan text-neonYellow rounded focus:outline-none focus:ring-2 focus:ring-electricPink" /><p className="text-gray-400 text-xs mt-1">Use at least 8 characters.</p><button type="button" onClick={() => setShowPassword((value) => !value)} className="mt-2 text-neonCyan text-sm">{showPassword ? 'Hide passwords' : 'Show passwords'}</button></div>
               </>
             )}
-            <button type="submit" className="w-full py-2 mt-2 text-electricPink font-bold rounded-xl border border-electricPink hover:bg-electricPink hover:text-black transition hover:scale-105 shadow-md">
-              {resetCodeSent ? 'Reset Password' : 'Send Reset Code'}
+            <button type="submit" disabled={busy} className="w-full py-2 mt-2 text-electricPink font-bold rounded-xl border border-electricPink hover:bg-electricPink hover:text-black transition hover:scale-105 shadow-md">
+              {busy ? 'Please wait…' : resetCodeSent ? 'Reset Password' : 'Send Reset Code'}
             </button>
+            {resetCodeSent && <button type="button" disabled={busy || resendSeconds > 0} onClick={() => void handleRequestResetCode()} className="w-full mt-3 text-neonCyan text-sm">{resendSeconds > 0 ? `Resend code in ${resendSeconds}s` : 'Resend reset code'}</button>}
+            {resetCodeSent && <button type="button" onClick={() => { setResetCodeSent(false); setVerificationCode(''); setError(''); }} className="w-full mt-3 text-neonCyan text-sm">Use a different email</button>}
           </>
         ) : (
           <>

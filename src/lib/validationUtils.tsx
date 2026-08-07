@@ -6,6 +6,7 @@ export interface SignUpFormInputs {
   given_name: string;
   family_name: string;
   password: string;
+  confirmPassword?: string;
 }
 
 export interface SignUpFormErrors {
@@ -14,6 +15,7 @@ export interface SignUpFormErrors {
   given_name?: string;
   family_name?: string;
   password?: string;
+  confirmPassword?: string;
 }
 
 export const validateSignUpForm = (inputs: SignUpFormInputs): SignUpFormErrors => {
@@ -37,6 +39,7 @@ export const validateSignUpForm = (inputs: SignUpFormInputs): SignUpFormErrors =
   } else if (inputs.password.length < 8) {
     errors.password = "Password must be at least 8 characters.";
   }
+  if (inputs.confirmPassword !== undefined && inputs.password !== inputs.confirmPassword) errors.confirmPassword = 'Passwords do not match.';
 
   return errors;
 };

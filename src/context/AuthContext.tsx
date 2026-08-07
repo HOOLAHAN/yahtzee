@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { getCurrentUser, signOut as amplifySignOut, signUp as amplifySignUp, confirmSignUp as amplifyConfirmSignUp, SignInInput, ConfirmSignUpInput } from 'aws-amplify/auth';
+import { autoSignIn, getCurrentUser, signOut as amplifySignOut, signUp as amplifySignUp, confirmSignUp as amplifyConfirmSignUp, SignInInput, ConfirmSignUpInput } from 'aws-amplify/auth';
 import { signIn as amplifySignIn } from 'aws-amplify/auth';
 import { resendSignUpCode } from 'aws-amplify/auth';
 import { fetchUserAttributes } from 'aws-amplify/auth';
@@ -118,10 +118,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }: SignUpParameters) => {
     try {
       await amplifySignUp({
-        username,
+        username: username.trim(),
         password,
         options: {
           userAttributes: {
+            email: username.trim(),
             preferred_username,
             given_name,
             family_name,
@@ -156,7 +157,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         username,
         confirmationCode,
       });
-      console.log("Email verification successful");
+      try { await autoSignIn(); await checkAuthStatus(); } catch { /* Verification succeeded; the user can still sign in normally. */ }
     } catch (error) {
       console.error("Error confirming sign up:", error);
       throw error; 
