@@ -39,6 +39,7 @@
     "completedLargeStraight": $util.dynamodb.toDynamoDBJson($ctx.args.input.completedLargeStraight),
     "noZeroScores": $util.dynamodb.toDynamoDBJson($ctx.args.input.noZeroScores),
     "yahtzeeOnFinalRoll": $util.dynamodb.toDynamoDBJson($ctx.args.input.yahtzeeOnFinalRoll),
+    "scorecard": $util.dynamodb.toDynamoDBJson($ctx.args.input.scorecard),
     "createdAt": $util.dynamodb.toDynamoDBJson($timestamp),
     "updatedAt": $util.dynamodb.toDynamoDBJson($timestamp),
     "__typename": $util.dynamodb.toDynamoDBJson("GameResult")

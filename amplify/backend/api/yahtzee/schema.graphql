@@ -38,6 +38,7 @@ type GameResult
   completedLargeStraight: Boolean!
   noZeroScores: Boolean!
   yahtzeeOnFinalRoll: Boolean!
+  scorecard: AWSJSON
 }
 
 input SubmitGameResultInput {
@@ -51,6 +52,7 @@ input SubmitGameResultInput {
   completedLargeStraight: Boolean!
   noZeroScores: Boolean!
   yahtzeeOnFinalRoll: Boolean!
+  scorecard: AWSJSON
 }
 
 type Mutation {

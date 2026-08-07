@@ -8,8 +8,9 @@ export interface GameResult {
   challengeDate?: string; score: number; completedAt: string; yahtzeeCount: number;
   earnedUpperBonus: boolean; completedSmallStraight: boolean;
   completedLargeStraight: boolean; noZeroScores: boolean; yahtzeeOnFinalRoll: boolean;
+  scorecard?: string;
 }
-const fields = 'id userId username mode modeDate challengeDate score completedAt yahtzeeCount earnedUpperBonus completedSmallStraight completedLargeStraight noZeroScores yahtzeeOnFinalRoll';
+const fields = 'id userId username mode modeDate challengeDate score completedAt yahtzeeCount earnedUpperBonus completedSmallStraight completedLargeStraight noZeroScores yahtzeeOnFinalRoll scorecard';
 
 export const resultMetrics = (entries: ScoreEntry[]) => {
   const upper = new Set(['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes']);
@@ -21,6 +22,7 @@ export const resultMetrics = (entries: ScoreEntry[]) => {
     completedSmallStraight: entries.some((entry) => entry.category === 'SmallStraight' && entry.roundScore === 30),
     completedLargeStraight: entries.some((entry) => entry.category === 'LargeStraight' && entry.roundScore === 40),
     noZeroScores: entries.length === 13 && entries.every((entry) => entry.roundScore > 0),
+    scorecard: JSON.stringify(Object.fromEntries(entries.map((entry) => [entry.category, entry.roundScore]))),
   };
 };
 
