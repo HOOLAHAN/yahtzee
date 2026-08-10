@@ -7,6 +7,8 @@
         "dynamodb:GetItem",
         "dynamodb:PutItem",
         "dynamodb:DeleteItem",
+        "dynamodb:Scan",
+        "dynamodb:BatchWriteItem",
         "dynamodb:TransactWriteItems"
       ],
       "Resource": "arn:aws:dynamodb:eu-west-2:974928048532:table/YahtzeeUserProfiles"

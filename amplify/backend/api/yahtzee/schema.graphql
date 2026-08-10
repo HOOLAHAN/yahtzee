@@ -55,9 +55,19 @@ input SubmitGameResultInput {
   scorecard: AWSJSON
 }
 
+type DailyRoundStanding @aws_cognito_user_pools {
+  challengeDate: AWSDate!
+  round: Int!
+  score: Int!
+  rank: Int!
+  playerCount: Int!
+  percentile: Int!
+}
+
 type Mutation {
   submitScore(id: ID, score: Int!): Score @aws_cognito_user_pools
   submitGameResult(input: SubmitGameResultInput!): GameResult @aws_cognito_user_pools
+  submitDailyRoundProgress(challengeDate: AWSDate!, round: Int!, score: Int!): DailyRoundStanding! @aws_cognito_user_pools
   updateMyProfile(username: String!, firstName: String!, lastName: String!): UserProfile @aws_cognito_user_pools
   updateMyPreferences(scoreSuggestionsEnabled: Boolean!, dailyReminderEnabled: Boolean!, dailyReminderHour: Int!): UserProfile @aws_cognito_user_pools
   deleteMyProfile: Boolean! @aws_cognito_user_pools

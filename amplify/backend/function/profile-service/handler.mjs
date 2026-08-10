@@ -1,5 +1,5 @@
 import { CognitoIdentityProviderClient, AdminUpdateUserAttributesCommand } from '@aws-sdk/client-cognito-identity-provider';
-import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, ScanCommand, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
+import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
 
 const db = new DynamoDBClient({});
 const cognito = new CognitoIdentityProviderClient({});
@@ -12,6 +12,7 @@ const clean = (value, max = 50) => String(value ?? '').trim().slice(0, max);
 const normalise = (value) => clean(value, 20).toLowerCase();
 const profileKey = (sub) => `USER#${sub}`;
 const usernameKey = (name) => `USERNAME#${normalise(name)}`;
+const dailyRoundPrefix = (date, round) => `DAILY#${date}#ROUND#${String(round).padStart(2, '0')}#`;
 
 async function getProfile(sub) {
   const result = await db.send(new GetItemCommand({
@@ -108,6 +109,75 @@ async function deleteGameResults(sub) {
   } while (startKey);
 }
 
+async function deleteDailyProgress(sub) {
+  let startKey;
+  do {
+    const result = await db.send(new ScanCommand({
+      TableName: table,
+      FilterExpression: 'begins_with(pk, :prefix) AND userId = :sub',
+      ExpressionAttributeValues: { ':prefix': s('DAILY#'), ':sub': s(sub) },
+      ProjectionExpression: 'pk',
+      ExclusiveStartKey: startKey,
+    }));
+    const keys = (result.Items ?? []).map((item) => item.pk).filter(Boolean);
+    for (let index = 0; index < keys.length; index += 25) {
+      await writeAll({ [table]: keys.slice(index, index + 25).map((pk) => ({ DeleteRequest: { Key: { pk } } })) });
+    }
+    startKey = result.LastEvaluatedKey;
+  } while (startKey);
+}
+
+async function submitDailyRoundProgress(sub, challengeDate, roundValue, scoreValue) {
+  const date = clean(challengeDate, 10);
+  const round = Number(roundValue);
+  const score = Number(scoreValue);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('A valid challenge date is required.');
+  if (!Number.isInteger(round) || round < 1 || round > 13) throw new Error('Round must be between 1 and 13.');
+  if (!Number.isInteger(score) || score < 0 || score > 375) throw new Error('Score is outside the valid range.');
+
+  const prefix = dailyRoundPrefix(date, round);
+  const now = new Date();
+  const expiresAt = Math.floor(now.getTime() / 1000) + 45 * 24 * 60 * 60;
+  await db.send(new PutItemCommand({
+    TableName: table,
+    Item: {
+      pk: s(`${prefix}${sub}`),
+      userId: s(sub),
+      challengeDate: s(date),
+      round: { N: String(round) },
+      score: { N: String(score) },
+      updatedAt: s(now.toISOString()),
+      expiresAt: { N: String(expiresAt) },
+    },
+  }));
+
+  const scores = [];
+  let startKey;
+  do {
+    const result = await db.send(new ScanCommand({
+      TableName: table,
+      FilterExpression: 'begins_with(pk, :prefix)',
+      ExpressionAttributeValues: { ':prefix': s(prefix) },
+      ProjectionExpression: 'score',
+      ConsistentRead: true,
+      ExclusiveStartKey: startKey,
+    }));
+    for (const item of result.Items ?? []) if (item.score?.N !== undefined) scores.push(Number(item.score.N));
+    startKey = result.LastEvaluatedKey;
+  } while (startKey);
+
+  const rank = 1 + scores.filter((otherScore) => otherScore > score).length;
+  const playerCount = scores.length;
+  return {
+    challengeDate: date,
+    round,
+    score,
+    rank,
+    playerCount,
+    percentile: Math.max(1, Math.ceil((rank / Math.max(1, playerCount)) * 100)),
+  };
+}
+
 export const handler = async (event) => {
   const field = event.field;
   if (field === 'usernameAvailable') {
@@ -124,6 +194,9 @@ export const handler = async (event) => {
   const claims = event.identity?.claims;
   const sub = claims?.sub;
   if (!sub) throw new Error('Authentication required');
+  if (field === 'submitDailyRoundProgress') {
+    return await submitDailyRoundProgress(sub, event.args.challengeDate, event.args.round, event.args.score);
+  }
   if (field === 'myProfile') {
     return await getProfile(sub) ?? {
       userId: sub,
@@ -139,6 +212,7 @@ export const handler = async (event) => {
     const current = await getProfile(sub);
     await deleteScores(sub);
     await deleteGameResults(sub);
+    await deleteDailyProgress(sub);
     if (current) {
       await db.send(new TransactWriteItemsCommand({ TransactItems: [
         { Delete: { TableName: table, Key: { pk: s(profileKey(sub)) } } },
