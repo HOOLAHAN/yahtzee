@@ -933,6 +933,7 @@ html, body, #root {
 .web-player-profile .player-switch { background: var(--player-accent); color: #071012; box-shadow: 0 0 16px color-mix(in srgb, var(--player-accent) 24%, transparent); }
 .web-player-profile .web-lock-bar button:hover,
 .web-player-profile .player-switch:hover { background: var(--player-score); }
+.daily-position{display:flex;align-items:center;justify-content:center;gap:.45rem;margin:.4rem auto 0;border:0;background:transparent;color:#7f8d90;font-size:.75rem;font-weight:800}.daily-position strong{color:#ff00c8;font-size:.9rem}.daily-position:not(:disabled){cursor:pointer}.daily-position:not(:disabled):hover strong{text-decoration:underline}.daily-position:disabled{opacity:.75}.daily-game .web-play-panel{border-color:#656a13;background:linear-gradient(180deg,rgba(244,255,0,.045),transparent);border-radius:1rem;padding:.35rem .8rem .8rem}
 .web-player-two-text { color: #5cff88; }
 .web-player-totals span:first-child strong { color: #00f0f0; }
 .web-player-totals span:nth-child(2) strong { color: #5cff88; }

@@ -10,6 +10,10 @@ export interface GameResult {
   completedLargeStraight: boolean; noZeroScores: boolean; yahtzeeOnFinalRoll: boolean;
   scorecard?: string;
 }
+export interface DailyRoundStanding {
+  challengeDate: string; round: number; score: number; rank: number;
+  playerCount: number; percentile: number;
+}
 const fields = 'id userId username mode modeDate challengeDate score completedAt yahtzeeCount earnedUpperBonus completedSmallStraight completedLargeStraight noZeroScores yahtzeeOnFinalRoll scorecard';
 
 export const resultMetrics = (entries: ScoreEntry[]) => {
@@ -34,6 +38,20 @@ export async function createGameResult(input: Omit<GameResult, 'userId' | 'usern
   const result = await (client as any).graphql({ query: `mutation SubmitGameResult($input:SubmitGameResultInput!){submitGameResult(input:$input){${fields}}}`, authMode: 'userPool', authToken: token.toString(), variables: { input: { ...metrics, challengeDate } } });
   if (!result.data?.submitGameResult) throw new Error(result.errors?.map((error: { message: string }) => error.message).join(', ') || 'Unable to save game progress.');
   return result.data.submitGameResult as GameResult;
+}
+
+export async function submitDailyRoundProgress(challengeDate: string, round: number, score: number): Promise<DailyRoundStanding> {
+  const session = await fetchAuthSession();
+  const token = session.tokens?.idToken;
+  if (!token) throw new Error('Sign in to compare your Daily Challenge position.');
+  const result = await (client as any).graphql({
+    query: `mutation DailyRoundProgress($challengeDate:AWSDate!,$round:Int!,$score:Int!){submitDailyRoundProgress(challengeDate:$challengeDate,round:$round,score:$score){challengeDate round score rank playerCount percentile}}`,
+    authMode: 'userPool',
+    authToken: token.toString(),
+    variables: { challengeDate, round, score },
+  });
+  if (!result.data?.submitDailyRoundProgress) throw new Error(result.errors?.map((error: { message: string }) => error.message).join(', ') || 'Unable to calculate your Daily Challenge position.');
+  return result.data.submitDailyRoundProgress as DailyRoundStanding;
 }
 
 export async function fetchDailyResults(dateKey: string): Promise<GameResult[]> {

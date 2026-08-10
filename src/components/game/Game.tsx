@@ -18,7 +18,7 @@ import { useWindowSize } from '../../hooks/useWindowSize';
 import { handleRollDice } from '../../lib/handleRollDice';
 import { useAuth } from '../../context/AuthContext';
 import { dailyDiceForThrow, localDateKey } from '../../lib/dailyChallenge';
-import { createGameResult, fetchDailyResults, resultMetrics } from '../../services/gameResults';
+import { createGameResult, DailyRoundStanding, fetchDailyResults, resultMetrics, submitDailyRoundProgress } from '../../services/gameResults';
 
 interface GameProps {
   initialDice?: number[];
@@ -38,6 +38,7 @@ const playerProfiles = [
   { accent: '#00f0f0', score: '#f4ff00', soft: '#173033' },
   { accent: '#5cff88', score: '#9dffb7', soft: '#173322' },
 ] as const;
+const dailyProfile = { accent: '#f4ff00', score: '#ff00c8', soft: '#292b0d' } as const;
 
 const chooseComputerHolds = (computerDice: number[], used: Set<string>) => {
   const counts = computerDice.reduce<Record<number, number>>((result, die) => ({ ...result, [die]: (result[die] || 0) + 1 }), {});
@@ -105,6 +106,8 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const [progressRecorded, setProgressRecorded] = useState(false);
   const [yahtzeeOnFinalRoll, setYahtzeeOnFinalRoll] = useState(false);
   const [dailyStanding, setDailyStanding] = useState('');
+  const [dailyRoundStanding, setDailyRoundStanding] = useState<DailyRoundStanding | null>(null);
+  const [dailyStandingLoading, setDailyStandingLoading] = useState(false);
   const [dailyAlreadyCompleted, setDailyAlreadyCompleted] = useState(false);
   const [checkingDailyCompletion, setCheckingDailyCompletion] = useState(false);
   const gameId = useRef(`web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
@@ -256,14 +259,24 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
 
   const handleConfirmScore = () => {
     if (!selectedCategory) return;
-    if (selectedCategory === 'Yahtzee' && calculateCurrentCategoryScore(selectedCategory, dice) === 50 && rollsLeft === 0) setYahtzeeOnFinalRoll(true);
+    const confirmedCategory = selectedCategory;
+    const confirmedScore = calculateCurrentCategoryScore(confirmedCategory, dice);
+    if (confirmedCategory === 'Yahtzee' && confirmedScore === 50 && rollsLeft === 0) setYahtzeeOnFinalRoll(true);
+    if (isDailyChallenge && isUserSignedIn && userDetails?.userId) {
+      const completedEntries = [...player1ScoreHistory, { category: confirmedCategory, dice: [...dice], roundScore: confirmedScore }];
+      setDailyStandingLoading(true);
+      void submitDailyRoundProgress(dailyDate, completedEntries.length, resultMetrics(completedEntries).score)
+        .then(setDailyRoundStanding)
+        .catch((error) => console.error('[dailyChallenge.roundProgress]', error))
+        .finally(() => setDailyStandingLoading(false));
+    }
     lockInScore(selectedCategory, getUsedCategories(), setUsedCategories, dice, updateScores as React.Dispatch<React.SetStateAction<number>>, totalScore, currentPlayer === 1 ? setPlayer1ScoreHistory : setPlayer2ScoreHistory, currentPlayer === 1 ? player1ScoreHistory : player2ScoreHistory, handleStartNewRound, setCurrentScore, setHasRolled, setDice, setRollsLeft, setHeldDice, initialDice, currentScore, calculateCurrentCategoryScore, isTwoPlayer, currentPlayer, player1TotalScore, player2TotalScore, setPlayer1TotalScore, setPlayer2TotalScore);
     handleScoreLockIn(selectedCategory); setSelectedCategory(null);
   };
 
   const currentTotal = isTwoPlayer ? (currentPlayer === 1 ? player1TotalScore : player2TotalScore) : totalScore;
   const round = Math.min(getUsedCategories().size + 1, 13);
-  const currentProfile = currentPlayer === 1 ? playerProfiles[0] : playerProfiles[1];
+  const currentProfile = isDailyChallenge ? dailyProfile : currentPlayer === 1 ? playerProfiles[0] : playerProfiles[1];
   const gameComplete = player1UsedCategories.size === 13 && (!isTwoPlayer || player2UsedCategories.size === 13);
 
   useEffect(() => {
@@ -302,7 +315,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   if (isDailyChallenge && (checkingDailyCompletion || dailyAlreadyCompleted) && !gameComplete) return <div className="mx-auto min-h-[65vh] w-full max-w-2xl px-4 py-12"><section className="daily-complete-card"><span><FontAwesomeIcon icon={checkingDailyCompletion ? faRotate : faLock} /></span><p className="eyebrow">Daily Challenge · {dailyDate}</p><h2>{checkingDailyCompletion ? 'Checking today’s result…' : 'Challenge completed'}</h2><p>{checkingDailyCompletion ? 'Making sure this account has not already played today.' : 'You have already completed today’s fixed-roll challenge. Come back tomorrow for a new sequence.'}</p>{!checkingDailyCompletion && <button onClick={onOpenSettings}><FontAwesomeIcon icon={faGear} /> Choose another game</button>}</section></div>;
 
   return (
-    <div className="web-player-profile mx-auto min-h-screen w-full max-w-6xl bg-deepBlack px-4 py-5 text-mintGlow md:px-8" style={{ '--player-accent': currentProfile.accent, '--player-score': currentProfile.score, '--player-soft': currentProfile.soft } as React.CSSProperties}>
+    <div className={`web-player-profile ${isDailyChallenge ? 'daily-game' : ''} mx-auto min-h-screen w-full max-w-6xl bg-deepBlack px-4 py-5 text-mintGlow md:px-8`} style={{ '--player-accent': currentProfile.accent, '--player-score': currentProfile.score, '--player-soft': currentProfile.soft } as React.CSSProperties}>
       <div className="web-game-heading"><div><h1
         className="text-3xl font-black animate-pulse-glow"
         style={{ color: currentProfile.accent }}
@@ -327,6 +340,12 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         totalScore={currentTotal}
         showSuggestion={scoreSuggestionsEnabled}
       />
+      {isDailyChallenge && player1ScoreHistory.length > 0 && <button type="button" className="daily-position" disabled={!isUserSignedIn} onClick={() => {
+        if (!isUserSignedIn) return;
+        if (!dailyRoundStanding) { window.alert(dailyStandingLoading ? 'Your latest position is being calculated.' : 'Your Daily Challenge position is unavailable right now.'); return; }
+        const heading = dailyRoundStanding.playerCount >= 5 ? `Top ${dailyRoundStanding.percentile}% after Round ${dailyRoundStanding.round}` : `#${dailyRoundStanding.rank} after Round ${dailyRoundStanding.round}`;
+        window.alert(`${heading}\n\nYou are #${dailyRoundStanding.rank} of ${dailyRoundStanding.playerCount} ${dailyRoundStanding.playerCount === 1 ? 'player' : 'players'} at the same stage today.${dailyRoundStanding.playerCount < 5 ? ' Percentiles appear once five players reach this round.' : ''}`);
+      }}><span>Position</span><strong>{!isUserSignedIn ? 'Sign in' : dailyStandingLoading && !dailyRoundStanding ? '…' : dailyRoundStanding ? dailyRoundStanding.playerCount >= 5 ? `Top ${dailyRoundStanding.percentile}%` : `#${dailyRoundStanding.rank}` : '—'}</strong></button>}
       </section>
       <div className="category-heading"><div><h2>Choose a category</h2><p>{hasRolled ? 'Tap once to preview, then lock it in.' : 'Categories unlock after your first roll.'}</p></div><span>13 categories</span></div>
       <CategoryButtons

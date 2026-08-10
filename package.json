@@ -32,6 +32,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "backend:push:sandbox": "node scripts/push-sandbox-backend.mjs",
     "build": "react-scripts build",
     "test": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject"

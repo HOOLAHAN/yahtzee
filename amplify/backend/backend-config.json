@@ -59,5 +59,15 @@
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
     }
+  },
+  "parameters": {
+    "AMPLIFY_api_yahtzee_AuthCognitoUserPoolId": {
+      "usedBy": [
+        {
+          "category": "api",
+          "resourceName": "yahtzee"
+        }
+      ]
+    }
   }
 }

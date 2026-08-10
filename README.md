@@ -203,11 +203,47 @@ REACT_APP_AWS_POOLS_WEB_CLIENT_ID=your_cognito_user_pools_web_client_id
 
 ## Running the Game Locally
 
+Local development uses the isolated Amplify environment named `sandbox`. Its
+Cognito users, profiles, Daily Challenge progress, game results, and scores are
+separate from the live App Store data. The historical Amplify environment named
+`dev` is the production backend despite its name; do not run `amplify push`
+against it during normal development.
+
+The ignored `.env.development.local` file contains the sandbox browser
+configuration and overrides the production-compatible values only for
+`npm start`. Production builds continue to use the live configuration.
+
 ```bash
 npm start
 ```
 
 Visit [http://localhost:3000/](http://localhost:3000/) in your browser.
+
+### Backend environments
+
+Check the active environment before every infrastructure operation:
+
+```bash
+AWS_PROFILE=iain-hoolahan npx @aws-amplify/cli@14.5.1 env list
+AWS_PROFILE=iain-hoolahan npx @aws-amplify/cli@14.5.1 status
+```
+
+For development, the line with the asterisk must be `sandbox`. Deploy backend
+changes there with:
+
+```bash
+npm run backend:push:sandbox
+```
+
+Use this wrapper instead of a raw sandbox push. This Gen 1 project requires an
+environment-specific Cognito parameter; the wrapper selects `sandbox`, injects
+its user-pool ID only for the deployment, and restores the production-safe
+repository value afterward.
+
+Only switch to `dev` when intentionally releasing a tested backend change to
+production. The two environments use different endpoints, user pools, profile
+tables, score tables, and result tables, so sandbox activity cannot overwrite
+the existing production leaderboard.
 
 ## Running Tests
 

@@ -43,3 +43,81 @@ export const onDeleteScore = /* GraphQL */ `
     }
   }
 `;
+export const onCreateGameResult = /* GraphQL */ `
+  subscription OnCreateGameResult(
+    $filter: ModelSubscriptionGameResultFilterInput
+  ) {
+    onCreateGameResult(filter: $filter) {
+      id
+      userId
+      username
+      mode
+      modeDate
+      challengeDate
+      score
+      completedAt
+      yahtzeeCount
+      earnedUpperBonus
+      completedSmallStraight
+      completedLargeStraight
+      noZeroScores
+      yahtzeeOnFinalRoll
+      scorecard
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateGameResult = /* GraphQL */ `
+  subscription OnUpdateGameResult(
+    $filter: ModelSubscriptionGameResultFilterInput
+  ) {
+    onUpdateGameResult(filter: $filter) {
+      id
+      userId
+      username
+      mode
+      modeDate
+      challengeDate
+      score
+      completedAt
+      yahtzeeCount
+      earnedUpperBonus
+      completedSmallStraight
+      completedLargeStraight
+      noZeroScores
+      yahtzeeOnFinalRoll
+      scorecard
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteGameResult = /* GraphQL */ `
+  subscription OnDeleteGameResult(
+    $filter: ModelSubscriptionGameResultFilterInput
+  ) {
+    onDeleteGameResult(filter: $filter) {
+      id
+      userId
+      username
+      mode
+      modeDate
+      challengeDate
+      score
+      completedAt
+      yahtzeeCount
+      earnedUpperBonus
+      completedSmallStraight
+      completedLargeStraight
+      noZeroScores
+      yahtzeeOnFinalRoll
+      scorecard
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
