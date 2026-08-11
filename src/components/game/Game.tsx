@@ -194,6 +194,14 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
     );
   };
 
+  const handleResetAction = () => {
+    if (isDailyChallenge) {
+      window.alert('Today’s Daily Challenge is protected. Choose another game if you want a break; your progress will remain here when you return.');
+      return;
+    }
+    handleResetGame();
+  };
+
   useEffect(() => {
     if (!isDailyChallenge) return;
 
@@ -297,6 +305,9 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
 
   useEffect(() => {
     if (!isDailyChallenge || !gameComplete) return;
+    // Apply the lock immediately; writing the completion marker and result to
+    // storage/API happens asynchronously and must not leave a replay window.
+    setDailyAlreadyCompleted(true);
     localStorage.setItem(`yahtzee.daily.completed.${dailyDate}.${userDetails?.userId ?? 'guest'}`, 'true');
   }, [dailyDate, gameComplete, isDailyChallenge, userDetails?.userId]);
 
@@ -381,7 +392,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       <div className="web-game-actions">
         <button onClick={() => setShowScoreCard(true)}><FontAwesomeIcon icon={faList} /> Scorecard</button>
         <button onClick={onOpenSettings}><FontAwesomeIcon icon={faGear} /> Settings</button>
-        <button onClick={handleResetGame}><FontAwesomeIcon icon={faRotate} /> Reset</button>
+        <button onClick={handleResetAction}><FontAwesomeIcon icon={isDailyChallenge ? faLock : faRotate} /> {isDailyChallenge ? 'Protected' : 'Reset'}</button>
       </div>
       <ScoreFlash category={flashCategory} show={showFlash} onEnd={() => setShowFlash(false)} />
       {selectedCategory && <div className="web-lock-bar"><div><small>{selectedCategory.replace(/([A-Z])/g, ' $1').trim()}</small><strong>{calculateCurrentCategoryScore(selectedCategory, dice)} points</strong></div><button onClick={handleConfirmScore}><FontAwesomeIcon icon={faLock} /> Lock In</button></div>}
