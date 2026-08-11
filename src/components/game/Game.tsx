@@ -19,6 +19,8 @@ import { handleRollDice } from '../../lib/handleRollDice';
 import { useAuth } from '../../context/AuthContext';
 import { dailyDiceForThrow, localDateKey } from '../../lib/dailyChallenge';
 import { createGameResult, DailyRoundStanding, fetchDailyResults, resultMetrics, submitDailyRoundProgress } from '../../services/gameResults';
+import { saveLeaderboardScore } from '../../services/scores';
+import { useOptionalLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
 
 interface GameProps {
   initialDice?: number[];
@@ -110,7 +112,10 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const [dailyStandingLoading, setDailyStandingLoading] = useState(false);
   const [dailyAlreadyCompleted, setDailyAlreadyCompleted] = useState(false);
   const [checkingDailyCompletion, setCheckingDailyCompletion] = useState(false);
+  const [scoreSaveStatus, setScoreSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const gameId = useRef(`web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
+  const scoreSaveAttempted = useRef(false);
+  const leaderboardRefresh = useOptionalLeaderboardRefresh();
 
   const windowSize = useWindowSize();
   const dieSize = getDieSize(windowSize);
@@ -184,7 +189,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   };
 
   const handleResetGame = () => {
-    setSelectedCategory(null); setShowScoreCard(false); setDailyThrowIndex(0); setProgressRecorded(false); setYahtzeeOnFinalRoll(false); setDailyStanding(''); gameId.current = `web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    setSelectedCategory(null); setShowScoreCard(false); setDailyThrowIndex(0); setProgressRecorded(false); setYahtzeeOnFinalRoll(false); setDailyStanding(''); setScoreSaveStatus('idle'); scoreSaveAttempted.current = false; gameId.current = `web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
     resetGame(
       setDice, setRollsLeft, setHeldDice, setCurrentScore, 
       setPlayer1ScoreHistory, setPlayer2ScoreHistory,
@@ -286,6 +291,21 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const round = Math.min(getUsedCategories().size + 1, 13);
   const currentProfile = isDailyChallenge ? dailyProfile : currentPlayer === 1 ? playerProfiles[0] : playerProfiles[1];
   const gameComplete = player1UsedCategories.size === 13 && (!isTwoPlayer || player2UsedCategories.size === 13);
+
+  useEffect(() => {
+    const leaderboardEligible = !isDailyChallenge && (!isTwoPlayer || isComputerOpponent);
+    if (!gameComplete || !leaderboardEligible || !isUserSignedIn || !userDetails?.userId || scoreSaveAttempted.current) return;
+    scoreSaveAttempted.current = true;
+    setScoreSaveStatus('saving');
+    const finalScore = isTwoPlayer ? player1TotalScore : totalScore;
+    void saveLeaderboardScore(gameId.current, finalScore, userDetails.userId)
+      .then(() => { setScoreSaveStatus('saved'); leaderboardRefresh?.toggleRefreshLeaderboard(); })
+      .catch((error) => {
+        console.error('[scores.autoSave]', error);
+        setScoreSaveStatus('error');
+        window.setTimeout(() => { scoreSaveAttempted.current = false; setScoreSaveStatus('idle'); }, 5000);
+      });
+  }, [gameComplete, isComputerOpponent, isDailyChallenge, isTwoPlayer, isUserSignedIn, leaderboardRefresh, player1TotalScore, scoreSaveStatus, totalScore, userDetails?.userId]);
 
   useEffect(() => {
     if (!isDailyChallenge) { setDailyAlreadyCompleted(false); return; }
@@ -455,12 +475,9 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       {(player1ScoreHistory.length > 0 || player2ScoreHistory.length > 0) && (
         <GameControlButtons
           isMobile={windowSize < 640}
-          totalScore={totalScore}
-          usedCategories={getUsedCategories().size}
-          isUserSignedIn={isUserSignedIn}
           isTwoPlayer={isTwoPlayer}
-          allowScoreSubmission={!isTwoPlayer || isComputerOpponent}
           gameComplete={gameComplete}
+          saveStatus={!isDailyChallenge && isUserSignedIn && (!isTwoPlayer || isComputerOpponent) ? scoreSaveStatus : 'idle'}
         />
       )}
     </div>

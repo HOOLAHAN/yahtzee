@@ -1,30 +1,20 @@
-import CreateScoreButton from './CreateScoreButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShareNodes } from '@fortawesome/free-solid-svg-icons';
-import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
 import { shareScorecard } from '../../lib/utils'; 
 
 interface GameControlButtonsProps {
   isMobile: boolean;
-  totalScore: number;
-  usedCategories: number;
-  isUserSignedIn: boolean;
   isTwoPlayer: boolean; 
-  allowScoreSubmission?: boolean;
   gameComplete?: boolean;
+  saveStatus?: 'idle' | 'saving' | 'saved' | 'error';
 }
 
 const GameControlButtons: React.FC<GameControlButtonsProps> = ({
   isMobile,
-  totalScore,
-  usedCategories,
-  isUserSignedIn,
   isTwoPlayer,
-  allowScoreSubmission = false,
   gameComplete = false,
+  saveStatus = 'idle',
 }) => {
-  const { toggleRefreshLeaderboard } = useLeaderboardRefresh();
-
   return (
     <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-6 mb-10">
       {/* Share Score Card Button */}
@@ -38,13 +28,10 @@ const GameControlButtons: React.FC<GameControlButtonsProps> = ({
         {isMobile ? "Share" : "Share Scorecard"}
       </button>}
 
-      {/* Submit Score to Leaderboard Button */}
-      {usedCategories === 13 && isUserSignedIn && allowScoreSubmission && (
-        <CreateScoreButton
-          score={totalScore}
-          isMobile={isMobile}
-          onClick={toggleRefreshLeaderboard}
-        />
+      {gameComplete && saveStatus !== 'idle' && (
+        <p className={`w-full text-center text-sm font-bold ${saveStatus === 'error' ? 'text-red-400' : 'text-mintGlow'}`} aria-live="polite">
+          {saveStatus === 'saving' ? 'Saving score…' : saveStatus === 'saved' ? 'Score saved automatically' : 'Score could not be saved — retrying…'}
+        </p>
       )}
     </div>
   );

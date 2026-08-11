@@ -15,6 +15,10 @@ export const useLeaderboardRefresh = () => {
   return context;
 }
 
+// Leaf components such as Game are also rendered in isolation by tests and
+// previews. They may request a refresh without requiring the full app shell.
+export const useOptionalLeaderboardRefresh = () => useContext(LeaderboardRefreshContext);
+
 interface LeaderboardRefreshProviderProps {
   children: ReactNode;
 }

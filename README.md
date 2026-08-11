@@ -229,10 +229,14 @@ npm run status
 npm run deploy:sandbox
 ```
 
-This repository temporarily retains its Amplify files as a production fallback
-while the new repository is proven against `sandbox`. Do not make new sandbox
-backend changes here. The historical `dev` environment remains the live
-production backend until a later, explicitly approved cutover.
+The standalone backend repository owns both sandbox and production deployments.
+The historical Amplify environment named `dev` remains the live production
+backend; only its source-code ownership moved, so existing accounts and scores
+were retained. Do not run backend deployments from this website repository.
+
+The `amplify/` directory is temporarily retained as a frozen rollback reference.
+Do not edit or deploy it. It can be removed after the live App Store build and
+website have completed a final manual smoke-test window.
 
 The two environments use different endpoints, user pools, profile tables,
 score tables, and result tables, so sandbox activity cannot overwrite the
