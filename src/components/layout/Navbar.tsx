@@ -17,9 +17,10 @@ interface NavbarProps {
   pageTitle?: string;
   scoreSuggestionsEnabled?: boolean;
   onScoreSuggestionsChange?: (enabled: boolean) => void;
+  registrationRequest?: number;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSuggestionsEnabled = true, onScoreSuggestionsChange }) => {
+const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSuggestionsEnabled = true, onScoreSuggestionsChange, registrationRequest = 0 }) => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { isUserSignedIn, signOut } = useAuth();
@@ -28,6 +29,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
   const [showSettings, setShowSettings] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [currentForm, setCurrentForm] = useState('');
+  const [initialAuthForm, setInitialAuthForm] = useState<'login' | 'signup'>('login');
   const displayTitle = leaderboardDisplay !== 'closed' ? 'High Scores' : showProgress ? 'Progress' : showSettings || showAuthModal ? 'Account' : showAbout ? 'About' : pageTitle;
 
   const toggleSettings = () => {
@@ -41,6 +43,18 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
   };
 
   const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
+  const openAuth = (form: 'login' | 'signup' = 'login') => {
+    setInitialAuthForm(form);
+    setShowAuthModal(true);
+  };
+
+  useEffect(() => {
+    if (!registrationRequest) return;
+    setLeaderboardDisplay('closed');
+    setShowProgress(false);
+    setShowSettings(false);
+    openAuth('signup');
+  }, [registrationRequest]);
 
   const showPlay = () => {
     setShowAbout(false); setLeaderboardDisplay('closed'); setShowSettings(false); setShowProgress(false); setIsMenuOpen(false);
@@ -125,7 +139,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
           <div className="ml-auto hidden items-center gap-1 sm:flex" aria-label="Primary navigation">
             <button onClick={showPlay} className="desktop-nav-button">Games</button>
             <button onClick={toggleLeaderboard} className={`desktop-nav-button ${leaderboardDisplay === 'allScores' ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} />Scores</button>
-            {isUserSignedIn ? <button onClick={toggleSettings} className={`desktop-nav-button desktop-nav-account ${showSettings ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} />Account</button> : <button onClick={toggleAuthModal} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} />Sign in</button>}
+            {isUserSignedIn ? <button onClick={toggleSettings} className={`desktop-nav-button desktop-nav-account ${showSettings ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} />Account</button> : <button onClick={() => openAuth('login')} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} />Sign in</button>}
           </div>
 
           <div>
@@ -154,7 +168,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
         <div className="fixed inset-0 z-40 bg-black/75 backdrop-blur-sm" onClick={() => setLeaderboardDisplay('closed')}>
         <aside id="leaderboard-drawer" role="dialog" aria-modal="true" aria-labelledby="scores-title" className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto border-l border-neonCyan bg-deepBlack p-5 shadow-2xl sm:p-7" onClick={(event) => event.stopPropagation()}>
           <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Shared leaderboard</p><h2 id="scores-title" className="section-heading">High Scores</h2></div><button onClick={() => setLeaderboardDisplay('closed')} aria-label="Close scores" className="text-4xl text-neonCyan hover:text-electricPink">&times;</button></div>
-          {!isUserSignedIn && <div className="mb-5 rounded-xl border border-[#315a5e] bg-[#142225] p-4 text-sm text-mintGlow"><p>Sign in to see scores submitted by your account.</p><button onClick={() => { setLeaderboardDisplay('closed'); setShowAuthModal(true); }} className="mt-3 font-black text-neonCyan hover:text-electricPink">Sign in</button></div>}
+          {!isUserSignedIn && <div className="mb-5 rounded-xl border border-[#315a5e] bg-[#142225] p-4 text-sm text-mintGlow"><strong className="block text-base text-neonYellow">Keep your scores and join the rankings</strong><p className="mt-1">Create a free player profile to save games, unlock your personal leaderboard and sync across devices.</p><button onClick={() => { setLeaderboardDisplay('closed'); openAuth('signup'); }} className="mt-3 font-black text-neonCyan hover:text-electricPink">Create player profile →</button></div>}
           <Leaderboard showUserScores={leaderboardDisplay === 'userScores'} onShowUserScoresChange={(mine) => setLeaderboardDisplay(mine ? 'userScores' : 'allScores')} canShowUserScores={isUserSignedIn} hideHeading />
         </aside>
         </div>
@@ -168,7 +182,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
           onClick={handleCloseModal}
         >
           <div className="relative p-4 rounded-lg w-full sm:w-[410px] max-w-full" onClick={(e) => e.stopPropagation()}>
-            <AuthenticationManager onClose={toggleAuthModal} onFormChange={setCurrentForm} />
+            <AuthenticationManager initialForm={initialAuthForm} onClose={toggleAuthModal} onFormChange={setCurrentForm} />
             <button onClick={toggleAuthModal} className="absolute top-2 right-3 mt-4 mr-4 text-gray-600 hover:text-gray-900">
               &times;
             </button>
@@ -196,7 +210,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
           <Settings onClose={toggleSettings} scoreSuggestionsEnabled={scoreSuggestionsEnabled} onScoreSuggestionsChange={onScoreSuggestionsChange} />
         </div>
       )}
-      {showProgress && <Progress onClose={() => setShowProgress(false)} />}
+      {showProgress && <Progress onClose={() => setShowProgress(false)} onCreateAccount={() => { setShowProgress(false); openAuth('signup'); }} />}
     </>
   );
 };

@@ -5,11 +5,12 @@ import EmailVerificationForm from './EmailVerificationForm';
 
 interface AuthenticationManagerProps {
   onClose: () => void;
+  initialForm?: 'login' | 'signup';
 }
 
-const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChange?: (form: string) => void }> = ({ onClose, onFormChange }) => {
+const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChange?: (form: string) => void }> = ({ onClose, onFormChange, initialForm = 'login' }) => {
   const [userEmail, setUserEmail] = useState('');
-  const [currentForm, setCurrentForm] = useState('login');
+  const [currentForm, setCurrentForm] = useState(initialForm);
 
   const handleSignUpSuccess = (email: string) => {
     setUserEmail(email);
