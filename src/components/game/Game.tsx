@@ -120,7 +120,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const windowSize = useWindowSize();
   const dieSize = getDieSize(windowSize);
 
-  const [currentPlayer, setCurrentPlayer] = useState(1);
+  const [currentPlayer, setCurrentPlayer] = useState(isComputerOpponent ? 2 : 1);
   const [player1TotalScore, setPlayer1TotalScore] = useState(0);
   const [player2TotalScore, setPlayer2TotalScore] = useState(0);
   const [currentMobileScoreCard, setCurrentMobileScoreCard] = useState(currentPlayer);
@@ -189,7 +189,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   };
 
   const handleResetGame = () => {
-    setSelectedCategory(null); setShowScoreCard(false); setDailyThrowIndex(0); setProgressRecorded(false); setYahtzeeOnFinalRoll(false); setDailyStanding(''); setScoreSaveStatus('idle'); scoreSaveAttempted.current = false; gameId.current = `web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    setSelectedCategory(null); setShowScoreCard(false); setDailyThrowIndex(0); setProgressRecorded(false); setYahtzeeOnFinalRoll(false); setDailyStanding(''); setScoreSaveStatus('idle'); setCurrentPlayer(isComputerOpponent ? 2 : 1); scoreSaveAttempted.current = false; gameId.current = `web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
     resetGame(
       setDice, setRollsLeft, setHeldDice, setCurrentScore, 
       setPlayer1ScoreHistory, setPlayer2ScoreHistory,
