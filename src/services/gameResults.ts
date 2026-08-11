@@ -65,8 +65,8 @@ export async function fetchSoloResults(limit = 500): Promise<GameResult[]> {
 }
 
 export async function fetchAllDailyResults(limit = 500): Promise<GameResult[]> {
-  const result = await (client as any).graphql({ query: `query AllDaily($limit:Int){listGameResults(filter:{mode:{eq:DAILY}},limit:$limit){items{${fields}}}}`, authMode: 'apiKey', variables: { limit } });
-  return (result.data?.listGameResults?.items ?? []).filter(Boolean).sort((a: GameResult, b: GameResult) => b.score - a.score);
+  const result = await (client as any).graphql({ query: `query AllDaily($mode:GameMode!,$limit:Int){gameResultsByMode(mode:$mode,sortDirection:DESC,limit:$limit){items{${fields}}}}`, authMode: 'apiKey', variables: { mode: 'DAILY', limit } });
+  return (result.data?.gameResultsByMode?.items ?? []).filter(Boolean);
 }
 
 export async function fetchMyGameResults(userId: string): Promise<GameResult[]> {

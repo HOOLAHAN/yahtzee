@@ -74,6 +74,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const result = await amplifySignIn({ username: username.trim(), password });
       if (!result.isSignedIn) {
+        if (result.nextStep.signInStep === 'CONFIRM_SIGN_UP') {
+          const verificationError = new Error('Your account requires verification.');
+          verificationError.name = 'UserNotConfirmedException';
+          throw verificationError;
+        }
         if (result.nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
           throw new Error('This account requires a permanent password before it can sign in.');
         }

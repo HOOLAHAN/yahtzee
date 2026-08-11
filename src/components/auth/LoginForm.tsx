@@ -31,7 +31,9 @@ const LoginForm: React.FC<{
     } catch (error) {
       console.error('Error signing in:', error);
       if (error instanceof Error) {
-        if (error.name === "NotAuthorizedException") {
+        if (error.name === 'UserNotConfirmedException' || error.message.includes('requires verification') || error.message.includes('CONFIRM_SIGN_UP')) {
+          setError('Your account requires verification.');
+        } else if (error.name === "NotAuthorizedException") {
           if (error.message.includes("Incorrect username or password.")) {
             setError('Incorrect username or password.');
           } else if (error.message.includes("Unauthenticated access is not supported for this identity pool.")) {

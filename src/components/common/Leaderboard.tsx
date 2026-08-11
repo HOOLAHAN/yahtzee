@@ -1,13 +1,13 @@
 // Leaderboard.tsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { fetchScores, ScoreItem, fetchUserScores } from '../../lib/scoreboardUtils';
 import { useAuth } from '../../context/AuthContext'; 
 import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
-import { fetchAllDailyResults, fetchDailyResults, fetchSoloResults, fetchWeeklyResults, GameResult } from '../../services/gameResults';
+import { fetchAllDailyResults, fetchDailyResults, fetchMyGameResults, fetchSoloResults, fetchWeeklyResults, GameResult } from '../../services/gameResults';
 import { localDateKey } from '../../lib/dailyChallenge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEarthEurope, faSun, faUser, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faEarthEurope, faSun, faUser, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 
 interface LeaderboardProps {
   showUserScores: boolean;
@@ -26,37 +26,56 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
   const [period, setPeriod] = useState<'today' | 'week' | 'all'>('all');
   const [competition, setCompetition] = useState<Competition>('solo');
   const [selected, setSelected] = useState<LeaderboardEntry | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const { userDetails } = useAuth();
   const { refreshLeaderboard } = useLeaderboardRefresh();
 
-  useEffect(() => {
-    const loadScores = async () => {
+  const loadScores = useCallback(async () => {
+      setLoading(true);
       try {
         setErrorMessage('');
         let fetchedScores: LeaderboardEntry[] = [];
         if (competition === 'solo') {
-          const [legacy, details] = await Promise.all([showUserScores && userDetails ? fetchUserScores(userDetails.userId) : fetchScores(), fetchSoloResults()]);
-          const detailById = new Map(details.map((result) => [result.id, result]));
-          fetchedScores = legacy.map((score) => ({ ...score, ...detailById.get(score.id) }));
+          const [legacy, details] = await Promise.all([
+            showUserScores && userDetails ? fetchUserScores(userDetails.userId) : fetchScores(),
+            showUserScores && userDetails ? fetchMyGameResults(userDetails.userId) : fetchSoloResults(100),
+          ]);
+          const indexed = details
+            .filter((result) => result.mode === 'SOLO')
+            .map((result) => ({ ...result, timestamp: result.completedAt } as LeaderboardEntry));
+          const indexedIds = new Set(indexed.map((result) => result.id));
+          fetchedScores = [...indexed, ...legacy.filter((score) => !indexedIds.has(score.id))]
+            .sort((a, b) => b.score - a.score);
         } else {
           fetchedScores = period === 'today' ? await fetchDailyResults(localDateKey()) : period === 'week' ? (await fetchWeeklyResults()).map((score) => ({ ...score, aggregate: true })) : await fetchAllDailyResults();
           if (showUserScores && userDetails) fetchedScores = fetchedScores.filter((score) => score.userId === userDetails.userId);
         }
         setScores(fetchedScores.slice(0, 100));
+        setLastUpdated(new Date());
       } catch (error) {
         console.error('Error fetching scores:', error);
         setScores([]);
         setErrorMessage(error instanceof Error ? error.message : 'Failed to load leaderboard.');
+      } finally {
+        setLoading(false);
       }
-    };
+    }, [competition, period, showUserScores, userDetails]);
 
+  useEffect(() => {
     if (showUserScores && !userDetails) {
       console.error('User details not available for fetching user scores');
       return;
     }
 
-    loadScores();
-  }, [competition, period, showUserScores, userDetails, refreshLeaderboard]);
+    void loadScores();
+  }, [loadScores, refreshLeaderboard, showUserScores, userDetails]);
+
+  useEffect(() => {
+    const refreshWhenVisible = () => { if (document.visibilityState === 'visible') void loadScores(); };
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    return () => document.removeEventListener('visibilitychange', refreshWhenVisible);
+  }, [loadScores]);
 
   const heading = showUserScores ? 'My Scores' : 'High Scores';
   
@@ -72,6 +91,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
         {competition === 'daily' && <div className="leaderboard-periods">{(['today', 'week', 'all'] as const).map((value) => <button key={value} onClick={() => setPeriod(value)} className={period === value ? 'active' : ''}>{value === 'today' ? 'Today' : value === 'week' ? 'Week' : 'All time'}</button>)}</div>}
         {onShowUserScoresChange && <div className="leaderboard-audience"><span>SHOWING</span><div><button onClick={() => onShowUserScoresChange(false)} className={!showUserScores ? 'active' : ''}><FontAwesomeIcon icon={faEarthEurope} /> Global</button><button disabled={!canShowUserScores} onClick={() => onShowUserScoresChange(true)} className={showUserScores ? 'active' : ''}><FontAwesomeIcon icon={faUserCircle} /> Mine</button></div></div>}
       </section>
+      <div className="mb-4 flex items-center justify-end gap-3 text-xs text-gray-500">
+        <span>{loading ? 'Updating…' : lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not updated yet'}</span>
+        <button type="button" disabled={loading} onClick={() => void loadScores()} className="text-neonCyan disabled:opacity-40"><FontAwesomeIcon icon={faArrowsRotate} /> Refresh</button>
+      </div>
       {scores.length ? (
         <ul className="space-y-4">
           {scores.map((score, index) => (
