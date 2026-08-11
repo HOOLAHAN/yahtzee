@@ -221,29 +221,22 @@ Visit [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 ### Backend environments
 
-Check the active environment before every infrastructure operation:
+Shared backend development now lives in the standalone repository:
 
 ```bash
-AWS_PROFILE=iain-hoolahan npx @aws-amplify/cli@14.5.1 env list
-AWS_PROFILE=iain-hoolahan npx @aws-amplify/cli@14.5.1 status
+cd /Users/iainhoolahan/Projects/yahtzee-backend
+npm run status
+npm run deploy:sandbox
 ```
 
-For development, the line with the asterisk must be `sandbox`. Deploy backend
-changes there with:
+This repository temporarily retains its Amplify files as a production fallback
+while the new repository is proven against `sandbox`. Do not make new sandbox
+backend changes here. The historical `dev` environment remains the live
+production backend until a later, explicitly approved cutover.
 
-```bash
-npm run backend:push:sandbox
-```
-
-Use this wrapper instead of a raw sandbox push. This Gen 1 project requires an
-environment-specific Cognito parameter; the wrapper selects `sandbox`, injects
-its user-pool ID only for the deployment, and restores the production-safe
-repository value afterward.
-
-Only switch to `dev` when intentionally releasing a tested backend change to
-production. The two environments use different endpoints, user pools, profile
-tables, score tables, and result tables, so sandbox activity cannot overwrite
-the existing production leaderboard.
+The two environments use different endpoints, user pools, profile tables,
+score tables, and result tables, so sandbox activity cannot overwrite the
+existing production leaderboard.
 
 ## Running Tests
 
