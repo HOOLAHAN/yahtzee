@@ -58,7 +58,7 @@
     "@testing-library/dom": "^10.4.1",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
-    "typescript": "^5.9.3"
+    "typescript": "4.9.5"
   },
   "resolutions": {
     "tailwindcss": "4.1.8"
