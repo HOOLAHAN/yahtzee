@@ -938,21 +938,36 @@ html, body, #root {
 .web-player-totals span:first-child strong { color: #00f0f0; }
 .web-player-totals span:nth-child(2) strong { color: #5cff88; }
 
-/* A short stagger makes the five dice feel physical without delaying play. */
-.web-die-wrap { transform-origin: 50% 65%; }
-.web-dice-row > .web-die-wrap:nth-child(2) { animation-delay: 55ms; }
-.web-dice-row > .web-die-wrap:nth-child(3) { animation-delay: 110ms; }
-.web-dice-row > .web-die-wrap:nth-child(4) { animation-delay: 165ms; }
-.web-dice-row > .web-die-wrap:nth-child(5) { animation-delay: 220ms; }
-.animate-spin-wiggle { animation: webDiceTumble 680ms cubic-bezier(.25,.8,.35,1) both; }
-@keyframes webDiceTumble {
-  0% { transform: translateY(0) rotate(0) scale(1); }
-  20% { transform: translate(-5px,-15px) rotate(-55deg) scale(.92); }
-  45% { transform: translate(7px,-22px) rotate(135deg) scale(1.06); }
-  70% { transform: translate(-4px,-8px) rotate(285deg) scale(.96); }
-  88% { transform: translateY(3px) rotate(355deg) scale(1.03); }
-  100% { transform: translateY(0) rotate(360deg) scale(1); }
+/* Staggered throw, airborne tumble and landing bounce. */
+.web-die-wrap{transform-origin:50% 72%;perspective:500px;will-change:transform,filter}
+.web-die-wrap:after{content:"";position:absolute;z-index:-1;left:14%;right:14%;bottom:-.55rem;height:.55rem;border-radius:50%;background:rgba(0,0,0,.72);filter:blur(5px);opacity:.28;transform:scaleX(.8);transition:opacity 120ms ease}
+.dice-rolling{animation:diceThrow 860ms cubic-bezier(.18,.72,.24,1) both;animation-delay:calc(var(--roll-index) * 48ms)}
+.dice-rolling .web-die{animation:diceFaceTumble 860ms cubic-bezier(.18,.72,.24,1) both;animation-delay:calc(var(--roll-index) * 48ms);backface-visibility:hidden}
+.dice-rolling:after{animation:diceShadow 860ms ease-out both;animation-delay:calc(var(--roll-index) * 48ms)}
+@keyframes diceThrow{
+  0%{transform:translate3d(0,0,0) rotate(0deg) scale(1);filter:brightness(1)}
+  10%{transform:translate3d(calc(var(--throw-x) * -.4),4px,0) rotate(-8deg) scale(.96,1.05)}
+  28%{transform:translate3d(var(--throw-x),-34px,0) rotate(92deg) scale(.94);filter:brightness(1.16)}
+  52%{transform:translate3d(calc(var(--throw-x) * -.7),-46px,0) rotate(218deg) scale(1.04);filter:brightness(1.2)}
+  72%{transform:translate3d(calc(var(--throw-x) * .3),-13px,0) rotate(332deg) scale(.98)}
+  82%{transform:translate3d(0,5px,0) rotate(365deg) scale(1.09,.86);filter:brightness(.94)}
+  90%{transform:translate3d(0,-7px,0) rotate(354deg) scale(.98,1.04)}
+  96%{transform:translate3d(0,2px,0) rotate(362deg) scale(1.02,.96)}
+  100%{transform:translate3d(0,0,0) rotate(360deg) scale(1);filter:brightness(1)}
 }
+@keyframes diceFaceTumble{
+  0%{transform:rotateX(0) rotateY(0)}
+  30%{transform:rotateX(150deg) rotateY(-105deg)}
+  58%{transform:rotateX(310deg) rotateY(215deg)}
+  82%{transform:rotateX(390deg) rotateY(345deg)}
+  100%{transform:rotateX(360deg) rotateY(360deg)}
+}
+@keyframes diceShadow{
+  0%,100%{opacity:.3;transform:scaleX(.85)}
+  45%{opacity:.08;transform:scaleX(.42)}
+  82%{opacity:.48;transform:scaleX(1.08)}
+}
+@media(prefers-reduced-motion:reduce){.dice-rolling,.dice-rolling .web-die,.dice-rolling:after{animation-duration:180ms;animation-delay:0ms}.dice-rolling{animation-name:diceReducedRoll}.dice-rolling .web-die{animation:none}@keyframes diceReducedRoll{50%{transform:scale(.92)}100%{transform:scale(1)}}}
 .eyebrow { color: #879398; font-size: .75rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
 .section-heading { margin-top: .3rem; color: #f4ff00; font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.05; font-weight: 900; }
 .section-copy { margin-top: .6rem; margin-bottom: 1.4rem; color: #a7f3df; line-height: 1.65; }

@@ -40,7 +40,7 @@ export default function VirtualDice() {
         <button type="button" onClick={() => changeCount(1)} disabled={diceCount === MAX_DICE} aria-label="Add a die"><FontAwesomeIcon icon={faPlus} /></button>
       </div>
       <div className="virtual-dice-tray" aria-live="polite">
-        {dice.map((value, index) => <DiceFace key={`${rollSequence}-${index}`} value={value} canHold={false} onToggleHold={() => undefined} isHeld={false} shake={rolling} className="game-die" />)}
+        {dice.map((value, index) => <DiceFace key={`${rollSequence}-${index}`} value={value} canHold={false} onToggleHold={() => undefined} isHeld={false} shake={rolling} rollIndex={index} className="game-die" />)}
       </div>
       <button type="button" className="primary-action virtual-roll-action" onClick={roll}><FontAwesomeIcon icon={faDice} /> Roll {diceCount === 1 ? 'die' : `${diceCount} dice`}</button>
     </section>

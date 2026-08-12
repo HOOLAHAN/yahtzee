@@ -8,6 +8,7 @@ interface DiceFaceProps {
   className?: string;
   size?: FontAwesomeSize;
   shake: boolean;
+  rollIndex?: number;
 }
 
 const pips: Record<number, number[]> = {
@@ -26,6 +27,7 @@ const DiceFace: React.FC<DiceFaceProps> = ({
   isHeld,
   shake,
   className,
+  rollIndex = 0,
 }) => {
   const isGameDie = className?.includes('game-die');
 
@@ -36,7 +38,8 @@ const DiceFace: React.FC<DiceFaceProps> = ({
       onClick={onToggleHold}
       aria-label={`${value}`}
       aria-pressed={isHeld}
-      className={`${isGameDie ? 'web-die-wrap' : 'web-mini-die-wrap'} ${canHold ? 'cursor-pointer' : ''} ${shake && !isHeld ? 'animate-spin-wiggle' : ''}`}
+      className={`${isGameDie ? 'web-die-wrap' : 'web-mini-die-wrap'} ${canHold ? 'cursor-pointer' : ''} ${shake && !isHeld ? 'dice-rolling' : ''}`}
+      style={{ '--roll-index': rollIndex, '--throw-x': `${(rollIndex - 2) * 7}px` } as React.CSSProperties}
     >
       <span className={`${isGameDie ? 'web-die' : 'web-mini-die'} ${isHeld ? 'web-die-held' : ''}`}>
         {Array.from({ length: 9 }, (_, index) => (

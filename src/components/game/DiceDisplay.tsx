@@ -32,6 +32,7 @@ const DiceDisplay: React.FC<DiceDisplayProps> = ({
           onToggleHold={() => toggleHoldDie(index)}
           className="game-die"
           shake={shouldShake}
+          rollIndex={index}
           size={dieSize as FontAwesomeSize}
         />
       ))}
