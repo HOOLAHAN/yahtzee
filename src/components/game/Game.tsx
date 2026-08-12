@@ -347,7 +347,8 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   if (isDailyChallenge && (checkingDailyCompletion || dailyAlreadyCompleted) && !gameComplete) return <div className="mx-auto min-h-[65vh] w-full max-w-2xl px-4 py-12"><section className="daily-complete-card"><span><FontAwesomeIcon icon={checkingDailyCompletion ? faRotate : faLock} /></span><p className="eyebrow">Daily Challenge · {dailyDate}</p><h2>{checkingDailyCompletion ? 'Checking today’s result…' : 'Challenge completed'}</h2><p>{checkingDailyCompletion ? 'Making sure this account has not already played today.' : 'You have already completed today’s fixed-roll challenge. Come back tomorrow for a new sequence.'}</p>{!checkingDailyCompletion && <button onClick={onOpenSettings}><FontAwesomeIcon icon={faGear} /> Choose another game</button>}</section></div>;
 
   return (
-    <div className={`web-player-profile ${isDailyChallenge ? 'daily-game' : ''} mx-auto min-h-screen w-full max-w-6xl bg-deepBlack px-4 py-5 text-mintGlow md:px-8`} style={{ '--player-accent': currentProfile.accent, '--player-score': currentProfile.score, '--player-soft': currentProfile.soft } as React.CSSProperties}>
+    <div className={`web-player-profile ${isDailyChallenge ? 'daily-game' : ''} mx-auto min-h-screen w-full max-w-5xl bg-deepBlack px-4 py-6 text-mintGlow md:px-8`} style={{ '--player-accent': currentProfile.accent, '--player-score': currentProfile.score, '--player-soft': currentProfile.soft } as React.CSSProperties}>
+      <section className="web-play-panel">
       <div className="web-game-heading"><div><h1
         className="text-3xl font-black animate-pulse-glow"
         style={{ color: currentProfile.accent }}
@@ -355,7 +356,6 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         {isComputerOpponent ? (currentPlayer === 1 ? 'Your Turn' : 'Computer’s Turn') : isTwoPlayer ? `Player ${currentPlayer}'s Turn` : 'Your Turn'}
       </h1><p>{isDailyChallenge ? `${dailyDate} · ` : ''}Round {round} of 13{computerThinking ? ' · Computer is thinking' : ''}</p></div></div>
       {dailyStanding && <div className="mb-4 rounded-xl border border-neonYellow bg-[#272b13] px-4 py-3 text-center font-black text-neonYellow">{dailyStanding}</div>}
-      <section className="web-play-panel">
       <DiceControl
         dice={dice}
         heldDice={heldDice}
