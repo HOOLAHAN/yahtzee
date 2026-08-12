@@ -53,10 +53,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkAuthStatus = useCallback(async () => {
     try {
       const currentUser = await getCurrentUser();
+      const session = await fetchAuthSession();
+      const groups = session.tokens?.idToken?.payload?.['cognito:groups'];
       setIsUserSignedIn(true);
       const userInfo = { 
         userId: currentUser.username, 
-        email: currentUser.signInDetails?.loginId
+        email: currentUser.signInDetails?.loginId,
+        role: Array.isArray(groups) && groups.includes('Admin') ? 'ADMIN' : 'PLAYER',
       };
       setUserDetails(userInfo);
       await fetchAndSetUserAttributes();

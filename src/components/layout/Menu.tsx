@@ -1,6 +1,6 @@
 import { useAuth } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleInfo, faFileContract, faHeadset, faHouse, faRightFromBracket, faRightToBracket, faShieldHalved, faSliders, faTrashCan, faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faCircleInfo, faFileContract, faHeadset, faHouse, faRightFromBracket, faRightToBracket, faShieldHalved, faSliders, faTrashCan, faTrophy } from '@fortawesome/free-solid-svg-icons';
 
 interface MenuProps {
   isOpen: boolean;
@@ -13,6 +13,7 @@ interface MenuProps {
   toggleSettings?: () => void;
   toggleProgress?: () => void;
   onPlay: () => void;
+  toggleAdmin?: () => void;
 }
 
 const Menu: React.FC<MenuProps> = ({
@@ -26,6 +27,7 @@ const Menu: React.FC<MenuProps> = ({
   toggleSettings,
   toggleProgress,
   onPlay,
+  toggleAdmin,
 }) => {
   const { userDetails } = useAuth();
 
@@ -86,6 +88,7 @@ const Menu: React.FC<MenuProps> = ({
                 <span className="mobile-menu-icon"><FontAwesomeIcon icon={faSliders} /></span><span><strong>Account</strong><small>Profile and security</small></span>
               </button>
             )}
+            {userDetails?.role === 'ADMIN' && toggleAdmin && <button onClick={() => { toggleAdmin(); onClose(); }} className="mobile-menu-item"><span className="mobile-menu-icon text-electricPink"><FontAwesomeIcon icon={faChartLine} /></span><span><strong>Admin</strong><small>Engagement dashboard</small></span></button>}
             <div className="mt-4 border-t border-gray-700 pt-4"><p className="mb-2 text-xs font-black uppercase tracking-widest text-gray-500">Support & legal</p><div className="grid grid-cols-2 gap-2">
               <a href="/support.html" className="mobile-menu-link"><FontAwesomeIcon icon={faHeadset} />Support</a>
               <a href="/privacy.html" className="mobile-menu-link"><FontAwesomeIcon icon={faShieldHalved} />Privacy</a>

@@ -11,6 +11,7 @@ import Settings from '../common/Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faRightToBracket, faSliders, faTrophy } from '@fortawesome/free-solid-svg-icons';
 import Progress from '../common/Progress';
+import AdminDashboard from '../admin/AdminDashboard';
 
 interface NavbarProps {
   onPlay?: () => void;
@@ -23,14 +24,15 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSuggestionsEnabled = true, onScoreSuggestionsChange, registrationRequest = 0 }) => {
   const [showAbout, setShowAbout] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const { isUserSignedIn, signOut } = useAuth();
+  const { isUserSignedIn, signOut, userDetails } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [leaderboardDisplay, setLeaderboardDisplay] = useState('closed');
   const [showSettings, setShowSettings] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
   const [currentForm, setCurrentForm] = useState('');
   const [initialAuthForm, setInitialAuthForm] = useState<'login' | 'signup'>('login');
-  const displayTitle = leaderboardDisplay !== 'closed' ? 'High Scores' : showProgress ? 'Progress' : showSettings || showAuthModal ? 'Account' : showAbout ? 'About' : pageTitle;
+  const displayTitle = showAdmin ? 'Admin' : leaderboardDisplay !== 'closed' ? 'High Scores' : showProgress ? 'Progress' : showSettings || showAuthModal ? 'Account' : showAbout ? 'About' : pageTitle;
 
   const toggleSettings = () => {
     setShowSettings(!showSettings);
@@ -57,7 +59,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
   }, [registrationRequest]);
 
   const showPlay = () => {
-    setShowAbout(false); setLeaderboardDisplay('closed'); setShowSettings(false); setShowProgress(false); setIsMenuOpen(false);
+    setShowAbout(false); setLeaderboardDisplay('closed'); setShowSettings(false); setShowProgress(false); setShowAdmin(false); setIsMenuOpen(false);
     onPlay?.();
     window.requestAnimationFrame(() => document.getElementById('play')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   };
@@ -140,6 +142,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
             <button onClick={showPlay} className="desktop-nav-button">Games</button>
             <button onClick={toggleLeaderboard} className={`desktop-nav-button ${leaderboardDisplay === 'allScores' ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} />Scores</button>
             {isUserSignedIn ? <button onClick={toggleSettings} className={`desktop-nav-button desktop-nav-account ${showSettings ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} />Account</button> : <button onClick={() => openAuth('login')} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} />Sign in</button>}
+            {userDetails?.role === 'ADMIN' && <button onClick={() => setShowAdmin(true)} className={`desktop-nav-button ${showAdmin ? 'desktop-nav-active' : ''}`}>Admin</button>}
           </div>
 
           <div>
@@ -201,6 +204,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
         toggleLeaderboard={toggleLeaderboard}
         toggleSettings={toggleSettings}
         toggleProgress={() => setShowProgress(true)}
+        toggleAdmin={() => setShowAdmin(true)}
         onPlay={showPlay}
       />
 
@@ -211,6 +215,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSu
         </div>
       )}
       {showProgress && <Progress onClose={() => setShowProgress(false)} onCreateAccount={() => { setShowProgress(false); openAuth('signup'); }} />}
+      {showAdmin && userDetails?.role === 'ADMIN' && <AdminDashboard onClose={() => setShowAdmin(false)} />}
     </>
   );
 };
