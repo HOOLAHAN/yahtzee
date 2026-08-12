@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDice, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import DiceFace from './DiceFace';
+import { DiceAnimation, diceAnimationDuration } from '../../lib/diceAnimation';
 
 const MIN_DICE = 1;
 const MAX_DICE = 2;
 
-export default function VirtualDice() {
+export default function VirtualDice({ diceAnimation = 'tumble' }: { diceAnimation?: DiceAnimation }) {
   const [diceCount, setDiceCount] = useState(1);
   const [dice, setDice] = useState<number[]>([1]);
   const [rolling, setRolling] = useState(false);
@@ -26,7 +27,7 @@ export default function VirtualDice() {
     setDice(Array.from({ length: diceCount }, () => Math.floor(Math.random() * 6) + 1));
     setRollSequence((value) => value + 1);
     setRolling(true);
-    timer.current = setTimeout(() => setRolling(false), 700);
+    timer.current = setTimeout(() => setRolling(false), diceAnimationDuration[diceAnimation]);
   };
 
   return (
@@ -40,7 +41,7 @@ export default function VirtualDice() {
         <button type="button" onClick={() => changeCount(1)} disabled={diceCount === MAX_DICE} aria-label="Add a die"><FontAwesomeIcon icon={faPlus} /></button>
       </div>
       <div className="virtual-dice-tray" aria-live="polite">
-        {dice.map((value, index) => <DiceFace key={`${rollSequence}-${index}`} value={value} canHold={false} onToggleHold={() => undefined} isHeld={false} shake={rolling} rollIndex={index} className="game-die" />)}
+        {dice.map((value, index) => <DiceFace key={`${rollSequence}-${index}`} value={value} canHold={false} onToggleHold={() => undefined} isHeld={false} shake={rolling} rollIndex={index} animation={diceAnimation} className="game-die" />)}
       </div>
       <button type="button" className="primary-action virtual-roll-action" onClick={roll}><FontAwesomeIcon icon={faDice} /> Roll {diceCount === 1 ? 'die' : `${diceCount} dice`}</button>
     </section>

@@ -21,6 +21,7 @@ import { dailyDiceForThrow, localDateKey } from '../../lib/dailyChallenge';
 import { createGameResult, DailyRoundStanding, fetchDailyResults, resultMetrics, submitDailyRoundProgress } from '../../services/gameResults';
 import { saveLeaderboardScore } from '../../services/scores';
 import { useOptionalLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
+import { DiceAnimation } from '../../lib/diceAnimation';
 
 interface GameProps {
   initialDice?: number[];
@@ -32,6 +33,7 @@ interface GameProps {
   scoreSuggestionsEnabled?: boolean;
   onOpenSettings?: () => void;
   onCreateAccount?: () => void;
+  diceAnimation?: DiceAnimation;
 }
 
 const defaultDice = [1, 1, 1, 1, 1];
@@ -88,7 +90,7 @@ const computerCategoryValue = (category: Category, computerDice: number[], entri
 };
 const chooseComputerCategory = (computerDice: number[], used: Set<string>, entries: ScoreEntry[]) => computerCategories.filter((category) => !used.has(category)).reduce((best, category) => computerCategoryValue(category, computerDice, entries) > computerCategoryValue(best, computerDice, entries) ? category : best);
 
-const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false, isDailyChallenge = false, scoreSuggestionsEnabled = true, onOpenSettings, onCreateAccount }) => {
+const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false, isDailyChallenge = false, scoreSuggestionsEnabled = true, onOpenSettings, onCreateAccount, diceAnimation = 'tumble' }) => {
   const [dice, setDice] = useState(initialDice);
   const [heldDice, setHeldDice] = useState(new Set<number>());
   const [currentScore, setCurrentScore] = useState(0);
@@ -364,8 +366,9 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
         hasRolled={hasRolled}
         shouldShake={shouldShake}
         dieSize={dieSize}
+        animation={diceAnimation}
         usedCategoriesSize={getUsedCategories().size}
-        onRollDice={() => { if (computerThinking || shouldShake) return; const rollValues = isDailyChallenge ? dailyDiceForThrow(dailyDate, dailyThrowIndex) : undefined; if (isDailyChallenge) setDailyThrowIndex((index) => index + 1); handleRollDice(rollsLeft, dice, heldDice, setShouldShake, setHasRolled, setDice, setRollsLeft, setCurrentScore, rollValues); }}
+        onRollDice={() => { if (computerThinking || shouldShake) return; const rollValues = isDailyChallenge ? dailyDiceForThrow(dailyDate, dailyThrowIndex) : undefined; if (isDailyChallenge) setDailyThrowIndex((index) => index + 1); handleRollDice(rollsLeft, dice, heldDice, setShouldShake, setHasRolled, setDice, setRollsLeft, setCurrentScore, rollValues, diceAnimation); }}
       />
       <ScoreDisplay
         currentScore={calculateMaximumScore(dice, hasRolled, getUsedCategories())}

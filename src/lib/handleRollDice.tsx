@@ -1,5 +1,6 @@
 // Assuming the corrected import paths and function signature
 import { rollDice } from './diceLogic'; // Make sure this path is correct
+import { DiceAnimation, diceAnimationDuration } from './diceAnimation';
 
 export const handleRollDice = (
   rollsLeft: number,
@@ -11,12 +12,14 @@ export const handleRollDice = (
   setRollsLeft: React.Dispatch<React.SetStateAction<number>>,
   setCurrentScore: React.Dispatch<React.SetStateAction<number>>,
   rollValues?: number[],
+  animation: DiceAnimation = 'tumble',
 ) => {
   if (rollsLeft > 0) {
+    const duration = diceAnimationDuration[animation];
     setShouldShake(true);
     setTimeout(() => {
-      setShouldShake(false);
       rollDice(rollsLeft, dice, heldDice, setHasRolled, setDice, setRollsLeft, setCurrentScore, rollValues);
-    }, 900);
+    }, Math.max(120, duration - 150));
+    setTimeout(() => setShouldShake(false), duration);
   }
 };

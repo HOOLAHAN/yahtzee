@@ -1,6 +1,7 @@
 import React from 'react';
 import DiceFace from './DiceFace';
 import { FontAwesomeSize } from '../../lib/types';
+import { DiceAnimation } from '../../lib/diceAnimation';
 
 interface DiceDisplayProps {
   dice: number[];
@@ -10,6 +11,7 @@ interface DiceDisplayProps {
   hasRolled: boolean;
   shouldShake: boolean;
   dieSize: string;
+  animation?: DiceAnimation;
 }
 
 const DiceDisplay: React.FC<DiceDisplayProps> = ({
@@ -20,6 +22,7 @@ const DiceDisplay: React.FC<DiceDisplayProps> = ({
   hasRolled,
   shouldShake,
   dieSize,
+  animation,
 }) => {
   return (
     <div className="web-dice-row">
@@ -33,6 +36,7 @@ const DiceDisplay: React.FC<DiceDisplayProps> = ({
           className="game-die"
           shake={shouldShake}
           rollIndex={index}
+          animation={animation}
           size={dieSize as FontAwesomeSize}
         />
       ))}

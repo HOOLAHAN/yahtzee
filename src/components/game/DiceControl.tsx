@@ -3,6 +3,7 @@
 import React from 'react';
 import DiceDisplay from './DiceDisplay';
 import RollDiceButton from './RollDiceButton';
+import { DiceAnimation } from '../../lib/diceAnimation';
 
 interface DiceControlProps {
   dice: number[];
@@ -14,6 +15,7 @@ interface DiceControlProps {
   dieSize: string;
   usedCategoriesSize: number;
   onRollDice: () => void;
+  animation?: DiceAnimation;
 }
 
 const DiceControl: React.FC<DiceControlProps> = ({
@@ -26,6 +28,7 @@ const DiceControl: React.FC<DiceControlProps> = ({
   dieSize,
   usedCategoriesSize,
   onRollDice,
+  animation,
 }) => {
   return (
     <div className="web-dice-control">
@@ -37,6 +40,7 @@ const DiceControl: React.FC<DiceControlProps> = ({
         hasRolled={hasRolled}
         shouldShake={shouldShake}
         dieSize={dieSize}
+        animation={animation}
       />
       <h2
         className={`web-roll-helper my-3 font-black text-xs uppercase tracking-widest transition-opacity duration-200 ${
