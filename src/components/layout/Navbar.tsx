@@ -1,223 +1,49 @@
-// Navbar.tsx
-
-import { useState, useEffect } from 'react';
-import About from '../common/About';
+import { useEffect, useRef, useState } from 'react';
 import '../../styles/tailwind.css';
 import AuthenticationManager from '../auth/AuthenticationManager';
 import { useAuth } from '../../context/AuthContext';
-import Leaderboard from '../common/Leaderboard';
-import Menu from './Menu';
-import Settings from '../common/Settings';
+import Menu, { SitePage } from './Menu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faRightToBracket, faSliders, faTrophy } from '@fortawesome/free-solid-svg-icons';
-import Progress from '../common/Progress';
-import AdminDashboard from '../admin/AdminDashboard';
+import { faBars, faChevronDown, faRightToBracket, faSliders, faTrophy } from '@fortawesome/free-solid-svg-icons';
 
 interface NavbarProps {
-  onPlay?: () => void;
+  activePage: SitePage;
   pageTitle?: string;
-  scoreSuggestionsEnabled?: boolean;
-  onScoreSuggestionsChange?: (enabled: boolean) => void;
+  onNavigate: (page: SitePage) => void;
   registrationRequest?: number;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onPlay, pageTitle = 'Yahtzee!', scoreSuggestionsEnabled = true, onScoreSuggestionsChange, registrationRequest = 0 }) => {
-  const [showAbout, setShowAbout] = useState(false);
+const Navbar: React.FC<NavbarProps> = ({ activePage, pageTitle = 'Yahtzee!', onNavigate, registrationRequest = 0 }) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const { isUserSignedIn, signOut, userDetails } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [leaderboardDisplay, setLeaderboardDisplay] = useState('closed');
-  const [showSettings, setShowSettings] = useState(false);
-  const [showProgress, setShowProgress] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<'play' | 'player' | 'account' | null>(null);
   const [currentForm, setCurrentForm] = useState('');
   const [initialAuthForm, setInitialAuthForm] = useState<'login' | 'signup'>('login');
-  const displayTitle = showAdmin ? 'Admin' : leaderboardDisplay !== 'closed' ? 'High Scores' : showProgress ? 'Progress' : showSettings || showAuthModal ? 'Account' : showAbout ? 'About' : pageTitle;
+  const navRef = useRef<HTMLElement>(null);
+  const { isUserSignedIn, signOut, userDetails } = useAuth();
+  const titles: Record<SitePage, string> = { play: pageTitle, scores: 'High Scores', progress: 'Progress', account: 'Account', about: 'About', admin: 'Admin' };
+  const go = (page: SitePage) => { setOpenDropdown(null); setIsMenuOpen(false); onNavigate(page); };
+  const openAuth = (form: 'login' | 'signup' = 'login') => { setInitialAuthForm(form); setShowAuthModal(true); setOpenDropdown(null); };
 
-  const toggleSettings = () => {
-    setShowSettings(!showSettings);
-    setIsMenuOpen(false);
-  };
-  
-  const toggleAbout = () => {
-    setShowAbout(!showAbout);
-    setIsMenuOpen(false);
-  };
+  useEffect(() => { if (registrationRequest) openAuth('signup'); }, [registrationRequest]);
+  useEffect(() => { const close = (event: MouseEvent) => { if (navRef.current && !navRef.current.contains(event.target as Node)) setOpenDropdown(null); }; document.addEventListener('mousedown', close); return () => document.removeEventListener('mousedown', close); }, []);
+  useEffect(() => { document.body.style.overflow = isMenuOpen || showAuthModal ? 'hidden' : ''; return () => { document.body.style.overflow = ''; }; }, [isMenuOpen, showAuthModal]);
+  const handleCloseModal = (event: React.MouseEvent<HTMLDivElement>) => { if (event.target === event.currentTarget && currentForm !== 'verifyEmail') setShowAuthModal(false); };
 
-  const toggleAuthModal = () => setShowAuthModal(!showAuthModal);
-  const openAuth = (form: 'login' | 'signup' = 'login') => {
-    setInitialAuthForm(form);
-    setShowAuthModal(true);
-  };
-
-  useEffect(() => {
-    if (!registrationRequest) return;
-    setLeaderboardDisplay('closed');
-    setShowProgress(false);
-    setShowSettings(false);
-    openAuth('signup');
-  }, [registrationRequest]);
-
-  const showPlay = () => {
-    setShowAbout(false); setLeaderboardDisplay('closed'); setShowSettings(false); setShowProgress(false); setShowAdmin(false); setIsMenuOpen(false);
-    onPlay?.();
-    window.requestAnimationFrame(() => document.getElementById('play')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-  };
-
-  const toggleLeaderboard = () => {
-    setLeaderboardDisplay(prevState =>
-      prevState === 'allScores' ? 'closed' : 'allScores'
-    );
-    setIsMenuOpen(false);
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.log('error signing out:', error);
-    }
-  };
-
-  // Function to handle outside click
-  const handleCloseModal = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget && currentForm !== 'verifyEmail') {
-      toggleAuthModal();
-    }
-  };
-
-  // Handle outside click for About, Leaderboard, and Settings
-  useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      const menuElement = document.getElementById('menu');
-      const aboutElement = document.getElementById('about-drawer');
-      const leaderboardElement = document.getElementById('leaderboard-drawer');
-      const settingsElement = document.getElementById('settings-drawer');
-      
-      if (menuElement && !menuElement.contains(event.target as Node)) {
-        setIsMenuOpen(false);
-      }
-      if (aboutElement && !aboutElement.contains(event.target as Node)) {
-        setShowAbout(false);
-      }
-      if (leaderboardElement && !leaderboardElement.contains(event.target as Node)) {
-        setLeaderboardDisplay('closed');
-      }
-      if (settingsElement && !settingsElement.contains(event.target as Node)) {
-        setShowSettings(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [isMenuOpen, showAbout, leaderboardDisplay, showSettings]);
-
-  useEffect(() => {
-    const drawerOpen = isMenuOpen || showAbout || leaderboardDisplay !== 'closed' || showSettings || showProgress;
-    if (drawerOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = '';
-    return () => { document.body.style.overflow = ''; };
-  }, [isMenuOpen, leaderboardDisplay, showAbout, showProgress, showSettings]);
-    
-  return (
-    <>
-      <nav className="sticky top-0 z-30 border-b-2 border-neonCyan bg-deepBlack/95 px-4 py-3 text-white shadow-lg backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
-          <button onClick={showPlay} className="flex min-w-0 items-center gap-3 text-left">
-          <div className="h-14 w-14 transform transition duration-200 ease-in-out lg:h-16 lg:w-16">
-            <img
-              src={`${process.env.PUBLIC_URL}/yahtzee_dice_logo.png`} 
-              alt="Yahtzee Dice Logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div className="min-w-0">
-            <h1 className="max-w-[11rem] truncate text-xl font-black text-neonYellow animate-pulse-glow sm:max-w-xs sm:text-2xl lg:text-3xl">
-              {displayTitle}
-            </h1>
-          </div>
-          </button>
-
-          <div className="ml-auto hidden items-center gap-1 sm:flex" aria-label="Primary navigation">
-            <button onClick={showPlay} className="desktop-nav-button">Games</button>
-            <button onClick={toggleLeaderboard} className={`desktop-nav-button ${leaderboardDisplay === 'allScores' ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} />Scores</button>
-            {isUserSignedIn ? <button onClick={toggleSettings} className={`desktop-nav-button desktop-nav-account ${showSettings ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} />Account</button> : <button onClick={() => openAuth('login')} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} />Sign in</button>}
-            {userDetails?.role === 'ADMIN' && <button onClick={() => setShowAdmin(true)} className={`desktop-nav-button ${showAdmin ? 'desktop-nav-active' : ''}`}>Admin</button>}
-          </div>
-
-          <div>
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex h-9 items-center gap-2 rounded-full bg-neonCyan px-3 font-black text-deepBlack transition hover:scale-105 hover:bg-electricPink hover:text-white focus:ring focus:ring-electricPink sm:h-10"
-              aria-label="More navigation options"
-              aria-expanded={isMenuOpen}
-            >
-              <FontAwesomeIcon icon={faBars} className="text-sm" />
-              <span className="hidden lg:inline">More</span>
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* About Drawer */}
-      {showAbout && (
-        <div id="about-drawer">
-          <About onClose={toggleAbout} />
-        </div>
-      )}
-
-      {/* Leaderboard Drawer */}
-      {leaderboardDisplay !== 'closed' && (
-        <div className="fixed inset-0 z-40 bg-black/75 backdrop-blur-sm" onClick={() => setLeaderboardDisplay('closed')}>
-        <aside id="leaderboard-drawer" role="dialog" aria-modal="true" aria-labelledby="scores-title" className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto border-l border-neonCyan bg-deepBlack p-5 shadow-2xl sm:p-7" onClick={(event) => event.stopPropagation()}>
-          <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Shared leaderboard</p><h2 id="scores-title" className="section-heading">High Scores</h2></div><button onClick={() => setLeaderboardDisplay('closed')} aria-label="Close scores" className="text-4xl text-neonCyan hover:text-electricPink">&times;</button></div>
-          {!isUserSignedIn && <div className="mb-5 rounded-xl border border-[#315a5e] bg-[#142225] p-4 text-sm text-mintGlow"><strong className="block text-base text-neonYellow">Keep your scores and join the rankings</strong><p className="mt-1">Create a free player profile to save games, unlock your personal leaderboard and sync across devices.</p><button onClick={() => { setLeaderboardDisplay('closed'); openAuth('signup'); }} className="mt-3 font-black text-neonCyan hover:text-electricPink">Create player profile →</button></div>}
-          <Leaderboard showUserScores={leaderboardDisplay === 'userScores'} onShowUserScoresChange={(mine) => setLeaderboardDisplay(mine ? 'userScores' : 'allScores')} canShowUserScores={isUserSignedIn} hideHeading />
-        </aside>
-        </div>
-      )}
-
-      {/* Authentication Modal */}
-      {showAuthModal && (
-        <div           
-          id="modal-overlay"
-          className="absolute top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-          onClick={handleCloseModal}
-        >
-          <div className="relative p-4 rounded-lg w-full sm:w-[410px] max-w-full" onClick={(e) => e.stopPropagation()}>
-            <AuthenticationManager initialForm={initialAuthForm} onClose={toggleAuthModal} onFormChange={setCurrentForm} />
-            <button onClick={toggleAuthModal} className="absolute top-2 right-3 mt-4 mr-4 text-gray-600 hover:text-gray-900">
-              &times;
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Menu Component */}
-      <Menu
-        isOpen={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        toggleAbout={toggleAbout}
-        toggleAuthModal={toggleAuthModal}
-        isUserSignedIn={isUserSignedIn}
-        handleSignOut={handleSignOut}
-        toggleLeaderboard={toggleLeaderboard}
-        toggleSettings={toggleSettings}
-        toggleProgress={() => setShowProgress(true)}
-        toggleAdmin={() => setShowAdmin(true)}
-        onPlay={showPlay}
-      />
-
-      {/* Settings Component */}
-      {showSettings && (
-        <div id="settings-drawer">
-          <Settings onClose={toggleSettings} scoreSuggestionsEnabled={scoreSuggestionsEnabled} onScoreSuggestionsChange={onScoreSuggestionsChange} />
-        </div>
-      )}
-      {showProgress && <Progress onClose={() => setShowProgress(false)} onCreateAccount={() => { setShowProgress(false); openAuth('signup'); }} />}
-      {showAdmin && userDetails?.role === 'ADMIN' && <AdminDashboard onClose={() => setShowAdmin(false)} />}
-    </>
-  );
+  return <>
+    <nav ref={navRef} className="sticky top-0 z-30 border-b-2 border-neonCyan bg-deepBlack/95 px-4 py-3 text-white shadow-lg backdrop-blur"><div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
+      <button onClick={() => go('play')} className="flex min-w-0 items-center gap-3 text-left"><div className="h-14 w-14 lg:h-16 lg:w-16"><img src={`${process.env.PUBLIC_URL}/yahtzee_dice_logo.png`} alt="Yahtzee Dice Logo" className="h-full w-full object-contain" /></div><h1 className="max-w-[11rem] truncate text-xl font-black text-neonYellow animate-pulse-glow sm:max-w-xs sm:text-2xl lg:text-3xl">{titles[activePage]}</h1></button>
+      <div className="ml-auto hidden items-center gap-1 md:flex" aria-label="Primary navigation">
+        <div className="desktop-nav-dropdown"><button onClick={() => setOpenDropdown(openDropdown === 'play' ? null : 'play')} className={`desktop-nav-button ${activePage === 'play' ? 'desktop-nav-active' : ''}`}>Play <FontAwesomeIcon icon={faChevronDown} /></button>{openDropdown === 'play' && <div className="desktop-dropdown-panel"><button onClick={() => go('play')}>Choose a game<small>Solo, Daily, Computer or Pass & Play</small></button><button onClick={() => go('play')}>Dice tools<small>Virtual dice and physical scorecard</small></button></div>}</div>
+        <div className="desktop-nav-dropdown"><button onClick={() => setOpenDropdown(openDropdown === 'player' ? null : 'player')} className={`desktop-nav-button ${activePage === 'scores' || activePage === 'progress' ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faTrophy} /> Player <FontAwesomeIcon icon={faChevronDown} /></button>{openDropdown === 'player' && <div className="desktop-dropdown-panel"><button onClick={() => go('scores')}>High Scores<small>Solo and Daily leaderboards</small></button><button onClick={() => go('progress')}>Progress<small>Stats, streaks and achievements</small></button></div>}</div>
+        <button onClick={() => go('about')} className={`desktop-nav-button ${activePage === 'about' ? 'desktop-nav-active' : ''}`}>About</button>
+        {isUserSignedIn ? <div className="desktop-nav-dropdown"><button onClick={() => setOpenDropdown(openDropdown === 'account' ? null : 'account')} className={`desktop-nav-button desktop-nav-account ${activePage === 'account' || activePage === 'admin' ? 'desktop-nav-active' : ''}`}><FontAwesomeIcon icon={faSliders} /> Account <FontAwesomeIcon icon={faChevronDown} /></button>{openDropdown === 'account' && <div className="desktop-dropdown-panel desktop-dropdown-right"><button onClick={() => go('account')}>Account settings<small>Profile, preferences and security</small></button>{userDetails?.role === 'ADMIN' && <button onClick={() => go('admin')}>Admin dashboard<small>Users, games and engagement</small></button>}<button onClick={() => void signOut()} className="desktop-dropdown-danger">Sign out</button></div>}</div> : <button onClick={() => openAuth('login')} className="desktop-nav-button desktop-nav-account"><FontAwesomeIcon icon={faRightToBracket} /> Sign in</button>}
+      </div>
+      <button onClick={() => setIsMenuOpen(true)} className="flex h-10 items-center gap-2 rounded-full bg-neonCyan px-3 font-black text-deepBlack transition hover:bg-electricPink hover:text-white md:hidden" aria-label="Open navigation"><FontAwesomeIcon icon={faBars} /><span>Menu</span></button>
+    </div></nav>
+    {showAuthModal && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={handleCloseModal}><div className="relative w-full max-w-[410px] rounded-lg" onClick={(event) => event.stopPropagation()}><AuthenticationManager initialForm={initialAuthForm} onClose={() => setShowAuthModal(false)} onFormChange={setCurrentForm} /><button onClick={() => setShowAuthModal(false)} className="absolute right-3 top-2 text-3xl text-neonCyan">&times;</button></div></div>}
+    <Menu isOpen={isMenuOpen} activePage={activePage} onClose={() => setIsMenuOpen(false)} onNavigate={go} onSignIn={() => openAuth('login')} onSignOut={() => void signOut()} />
+  </>;
 };
 
 export default Navbar;

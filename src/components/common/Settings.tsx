@@ -5,12 +5,13 @@ import { useAuth } from '../../context/AuthContext';
 import { getMyProfile, updateMyPreferences, updateMyProfile } from '../../services/profiles';
 
 interface SettingsProps {
-  onClose: () => void;
+  onClose?: () => void;
+  embedded?: boolean;
   scoreSuggestionsEnabled?: boolean;
   onScoreSuggestionsChange?: (enabled: boolean) => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = true, onScoreSuggestionsChange }) => {
+const Settings: React.FC<SettingsProps> = ({ onClose, embedded = false, scoreSuggestionsEnabled = true, onScoreSuggestionsChange }) => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmationCode, setConfirmationCode] = useState('');
@@ -73,7 +74,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
 
   const handleDeleteAccount = async () => {
     await deleteUser();
-    onClose();
+    onClose?.();
   };
 
   const handleRequestResetPassword = async () => {
@@ -92,7 +93,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
     try {
       await confirmUserPasswordReset(userDetails.email, confirmationCode, newPassword);
       alert('Password has been reset successfully');
-      onClose();
+      onClose?.();
     } catch (error) {
       console.error('Error resetting password:', error);
       alert('Failed to reset password');
@@ -100,15 +101,15 @@ const Settings: React.FC<SettingsProps> = ({ onClose, scoreSuggestionsEnabled = 
   };
 
   return (
-    <div className="fixed right-0 top-0 z-50 h-full w-full max-w-lg overflow-y-auto border-l border-neonCyan bg-deepBlack text-mintGlow shadow-2xl">
-      <div className="relative space-y-5 p-5 sm:p-7">
-        <button
+    <div className={embedded ? "site-page-content max-w-4xl" : "fixed right-0 top-0 z-50 h-full w-full max-w-lg overflow-y-auto border-l border-neonCyan bg-deepBlack text-mintGlow shadow-2xl"}>
+      <div className={embedded ? "relative space-y-5" : "relative space-y-5 p-5 sm:p-7"}>
+        {onClose && <button
           onClick={onClose}
           className="absolute top-0 right-0 mt-4 mr-4 text-3xl text-neonCyan hover:text-electricPink"
           aria-label="Close settings"
         >
           &times;
-        </button>
+        </button>}
 
         <div><p className="eyebrow">Your space</p><h2 className="section-heading">Account</h2><p className="mt-1 text-sm text-gray-400">Manage your profile, gameplay preferences and security.</p></div>
 

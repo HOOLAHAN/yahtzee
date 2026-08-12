@@ -5,23 +5,23 @@ import { recordSharedApp } from '../../lib/achievements';
 
 const appStoreUrl = 'https://apps.apple.com/gb/app/yahtzee-hub/id6794910138';
 
-interface AboutProps { onClose: () => void }
+interface AboutProps { onClose?: () => void; embedded?: boolean }
 
 const modes = [
   { name: 'Solo', icon: faDice, copy: 'Play all 13 rounds, submit your final score and climb the shared leaderboard.' },
   { name: 'Vs Computer', icon: faComputer, copy: 'Battle an automated opponent that rolls and makes logical category choices.' },
   { name: 'Pass & Play', icon: faPeopleGroup, copy: 'Take turns on one screen with independent scores and scorecards.' },
-  { name: 'Real Dice', icon: faCalculator, copy: 'Keep score for up to six named players while using physical dice.' },
+  { name: 'Real Dice', icon: faCalculator, copy: 'Keep score for up to ten named players while using physical dice.' },
 ];
 
-const About: React.FC<AboutProps> = ({ onClose }) => {
+const About: React.FC<AboutProps> = ({ onClose, embedded = false }) => {
   const shareApp = async () => {
     const data = { title: 'Yahtzee Hub', text: 'Play Yahtzee Hub with me — digital dice, scorecards, daily challenges and leaderboards.', url: appStoreUrl };
     if (navigator.share) { await navigator.share(data); recordSharedApp(); return; }
     await navigator.clipboard.writeText(appStoreUrl); recordSharedApp(); alert('App link copied!');
   };
-  return <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-xl overflow-y-auto border-l border-neonCyan bg-deepBlack p-6 text-mintGlow shadow-2xl">
-  <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Web and mobile</p><h2 className="section-heading">About Yahtzee</h2></div><button onClick={onClose} aria-label="Close about" className="text-4xl text-neonCyan hover:text-electricPink">&times;</button></div>
+  return <aside className={embedded ? "site-page-content" : "fixed right-0 top-0 z-50 h-full w-full max-w-xl overflow-y-auto border-l border-neonCyan bg-deepBlack p-6 text-mintGlow shadow-2xl"}>
+  <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Web and mobile</p><h2 className="section-heading">About Yahtzee</h2></div>{onClose && <button onClick={onClose} aria-label="Close about" className="text-4xl text-neonCyan hover:text-electricPink">&times;</button>}</div>
   <p className="section-copy">One shared account and leaderboard, with four ways to play at home or on the move.</p>
   <section className="app-download-card"><div><p className="eyebrow">Play on mobile</p><h3>Take Yahtzee Hub with you</h3><p>Scan the code or open the App Store directly. Available on iPhone and iPad today, with Android planned.</p><a href={appStoreUrl} target="_blank" rel="noreferrer">View on the App Store →</a><button type="button" onClick={() => void shareApp()} className="ml-4 text-electricPink font-black"><FontAwesomeIcon icon={faShareNodes} className="mr-2" />Share app</button></div><a href={appStoreUrl} target="_blank" rel="noreferrer" aria-label="Scan or open Yahtzee Hub on the App Store" className="app-qr"><QRCodeSVG value={appStoreUrl} size={116} bgColor="#ffffff" fgColor="#071012" level="M" marginSize={1} /></a></section>
   <section className="web-panel p-4 mb-3 border-neonYellow"><h3 className="text-neonYellow font-black">Daily Challenge</h3><p className="mt-2 text-sm leading-6">Everyone receives the same candidate dice for each numbered roll. Your holds and scoring decisions determine your result, Daily leaderboard position and streak.</p></section>

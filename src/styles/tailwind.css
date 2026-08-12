@@ -987,5 +987,12 @@ html, body, #root {
 .site-footer nav { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; color: #08d9df; font-weight: 800; }
 .site-footer a:hover { color: #ff00c8; }
 .site-footer p { font-size: .72rem; line-height: 1.5; }
+.site-page-content{width:min(100% - 2rem,72rem);margin:0 auto;padding:2.25rem 0 4rem;color:#bafce9}
+.desktop-nav-dropdown{position:relative}
+.desktop-nav-button svg:last-child:not(:first-child){font-size:.55rem}
+.desktop-dropdown-panel{position:absolute;left:0;top:calc(100% + .65rem);width:19rem;padding:.45rem;border:1px solid #315a5e;border-radius:1rem;background:#0d1416;box-shadow:0 20px 55px rgba(0,0,0,.6)}
+.desktop-dropdown-right{left:auto;right:0}
+.desktop-dropdown-panel:before{content:"";position:absolute;left:1.25rem;top:-.38rem;width:.7rem;height:.7rem;transform:rotate(45deg);border-left:1px solid #315a5e;border-top:1px solid #315a5e;background:#0d1416}.desktop-dropdown-right:before{left:auto;right:1.25rem}
+.desktop-dropdown-panel button{display:block;width:100%;padding:.75rem .85rem;border-radius:.7rem;color:#bafce9;text-align:left;font-size:.8rem;font-weight:900}.desktop-dropdown-panel button:hover{background:#192729;color:#08d9df}.desktop-dropdown-panel small{display:block;margin-top:.2rem;color:#748287;font-size:.62rem;font-weight:700;line-height:1.4}.desktop-dropdown-panel .desktop-dropdown-danger{border-top:1px solid #273538;border-radius:0;color:#ff7180;margin-top:.25rem}
 @media (max-width: 940px){.play-picker{grid-template-columns:1fr}.dice-tools{margin-top:.3rem}.dice-tool-tabs{grid-template-columns:repeat(2,1fr)}.dice-tool-tab{min-width:0}}
 @media (max-width: 640px){.game-chooser{margin:1.25rem auto;padding:0 1rem 2rem}.game-mode-tabs,.dice-tool-tabs{grid-template-columns:1fr}.game-choice-card{min-height:0}.dice-tool-tab{min-height:4.5rem}.virtual-dice-tray{padding:1rem .5rem}.site-footer{padding-bottom:2rem}}
