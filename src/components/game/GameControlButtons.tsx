@@ -7,6 +7,8 @@ interface GameControlButtonsProps {
   isTwoPlayer: boolean; 
   gameComplete?: boolean;
   saveStatus?: 'idle' | 'saving' | 'saved' | 'error';
+  showAccountPrompt?: boolean;
+  onCreateAccount?: () => void;
 }
 
 const GameControlButtons: React.FC<GameControlButtonsProps> = ({
@@ -14,6 +16,8 @@ const GameControlButtons: React.FC<GameControlButtonsProps> = ({
   isTwoPlayer,
   gameComplete = false,
   saveStatus = 'idle',
+  showAccountPrompt = false,
+  onCreateAccount,
 }) => {
   return (
     <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-6 mb-10">
@@ -32,6 +36,13 @@ const GameControlButtons: React.FC<GameControlButtonsProps> = ({
         <p className={`w-full text-center text-sm font-bold ${saveStatus === 'error' ? 'text-red-400' : 'text-mintGlow'}`} aria-live="polite">
           {saveStatus === 'saving' ? 'Saving score…' : saveStatus === 'saved' ? 'Score saved automatically' : 'Score could not be saved — retrying…'}
         </p>
+      )}
+      {showAccountPrompt && (
+        <div className="web-panel w-full max-w-xl p-5 text-center">
+          <strong className="block text-xl text-neonYellow">Keep this result</strong>
+          <p className="mt-1 text-sm text-mintGlow">Create a free player profile and this finished game will be saved automatically.</p>
+          <button type="button" onClick={onCreateAccount} className="mt-4 rounded-xl bg-neonCyan px-5 py-3 font-black text-deepBlack transition hover:bg-neonYellow">Create player profile</button>
+        </div>
       )}
     </div>
   );

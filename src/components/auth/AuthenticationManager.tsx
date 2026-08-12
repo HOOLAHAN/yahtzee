@@ -10,7 +10,7 @@ interface AuthenticationManagerProps {
 
 const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChange?: (form: string) => void }> = ({ onClose, onFormChange, initialForm = 'login' }) => {
   const [userEmail, setUserEmail] = useState('');
-  const [currentForm, setCurrentForm] = useState(initialForm);
+  const [currentForm, setCurrentForm] = useState<'login' | 'signup' | 'verifyEmail'>(initialForm);
 
   const handleSignUpSuccess = (email: string) => {
     setUserEmail(email);

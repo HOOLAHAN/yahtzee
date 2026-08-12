@@ -31,6 +31,7 @@ interface GameProps {
   isDailyChallenge?: boolean;
   scoreSuggestionsEnabled?: boolean;
   onOpenSettings?: () => void;
+  onCreateAccount?: () => void;
 }
 
 const defaultDice = [1, 1, 1, 1, 1];
@@ -87,7 +88,7 @@ const computerCategoryValue = (category: Category, computerDice: number[], entri
 };
 const chooseComputerCategory = (computerDice: number[], used: Set<string>, entries: ScoreEntry[]) => computerCategories.filter((category) => !used.has(category)).reduce((best, category) => computerCategoryValue(category, computerDice, entries) > computerCategoryValue(best, computerDice, entries) ? category : best);
 
-const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false, isDailyChallenge = false, scoreSuggestionsEnabled = true, onOpenSettings }) => {
+const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, setIsTwoPlayer, testOverrideDice, isComputerOpponent = false, isDailyChallenge = false, scoreSuggestionsEnabled = true, onOpenSettings, onCreateAccount }) => {
   const [dice, setDice] = useState(initialDice);
   const [heldDice, setHeldDice] = useState(new Set<number>());
   const [currentScore, setCurrentScore] = useState(0);
@@ -478,6 +479,8 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
           isTwoPlayer={isTwoPlayer}
           gameComplete={gameComplete}
           saveStatus={!isDailyChallenge && isUserSignedIn && (!isTwoPlayer || isComputerOpponent) ? scoreSaveStatus : 'idle'}
+          showAccountPrompt={gameComplete && !isUserSignedIn && (!isTwoPlayer || isComputerOpponent)}
+          onCreateAccount={onCreateAccount}
         />
       )}
     </div>

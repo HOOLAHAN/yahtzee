@@ -17,6 +17,7 @@ const App = () => {
   const [showGameChooser, setShowGameChooser] = useState(true);
   const [resetGameKey, setResetGameKey] = useState(0);
   const [scoreSuggestionsEnabled, setScoreSuggestionsEnabled] = useState(() => localStorage.getItem('yahtzee.score-suggestions.v1') !== 'false');
+  const [registrationRequest, setRegistrationRequest] = useState(0);
   const gameModes = [
     { value: 'solo' as GameMode, label: 'Solo', description: 'Play a classic game at your own pace and submit your final score.', icon: faDice },
     { value: 'daily' as GameMode, label: 'Daily Challenge', description: 'Play today’s fixed roll sequence and compare your score. Everyone receives the same candidate dice on each numbered roll, but your holds and category choices are your own.', icon: faDice },
@@ -38,7 +39,7 @@ const App = () => {
     <LeaderboardRefreshProvider>
       <AuthProvider>
         <div className="App min-h-screen bg-deepBlack text-mintGlow font-mono">
-          <Navbar pageTitle={showGameChooser ? 'Yahtzee!' : pageTitle[mode]} onPlay={() => setShowGameChooser(true)} scoreSuggestionsEnabled={scoreSuggestionsEnabled} onScoreSuggestionsChange={changeScoreSuggestions} />
+          <Navbar registrationRequest={registrationRequest} pageTitle={showGameChooser ? 'Yahtzee!' : pageTitle[mode]} onPlay={() => setShowGameChooser(true)} scoreSuggestionsEnabled={scoreSuggestionsEnabled} onScoreSuggestionsChange={changeScoreSuggestions} />
           <main id="play">
             {showGameChooser && <section className="game-chooser" aria-labelledby="game-chooser-heading">
               <div className="game-chooser-heading"><p className="eyebrow">Game settings</p><h2 id="game-chooser-heading" className="section-heading">Choose how to play</h2><p className="section-copy">Start a Yahtzee game or open a tool for your physical dice.</p></div>
@@ -57,7 +58,7 @@ const App = () => {
               </section>
               </div>
             </section>}
-            <div hidden={showGameChooser}>{mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} /> : <Game key={resetGameKey} isTwoPlayer={mode === 'pass' || mode === 'computer'} isComputerOpponent={mode === 'computer'} isDailyChallenge={mode === 'daily'} scoreSuggestionsEnabled={scoreSuggestionsEnabled} onOpenSettings={() => setShowGameChooser(true)} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}</div>
+            <div hidden={showGameChooser}>{mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} /> : <Game key={resetGameKey} isTwoPlayer={mode === 'pass' || mode === 'computer'} isComputerOpponent={mode === 'computer'} isDailyChallenge={mode === 'daily'} scoreSuggestionsEnabled={scoreSuggestionsEnabled} onOpenSettings={() => setShowGameChooser(true)} onCreateAccount={() => setRegistrationRequest((request) => request + 1)} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}</div>
           </main>
           <footer className="site-footer"><div><strong>Yahtzee!</strong><span>Play on web and mobile with one shared account.</span></div><nav><a href="https://apps.apple.com/gb/app/yahtzee-hub/id6794910138" target="_blank" rel="noreferrer">Download for iPhone</a><a href="/support.html">Support</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/account-deletion.html">Delete account</a></nav><p>Yahtzee is a trademark of Hasbro. This independent game is not affiliated with or endorsed by Hasbro.</p></footer>
         </div>
