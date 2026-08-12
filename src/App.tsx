@@ -25,6 +25,7 @@ const AppContent = () => {
   type GameMode = 'solo' | 'daily' | 'computer' | 'pass' | 'virtual' | 'real';
   const [mode, setMode] = useState<GameMode>('solo');
   const [showGameChooser, setShowGameChooser] = useState(true);
+  const [hasStartedGame, setHasStartedGame] = useState(false);
   const [resetGameKey, setResetGameKey] = useState(0);
   const [scoreSuggestionsEnabled, setScoreSuggestionsEnabled] = useState(() => localStorage.getItem('yahtzee.score-suggestions.v1') !== 'false');
   const [registrationRequest, setRegistrationRequest] = useState(0);
@@ -43,7 +44,7 @@ const AppContent = () => {
   ];
   const pageTitle: Record<GameMode, string> = { solo: 'Single Player', daily: 'Daily Challenge', computer: 'Vs Computer', pass: 'Pass & Play', virtual: 'Dice Roller', real: 'Scorecard' };
 
-  const changeMode = (nextMode: GameMode) => { if (nextMode === mode) { setShowGameChooser(false); return; } setMode(nextMode); setShowGameChooser(false); setResetGameKey((key) => key + 1); };
+  const changeMode = (nextMode: GameMode) => { setHasStartedGame(true); if (nextMode === mode) { setShowGameChooser(false); return; } setMode(nextMode); setShowGameChooser(false); setResetGameKey((key) => key + 1); };
   const changeScoreSuggestions = (enabled: boolean) => {
     setScoreSuggestionsEnabled(enabled);
     localStorage.setItem('yahtzee.score-suggestions.v1', String(enabled));
@@ -58,19 +59,30 @@ const AppContent = () => {
   useEffect(() => { if (activePage === 'admin' && userDetails?.role !== 'ADMIN') navigate('play'); if (activePage === 'account' && !isUserSignedIn) navigate('play'); }, [activePage, isUserSignedIn, userDetails?.role, navigate]);
   return (
     <div className="App min-h-screen bg-deepBlack text-mintGlow font-mono">
-          <Navbar activePage={activePage} registrationRequest={registrationRequest} pageTitle={showGameChooser ? 'Yahtzee!' : pageTitle[mode]} onNavigate={(page) => { if (page === 'play' && activePage === 'play') setShowGameChooser(true); navigate(page); }} />
+          <Navbar
+            activePage={activePage}
+            registrationRequest={registrationRequest}
+            pageTitle={showGameChooser ? 'Yahtzee!' : pageTitle[mode]}
+            playButtonLabel={!hasStartedGame ? 'Play' : showGameChooser ? 'Resume game' : 'Game settings'}
+            onPlayButtonClick={() => {
+              navigate('play');
+              if (hasStartedGame) setShowGameChooser((showing) => !showing);
+              else setShowGameChooser(true);
+            }}
+            onNavigate={navigate}
+          />
           <main>
             <div className={activePage === 'play' ? '' : 'hidden'} aria-hidden={activePage !== 'play'}>
             {showGameChooser && <section className="game-chooser" aria-labelledby="game-chooser-heading">
               <div className="game-chooser-heading"><p className="eyebrow">Game settings</p><h2 id="game-chooser-heading" className="section-heading">Choose how to play</h2><p className="section-copy">Start a Yahtzee game or open a tool for your physical dice.</p></div>
               <div className="play-picker">
-              <section className="game-mode-picker" aria-labelledby="game-mode-heading">
+              <section id="game-modes" className="game-mode-picker scroll-mt-28" aria-labelledby="game-mode-heading">
                 <span id="game-mode-heading" className="picker-label">Play Yahtzee</span>
                 <div className="game-mode-tabs">
                   {gameModes.map((item) => <button key={item.value} onClick={() => changeMode(item.value)} className="game-choice-card"><span className="game-choice-icon"><FontAwesomeIcon icon={item.icon} /></span><span><strong>{item.label}</strong><small>{item.description}</small><em>Play now →</em></span></button>)}
                 </div>
               </section>
-              <section className="dice-tools" aria-labelledby="dice-tools-heading">
+              <section id="dice-tools" className="dice-tools scroll-mt-28" aria-labelledby="dice-tools-heading">
                 <span id="dice-tools-heading" className="picker-label">Dice tools</span>
                 <div className="dice-tool-tabs">
                   {diceTools.map((item) => <button key={item.value} onClick={() => changeMode(item.value)} aria-pressed={mode === item.value} className={`dice-tool-tab ${mode === item.value ? 'dice-tool-tab-active' : ''}`}><span className="dice-tool-icon"><FontAwesomeIcon icon={item.icon} /></span><span><strong>{item.label}</strong><small>{item.description}</small></span></button>)}
