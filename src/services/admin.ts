@@ -10,6 +10,10 @@ export interface AdminUser {
 }
 
 export interface AdminNotificationResult { audienceCount: number; sentCount: number; failedCount: number }
+export interface AdminNotificationHistory {
+  id: string; title: string; body: string; sentAt: string; audience: 'all' | 'selected'; selectedCount: number;
+  audienceCount: number; sentCount: number; failedCount: number; requestedBy: string;
+}
 export interface AdminSubmission { id: string; userId: string; username: string; mode: string; score: number; completedAt: string }
 export interface AdminDashboardData {
   totalUsers: number;
@@ -28,6 +32,7 @@ export interface AdminDashboardData {
   dailyActivity: DailyAdminActivity[];
   users: AdminUser[];
   recentSubmissions: AdminSubmission[];
+  notificationHistory: AdminNotificationHistory[];
 }
 
 export async function sendAdminNotification(title: string, body: string, userIds?: string[]): Promise<AdminNotificationResult> {
@@ -51,6 +56,22 @@ function parseJsonArray<T>(value: unknown): T[] {
   return parsed as T[];
 }
 
+function parseDashboardActivity(value: unknown): { scores: AdminSubmission[]; notifications: AdminNotificationHistory[] } {
+  let parsed = value;
+  for (let attempt = 0; attempt < 2 && typeof parsed === 'string'; attempt += 1) {
+    try { parsed = JSON.parse(parsed); } catch { return { scores: [], notifications: [] }; }
+  }
+  if (Array.isArray(parsed)) return { scores: parsed as AdminSubmission[], notifications: [] };
+  if (parsed && typeof parsed === 'object') {
+    const payload = parsed as { scores?: unknown; notifications?: unknown };
+    return {
+      scores: Array.isArray(payload.scores) ? payload.scores as AdminSubmission[] : [],
+      notifications: Array.isArray(payload.notifications) ? payload.notifications as AdminNotificationHistory[] : [],
+    };
+  }
+  return { scores: [], notifications: [] };
+}
+
 export async function fetchAdminDashboard(): Promise<AdminDashboardData> {
   try {
     const session = await fetchAuthSession();
@@ -62,7 +83,8 @@ export async function fetchAdminDashboard(): Promise<AdminDashboardData> {
     });
     if (!result.data?.adminDashboard) throw new Error(result.errors?.[0]?.message || 'Unable to load the admin dashboard.');
     const dashboard = result.data.adminDashboard;
-    return { ...dashboard, dailyActivity: parseJsonArray<DailyAdminActivity>(dashboard.dailyActivity), users: parseJsonArray<AdminUser>(dashboard.users), recentSubmissions: parseJsonArray<AdminSubmission>(dashboard.recentSubmissions) };
+    const activity = parseDashboardActivity(dashboard.recentSubmissions);
+    return { ...dashboard, dailyActivity: parseJsonArray<DailyAdminActivity>(dashboard.dailyActivity), users: parseJsonArray<AdminUser>(dashboard.users), recentSubmissions: activity.scores, notificationHistory: activity.notifications };
   } catch (error) {
     if (typeof error === 'object' && error !== null) {
       const response = error as { errors?: Array<{ message?: string }>; message?: string };
