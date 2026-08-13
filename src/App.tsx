@@ -21,7 +21,9 @@ import { DiceAnimation, diceAnimations } from './lib/diceAnimation';
 import DiceFace from './components/game/DiceFace';
 
 const pagePaths: Record<SitePage, string> = { play: '/play', scores: '/scores', progress: '/progress', account: '/account', about: '/about', admin: '/admin' };
-const pageFromPath = (): SitePage => (Object.entries(pagePaths).find(([, path]) => window.location.pathname === path)?.[0] as SitePage | undefined) ?? 'play';
+const pageFromPath = (): SitePage => window.location.pathname.startsWith('/admin')
+  ? 'admin'
+  : (Object.entries(pagePaths).find(([, path]) => window.location.pathname === path)?.[0] as SitePage | undefined) ?? 'play';
 const DiceAnimationPreview = ({ animation, index, active }: { animation: DiceAnimation; index: number; active: boolean }) => <span className="dice-animation-preview"><DiceFace value={(index % 6) + 1} canHold={false} onToggleHold={() => undefined} isHeld={false} shake={active} animation={animation} rollIndex={0} className="game-die" /></span>;
 
 const AppContent = () => {
