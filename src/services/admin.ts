@@ -6,7 +6,10 @@ export interface AdminUser {
   userId: string; email: string; emailVerified: boolean; username: string; firstName: string; lastName: string;
   status: string; enabled: boolean; profileComplete: boolean; signedUpAt: string | null; accountUpdatedAt: string | null;
   lastPlayedAt: string | null; gamesPlayed: number; soloGames: number; dailyGames: number; bestScore: number | null; averageScore: number | null;
+  pushNotificationsEnabled: boolean;
 }
+
+export interface AdminNotificationResult { audienceCount: number; sentCount: number; failedCount: number }
 export interface AdminSubmission { id: string; userId: string; username: string; mode: string; score: number; completedAt: string }
 export interface AdminDashboardData {
   totalUsers: number;
@@ -25,6 +28,18 @@ export interface AdminDashboardData {
   dailyActivity: DailyAdminActivity[];
   users: AdminUser[];
   recentSubmissions: AdminSubmission[];
+}
+
+export async function sendAdminNotification(title: string, body: string, userIds?: string[]): Promise<AdminNotificationResult> {
+  const session = await fetchAuthSession();
+  const authToken = session.tokens?.idToken?.toString();
+  if (!authToken) throw new Error('Sign in required.');
+  const result = await (client as any).graphql({
+    query: `mutation SendAdminNotification($title:String!,$body:String!,$userIds:[ID!]){sendAdminNotification(title:$title,body:$body,userIds:$userIds){audienceCount sentCount failedCount}}`,
+    variables: { title, body, userIds: userIds?.length ? userIds : null }, authMode: 'userPool', authToken,
+  });
+  if (!result.data?.sendAdminNotification) throw new Error(result.errors?.[0]?.message || 'Unable to send notification.');
+  return result.data.sendAdminNotification;
 }
 
 function parseJsonArray<T>(value: unknown): T[] {
