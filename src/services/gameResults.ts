@@ -2,19 +2,19 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import { client } from '../lib/amplifyClient';
 import { ScoreEntry } from '../lib/types';
 
-export type ResultMode = 'SOLO' | 'DAILY';
+export type ResultMode = 'SOLO' | 'DAILY' | 'COMPUTER' | 'PASS' | 'REAL';
 export interface GameResult {
   id: string; userId: string; username: string; mode: ResultMode; modeDate: string;
   challengeDate?: string; score: number; completedAt: string; yahtzeeCount: number;
   earnedUpperBonus: boolean; completedSmallStraight: boolean;
   completedLargeStraight: boolean; noZeroScores: boolean; yahtzeeOnFinalRoll: boolean;
-  scorecard?: string;
+  scorecard?: string; session?: string;
 }
 export interface DailyRoundStanding {
   challengeDate: string; round: number; score: number; rank: number;
   playerCount: number; percentile: number;
 }
-const fields = 'id userId username mode modeDate challengeDate score completedAt yahtzeeCount earnedUpperBonus completedSmallStraight completedLargeStraight noZeroScores yahtzeeOnFinalRoll scorecard';
+const fields = 'id userId username mode modeDate challengeDate score completedAt yahtzeeCount earnedUpperBonus completedSmallStraight completedLargeStraight noZeroScores yahtzeeOnFinalRoll scorecard session';
 
 export const resultMetrics = (entries: ScoreEntry[]) => {
   const upper = new Set(['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes']);
@@ -68,6 +68,33 @@ export async function fetchAllDailyResults(limit = 500): Promise<GameResult[]> {
   const result = await (client as any).graphql({ query: `query AllDaily($mode:GameMode!,$limit:Int){gameResultsByMode(mode:$mode,sortDirection:DESC,limit:$limit){items{${fields}}}}`, authMode: 'apiKey', variables: { mode: 'DAILY', limit } });
   return (result.data?.gameResultsByMode?.items ?? []).filter(Boolean);
 }
+
+export async function fetchResultsByMode(mode: ResultMode, limit = 1000): Promise<GameResult[]> {
+  const result = await (client as any).graphql({ query: `query ResultsByMode($mode:GameMode!,$limit:Int){gameResultsByMode(mode:$mode,sortDirection:DESC,limit:$limit){items{${fields}}}}`, authMode: 'apiKey', variables: { mode, limit } });
+  return (result.data?.gameResultsByMode?.items ?? []).filter(Boolean);
+}
+
+export type ResultPeriod = 'today' | 'week' | 'month' | 'all';
+export const periodStart = (period: ResultPeriod, now = new Date()) => {
+  if (period === 'all') return null;
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  if (period === 'today') return start;
+  if (period === 'week') { const day = start.getDay() || 7; start.setDate(start.getDate() - day + 1); return start; }
+  start.setDate(1); return start;
+};
+
+export const filterResultsByPeriod = <T extends { completedAt?: string; timestamp?: string }>(results: T[], period: ResultPeriod, now = new Date()) => {
+  const start = periodStart(period, now);
+  if (!start) return results;
+  return results.filter((result) => new Date(result.completedAt ?? result.timestamp ?? 0) >= start);
+};
+
+export const bestResultPerPlayer = <T extends { userId: string; score: number }>(results: T[]) => {
+  const best = new Map<string, T>();
+  results.forEach((result) => { if (!best.has(result.userId) || result.score > best.get(result.userId)!.score) best.set(result.userId, result); });
+  return [...best.values()].sort((a, b) => b.score - a.score);
+};
 
 export async function fetchMyGameResults(userId: string): Promise<GameResult[]> {
   const result = await (client as any).graphql({ query: `query Progress($userId:String!){gameResultsByUser(userId:$userId,sortDirection:DESC,limit:500){items{${fields}}}}`, authMode: 'apiKey', variables: { userId } });

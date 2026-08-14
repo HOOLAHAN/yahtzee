@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { fetchScores, ScoreItem, fetchUserScores } from '../../lib/scoreboardUtils';
 import { useAuth } from '../../context/AuthContext'; 
 import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
-import { fetchAllDailyResults, fetchDailyResults, fetchMyGameResults, fetchSoloResults, fetchWeeklyResults, GameResult } from '../../services/gameResults';
+import { bestResultPerPlayer, fetchAllDailyResults, fetchDailyResults, fetchMyGameResults, fetchSoloResults, filterResultsByPeriod, GameResult, ResultMode, ResultPeriod } from '../../services/gameResults';
 import { localDateKey } from '../../lib/dailyChallenge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate, faEarthEurope, faSun, faUser, faUserCircle } from '@fortawesome/free-solid-svg-icons';
@@ -22,9 +22,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
   type Competition = 'solo' | 'daily';
   type LeaderboardEntry = ScoreItem & Partial<GameResult> & { aggregate?: boolean };
   const [scores, setScores] = useState<LeaderboardEntry[]>([]);
+  const [historyScores, setHistoryScores] = useState<LeaderboardEntry[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [period, setPeriod] = useState<'today' | 'week' | 'all'>('all');
+  const [period, setPeriod] = useState<ResultPeriod>('all');
   const [competition, setCompetition] = useState<Competition>('solo');
+  const [historyMode, setHistoryMode] = useState<'ALL' | ResultMode>('ALL');
+  const [historyDate, setHistoryDate] = useState<'all' | 'week' | 'month'>('all');
   const [selected, setSelected] = useState<LeaderboardEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -36,20 +39,25 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
       try {
         setErrorMessage('');
         let fetchedScores: LeaderboardEntry[] = [];
-        if (competition === 'solo') {
+        if (showUserScores && userDetails) {
+          const [details, legacy] = await Promise.all([fetchMyGameResults(userDetails.userId), fetchUserScores(userDetails.userId)]);
+          const indexedIds = new Set(details.map((result) => result.id));
+          const history = [...details.map((result) => ({ ...result, timestamp: result.completedAt } as LeaderboardEntry)), ...legacy.filter((score) => !indexedIds.has(score.id)).map((score) => ({ ...score, mode: 'SOLO' as const } as LeaderboardEntry))];
+          const datedHistory = filterResultsByPeriod(history, historyDate);
+          setHistoryScores(datedHistory);
+          fetchedScores = datedHistory.filter((result) => historyMode === 'ALL' || result.mode === historyMode).sort((a, b) => new Date(b.completedAt ?? b.timestamp).getTime() - new Date(a.completedAt ?? a.timestamp).getTime());
+        } else if (competition === 'solo') {
           const [legacy, details] = await Promise.all([
-            showUserScores && userDetails ? fetchUserScores(userDetails.userId) : fetchScores(),
-            showUserScores && userDetails ? fetchMyGameResults(userDetails.userId) : fetchSoloResults(100),
+            fetchScores(), fetchSoloResults(1000),
           ]);
           const indexed = details
             .filter((result) => result.mode === 'SOLO')
             .map((result) => ({ ...result, timestamp: result.completedAt } as LeaderboardEntry));
           const indexedIds = new Set(indexed.map((result) => result.id));
-          fetchedScores = [...indexed, ...legacy.filter((score) => !indexedIds.has(score.id))]
-            .sort((a, b) => b.score - a.score);
+          fetchedScores = bestResultPerPlayer(filterResultsByPeriod([...indexed, ...legacy.filter((score) => !indexedIds.has(score.id))], period));
         } else {
-          fetchedScores = period === 'today' ? await fetchDailyResults(localDateKey()) : period === 'week' ? (await fetchWeeklyResults()).map((score) => ({ ...score, aggregate: true })) : await fetchAllDailyResults();
-          if (showUserScores && userDetails) fetchedScores = fetchedScores.filter((score) => score.userId === userDetails.userId);
+          const daily = period === 'today' ? await fetchDailyResults(localDateKey()) : filterResultsByPeriod(await fetchAllDailyResults(1000), period);
+          fetchedScores = bestResultPerPlayer(daily);
         }
         setScores(fetchedScores.slice(0, 100));
         setLastUpdated(new Date());
@@ -60,7 +68,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
       } finally {
         setLoading(false);
       }
-    }, [competition, period, showUserScores, userDetails]);
+    }, [competition, historyDate, historyMode, period, showUserScores, userDetails]);
 
   useEffect(() => {
     if (showUserScores && !userDetails) {
@@ -84,13 +92,13 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
       {!hideHeading && <h3 className="text-3xl font-bold text-center mb-6 text-neonYellow animate-pulse-glow drop-shadow-[0_0_10px_#faff00]">
         {heading}
       </h3>}
-      <p className="mb-4 text-sm text-gray-400">Solo scores and Daily Challenge results are ranked separately.</p>
+      <p className="mb-4 text-sm text-gray-400">{showUserScores ? 'Every recorded game, with filters and per-mode performance.' : 'Competitive Solo and Daily Challenge rankings.'}</p>
       <section className="leaderboard-controls" aria-label="Leaderboard filters">
-        <div className="leaderboard-competition"><button onClick={() => { setCompetition('solo'); setPeriod('all'); }} className={competition === 'solo' ? 'active' : ''}><span><FontAwesomeIcon icon={faUser} /></span><span><strong>Solo</strong><small>Classic games</small></span></button><button onClick={() => setCompetition('daily')} className={competition === 'daily' ? 'active' : ''}><span><FontAwesomeIcon icon={faSun} /></span><span><strong>Daily</strong><small>Same rolls</small></span></button></div>
-        <div className="leaderboard-divider" />
-        {competition === 'daily' && <div className="leaderboard-periods">{(['today', 'week', 'all'] as const).map((value) => <button key={value} onClick={() => setPeriod(value)} className={period === value ? 'active' : ''}>{value === 'today' ? 'Today' : value === 'week' ? 'Week' : 'All time'}</button>)}</div>}
+        {!showUserScores && <><div className="leaderboard-competition"><button onClick={() => { setCompetition('solo'); if (period === 'today') setPeriod('week'); }} className={competition === 'solo' ? 'active' : ''}><span><FontAwesomeIcon icon={faUser} /></span><span><strong>Solo</strong><small>Classic games</small></span></button><button onClick={() => setCompetition('daily')} className={competition === 'daily' ? 'active' : ''}><span><FontAwesomeIcon icon={faSun} /></span><span><strong>Daily</strong><small>Same rolls</small></span></button></div><div className="leaderboard-divider" /><div className="leaderboard-periods">{((competition === 'daily' ? ['today', 'week', 'month', 'all'] : ['week', 'month', 'all']) as ResultPeriod[]).map((value) => <button key={value} onClick={() => setPeriod(value)} className={period === value ? 'active' : ''}>{value === 'today' ? 'Today' : value === 'week' ? 'This week' : value === 'month' ? 'This month' : 'All time'}</button>)}</div></>}
+        {showUserScores && <><div className="leaderboard-periods">{(['ALL', 'SOLO', 'DAILY', 'COMPUTER', 'PASS', 'REAL'] as const).map((value) => <button key={value} onClick={() => setHistoryMode(value)} className={historyMode === value ? 'active' : ''}>{value === 'ALL' ? 'All games' : value === 'COMPUTER' ? 'Vs Computer' : value === 'PASS' ? 'Pass & Play' : value === 'REAL' ? 'Real Dice' : value[0] + value.slice(1).toLowerCase()}</button>)}</div><div className="leaderboard-divider" /><div className="leaderboard-periods">{(['all', 'week', 'month'] as const).map((value) => <button key={value} onClick={() => setHistoryDate(value)} className={historyDate === value ? 'active' : ''}>{value === 'all' ? 'Any date' : value === 'week' ? 'This week' : 'This month'}</button>)}</div></>}
         {onShowUserScoresChange && <div className="leaderboard-audience"><span>SHOWING</span><div><button onClick={() => onShowUserScoresChange(false)} className={!showUserScores ? 'active' : ''}><FontAwesomeIcon icon={faEarthEurope} /> Global</button><button disabled={!canShowUserScores} onClick={() => onShowUserScoresChange(true)} className={showUserScores ? 'active' : ''}><FontAwesomeIcon icon={faUserCircle} /> Mine</button></div></div>}
       </section>
+      {showUserScores && historyScores.length > 0 && <div className="mb-4 grid grid-cols-2 gap-3">{(['SOLO', 'DAILY', 'COMPUTER', 'PASS', 'REAL'] as ResultMode[]).map((mode) => { const games = historyScores.filter((score) => score.mode === mode); const owned = !['PASS', 'REAL'].includes(mode); const average = games.length ? Math.round(games.reduce((sum, game) => sum + game.score, 0) / games.length) : 0; return <div key={mode} className="rounded-xl bg-[#11191b] p-3"><small className="font-black text-gray-500">{mode === 'COMPUTER' ? 'VS COMPUTER' : mode === 'PASS' ? 'PASS & PLAY' : mode === 'REAL' ? 'REAL DICE' : mode}</small><strong className="mt-1 block text-neonCyan">{games.length} {games.length === 1 ? 'game' : 'games'}</strong><span className="text-xs text-mintGlow">{owned && games.length ? `Best ${Math.max(...games.map((game) => game.score))} · Avg ${average}` : games.length ? 'Shared session' : 'No records'}</span></div>; })}</div>}
       <div className="mb-4 flex items-center justify-end gap-3 text-xs text-gray-500">
         <span>{loading ? 'Updating…' : lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not updated yet'}</span>
         <button type="button" disabled={loading} onClick={() => void loadScores()} className="text-neonCyan disabled:opacity-40"><FontAwesomeIcon icon={faArrowsRotate} /> Refresh</button>
@@ -103,7 +111,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
               onClick={() => setSelected(score)}
               className="flex cursor-pointer items-center justify-between rounded-xl border border-[#2d3c40] bg-[#11191b] px-4 py-4 shadow-md transition hover:border-neonCyan hover:bg-[#162225]"
             >
-              <div><div className="text-lg font-semibold text-neonCyan">{index + 1}. {score.username}</div><div className="mt-1 text-[10px] font-bold uppercase tracking-wide text-gray-500">{competition === 'daily' ? score.aggregate ? 'Weekly total' : 'Daily Challenge' : 'Solo'}{score.completedAt ? ` · ${new Date(score.completedAt).toLocaleDateString()}` : ''}</div></div>
+              <div><div className="text-lg font-semibold text-neonCyan">{showUserScores ? '' : `${index + 1}. `}{score.username}</div><div className="mt-1 text-[10px] font-bold uppercase tracking-wide text-gray-500">{score.mode === 'DAILY' ? 'Daily Challenge' : score.mode === 'COMPUTER' ? 'Vs Computer' : score.mode === 'PASS' ? 'Pass & Play' : score.mode === 'REAL' ? 'Real Dice' : 'Solo'}{(score.completedAt ?? score.timestamp) ? ` · ${new Date(score.completedAt ?? score.timestamp).toLocaleDateString()}` : ''}</div></div>
               <div>
                 <span className="bg-neonYellow text-deepBlack font-bold px-3 py-1 rounded-full text-sm shadow">
                   {score.score}

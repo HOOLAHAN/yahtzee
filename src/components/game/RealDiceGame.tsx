@@ -1,14 +1,22 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Category, ScoreEntry } from '../../lib/types';
+import { useAuth } from '../../context/AuthContext';
+import { createGameResult, resultMetrics } from '../../services/gameResults';
 
 const categories: Category[] = ['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'ThreeOfAKind', 'FourOfAKind', 'FullHouse', 'SmallStraight', 'LargeStraight', 'Yahtzee', 'Chance'];
 const labels: Record<Category, string> = { Ones: 'Ones', Twos: 'Twos', Threes: 'Threes', Fours: 'Fours', Fives: 'Fives', Sixes: 'Sixes', ThreeOfAKind: '3 of a Kind', FourOfAKind: '4 of a Kind', FullHouse: 'Full House', SmallStraight: 'Small Straight', LargeStraight: 'Large Straight', Yahtzee: 'Yahtzee', Chance: 'Chance' };
 const accents = ['#08d9df', '#4df27d', '#ff2ac3', '#ffb020', '#a78bfa', '#ff6577', '#5ee7ff', '#f97316', '#84cc16', '#f472b6'];
 const namesKey = 'yahtzee.real-dice.names';
+const upper = new Set<Category>(['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes']);
+const bonus = (entries: ScoreEntry[]) => entries.filter((entry) => upper.has(entry.category)).reduce((sum, entry) => sum + entry.roundScore, 0) >= 63 ? 35 : 0;
+const total = (entries: ScoreEntry[]) => entries.reduce((sum, entry) => sum + entry.roundScore, 0) + bonus(entries);
 
 interface PlayerState { name: string; scores: ScoreEntry[] }
 
 export default function RealDiceGame() {
+  const { isUserSignedIn } = useAuth();
+  const sessionId = useRef(`real:${Date.now()}`);
+  const recorded = useRef(false);
   const savedNames = useMemo(() => {
     try { return JSON.parse(localStorage.getItem(namesKey) || '[]') as string[]; } catch { return []; }
   }, []);
@@ -21,10 +29,16 @@ export default function RealDiceGame() {
   const [score, setScore] = useState('');
 
   useEffect(() => { localStorage.setItem(namesKey, JSON.stringify(names.slice(0, playerCount))); }, [names, playerCount]);
-  const upper = new Set<Category>(['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes']);
-  const bonus = (entries: ScoreEntry[]) => entries.filter((entry) => upper.has(entry.category)).reduce((sum, entry) => sum + entry.roundScore, 0) >= 63 ? 35 : 0;
-  const total = (entries: ScoreEntry[]) => entries.reduce((sum, entry) => sum + entry.roundScore, 0) + bonus(entries);
-  const start = () => { setPlayers(names.slice(0, playerCount).map((name, index) => ({ name: name.trim() || `Player ${index + 1}`, scores: [] }))); setCurrent(0); setSelected(null); setScore(''); setSetup(false); };
+  const complete = players.length > 0 && players.every((player) => player.scores.length === categories.length);
+  useEffect(() => {
+    if (!complete || !isUserSignedIn || recorded.current) return;
+    recorded.current = true;
+    const metrics = resultMetrics(players[0].scores);
+    void createGameResult({ id: sessionId.current, mode: 'REAL', modeDate: 'REAL#ALL', completedAt: new Date().toISOString(), ...metrics, yahtzeeOnFinalRoll: false,
+      session: JSON.stringify({ players: players.map((player) => ({ name: player.name, score: total(player.scores), scorecard: Object.fromEntries(player.scores.map((entry) => [entry.category, entry.roundScore])) })) }),
+    }).catch((error) => { recorded.current = false; console.error('[realDice.history]', error); });
+  }, [complete, isUserSignedIn, players]);
+  const start = () => { sessionId.current = `real:${Date.now()}`; recorded.current = false; setPlayers(names.slice(0, playerCount).map((name, index) => ({ name: name.trim() || `Player ${index + 1}`, scores: [] }))); setCurrent(0); setSelected(null); setScore(''); setSetup(false); };
   const lock = () => {
     if (!selected || score === '') return;
     const points = Math.max(0, Math.min(100, Number(score) || 0));

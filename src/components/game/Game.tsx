@@ -296,7 +296,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const gameComplete = player1UsedCategories.size === 13 && (!isTwoPlayer || player2UsedCategories.size === 13);
 
   useEffect(() => {
-    const leaderboardEligible = !isDailyChallenge && (!isTwoPlayer || isComputerOpponent);
+    const leaderboardEligible = !isDailyChallenge && !isTwoPlayer;
     if (!gameComplete || !leaderboardEligible || !isUserSignedIn || !userDetails?.userId || scoreSaveAttempted.current) return;
     scoreSaveAttempted.current = true;
     setScoreSaveStatus('saving');
@@ -335,16 +335,21 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   }, [dailyDate, gameComplete, isDailyChallenge, userDetails?.userId]);
 
   useEffect(() => {
-    if (!gameComplete || progressRecorded || isTwoPlayer || !isUserSignedIn || !userDetails?.userId) return;
+    if (!gameComplete || progressRecorded || !isUserSignedIn || !userDetails?.userId) return;
     const metrics = resultMetrics(player1ScoreHistory);
+    const mode = isDailyChallenge ? 'DAILY' : isComputerOpponent ? 'COMPUTER' : isTwoPlayer ? 'PASS' : 'SOLO';
+    const session = isTwoPlayer && !isComputerOpponent ? JSON.stringify({ players: [
+      { name: 'Player 1', score: player1TotalScore, scorecard: JSON.parse(resultMetrics(player1ScoreHistory).scorecard) },
+      { name: 'Player 2', score: player2TotalScore, scorecard: JSON.parse(resultMetrics(player2ScoreHistory).scorecard) },
+    ] }) : undefined;
     void createGameResult({
       id: isDailyChallenge ? `daily:${dailyDate}:${userDetails.userId}` : gameId.current,
-      mode: isDailyChallenge ? 'DAILY' : 'SOLO',
-      modeDate: isDailyChallenge ? `DAILY#${dailyDate}` : 'SOLO#ALL',
+      mode,
+      modeDate: isDailyChallenge ? `DAILY#${dailyDate}` : `${mode}#ALL`,
       challengeDate: isDailyChallenge ? dailyDate : undefined,
-      completedAt: new Date().toISOString(), ...metrics, yahtzeeOnFinalRoll,
+      completedAt: new Date().toISOString(), ...metrics, session, yahtzeeOnFinalRoll,
     }).then(async (savedResult) => { setProgressRecorded(true); if (isDailyChallenge) { const board = await fetchDailyResults(dailyDate); const rank = board.findIndex((result) => result.userId === savedResult.userId) + 1; if (rank > 0) setDailyStanding(`#${rank} today · Top ${Math.max(1, Math.ceil((rank / board.length) * 100))}%`); } }).catch((error) => { if (isDailyChallenge && /ConditionalCheckFailed|conditional request|already exists/i.test(error instanceof Error ? error.message : String(error))) setProgressRecorded(true); else console.error('[gameResults.create]', error); });
-  }, [dailyDate, gameComplete, isDailyChallenge, isTwoPlayer, isUserSignedIn, player1ScoreHistory, progressRecorded, userDetails?.userId, yahtzeeOnFinalRoll]);
+  }, [dailyDate, gameComplete, isComputerOpponent, isDailyChallenge, isTwoPlayer, isUserSignedIn, player1ScoreHistory, player1TotalScore, player2ScoreHistory, player2TotalScore, progressRecorded, userDetails?.userId, yahtzeeOnFinalRoll]);
 
   if (isDailyChallenge && (checkingDailyCompletion || dailyAlreadyCompleted) && !gameComplete) return <div className="mx-auto min-h-[65vh] w-full max-w-2xl px-4 py-12"><section className="daily-complete-card"><span><FontAwesomeIcon icon={checkingDailyCompletion ? faRotate : faLock} /></span><p className="eyebrow">Daily Challenge · {dailyDate}</p><h2>{checkingDailyCompletion ? 'Checking today’s result…' : 'Challenge completed'}</h2><p>{checkingDailyCompletion ? 'Making sure this account has not already played today.' : 'You have already completed today’s fixed-roll challenge. Come back tomorrow for a new sequence.'}</p>{!checkingDailyCompletion && <button onClick={onOpenSettings}><FontAwesomeIcon icon={faGear} /> Choose another game</button>}</section></div>;
 
