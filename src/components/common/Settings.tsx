@@ -3,15 +3,22 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getMyProfile, updateMyPreferences, updateMyProfile } from '../../services/profiles';
+import { DiceAnimation, diceAnimations } from '../../lib/diceAnimation';
+import DiceFace from '../game/DiceFace';
 
 interface SettingsProps {
   onClose?: () => void;
   embedded?: boolean;
   scoreSuggestionsEnabled?: boolean;
   onScoreSuggestionsChange?: (enabled: boolean) => void;
+  diceAnimation?: DiceAnimation;
+  onDiceAnimationChange?: (animation: DiceAnimation) => void;
+  arcadeFontEnabled?: boolean;
+  onArcadeFontChange?: (enabled: boolean) => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ onClose, embedded = false, scoreSuggestionsEnabled = true, onScoreSuggestionsChange }) => {
+const Settings: React.FC<SettingsProps> = ({ onClose, embedded = false, scoreSuggestionsEnabled = true, onScoreSuggestionsChange, diceAnimation = 'tumble', onDiceAnimationChange, arcadeFontEnabled = true, onArcadeFontChange }) => {
+  const [previewAnimation, setPreviewAnimation] = useState<DiceAnimation | null>(null);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmationCode, setConfirmationCode] = useState('');
@@ -119,6 +126,11 @@ const Settings: React.FC<SettingsProps> = ({ onClose, embedded = false, scoreSug
             <span><strong className="block text-mintGlow">Score suggestions</strong><small className="mt-1 block leading-5 text-gray-400">Show the best available score after each roll.</small></span>
             <input type="checkbox" checked={scoreSuggestionsEnabled} onChange={(event) => changeSuggestions(event.target.checked)} className="account-toggle" />
           </label>
+          <label className="mt-3 flex cursor-pointer items-center justify-between gap-4 border-t border-[#263438] pt-3">
+            <span><strong className="block text-mintGlow">Arcade font</strong><small className="mt-1 block leading-5 text-gray-400">Use the retro monospace typeface across the website.</small></span>
+            <input type="checkbox" checked={arcadeFontEnabled} onChange={(event) => onArcadeFontChange?.(event.target.checked)} className="account-toggle" />
+          </label>
+          <div className="mt-4 border-t border-[#263438] pt-4"><strong className="block text-mintGlow">Dice animation</strong><small className="mt-1 block leading-5 text-gray-400">Choose how digital dice move. Selecting an option previews it.</small><div className="dice-animation-options mt-3">{diceAnimations.map((animation, index) => <button key={animation.value} type="button" onClick={() => { onDiceAnimationChange?.(animation.value); setPreviewAnimation(null); window.requestAnimationFrame(() => setPreviewAnimation(animation.value)); window.setTimeout(() => setPreviewAnimation((current) => current === animation.value ? null : current), 1100); }} className={diceAnimation === animation.value ? 'dice-animation-option-active' : ''}><span className="dice-animation-preview"><DiceFace value={(index % 6) + 1} canHold={false} onToggleHold={() => undefined} isHeld={false} shake={previewAnimation === animation.value} animation={animation.value} rollIndex={0} className="game-die" /></span><span><strong>{animation.label}</strong><small>{animation.description}</small></span></button>)}</div></div>
         </section>
 
         <section className="account-panel">

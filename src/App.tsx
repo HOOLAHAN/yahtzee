@@ -17,15 +17,12 @@ import Settings from './components/common/Settings';
 import About from './components/common/About';
 import AdminDashboard from './components/admin/AdminDashboard';
 import { useAuth } from './context/AuthContext';
-import { DiceAnimation, diceAnimations } from './lib/diceAnimation';
-import DiceFace from './components/game/DiceFace';
+import { DiceAnimation } from './lib/diceAnimation';
 
 const pagePaths: Record<SitePage, string> = { play: '/play', scores: '/scores', progress: '/progress', account: '/account', about: '/about', admin: '/admin' };
 const pageFromPath = (): SitePage => window.location.pathname.startsWith('/admin')
   ? 'admin'
   : (Object.entries(pagePaths).find(([, path]) => window.location.pathname === path)?.[0] as SitePage | undefined) ?? 'play';
-const DiceAnimationPreview = ({ animation, index, active }: { animation: DiceAnimation; index: number; active: boolean }) => <span className="dice-animation-preview"><DiceFace value={(index % 6) + 1} canHold={false} onToggleHold={() => undefined} isHeld={false} shake={active} animation={animation} rollIndex={0} className="game-die" /></span>;
-
 const AppContent = () => {
   type GameMode = 'solo' | 'daily' | 'computer' | 'pass' | 'virtual' | 'real';
   const [mode, setMode] = useState<GameMode>('solo');
@@ -36,7 +33,7 @@ const AppContent = () => {
   const [registrationRequest, setRegistrationRequest] = useState(0);
   const [showMyScores, setShowMyScores] = useState(false);
   const [diceAnimation, setDiceAnimation] = useState<DiceAnimation>(() => (localStorage.getItem('yahtzee.dice-animation.v1') as DiceAnimation | null) ?? 'tumble');
-  const [previewAnimation, setPreviewAnimation] = useState<DiceAnimation | null>(null);
+  const [arcadeFontEnabled, setArcadeFontEnabled] = useState(() => localStorage.getItem('yahtzee.arcade-font.v1') !== 'false');
   const [activePage, setActivePage] = useState<SitePage>(pageFromPath);
   const { isUserSignedIn, userDetails } = useAuth();
   const gameModes = [
@@ -59,10 +56,8 @@ const AppContent = () => {
   const changeDiceAnimation = (animation: DiceAnimation) => {
     setDiceAnimation(animation);
     localStorage.setItem('yahtzee.dice-animation.v1', animation);
-    setPreviewAnimation(null);
-    window.requestAnimationFrame(() => setPreviewAnimation(animation));
-    window.setTimeout(() => setPreviewAnimation((current) => current === animation ? null : current), 1100);
   };
+  const changeArcadeFont = (enabled: boolean) => { setArcadeFontEnabled(enabled); localStorage.setItem('yahtzee.arcade-font.v1', String(enabled)); };
   const navigate = useCallback((page: SitePage) => {
     const safePage = page === 'admin' && userDetails?.role !== 'ADMIN' ? 'play' : page === 'account' && !isUserSignedIn ? 'play' : page;
     if (window.location.pathname !== pagePaths[safePage]) window.history.pushState({}, '', pagePaths[safePage]);
@@ -72,12 +67,12 @@ const AppContent = () => {
   useEffect(() => { const onPopState = () => setActivePage(pageFromPath()); window.addEventListener('popstate', onPopState); if (window.location.pathname === '/') window.history.replaceState({}, '', pagePaths.play); return () => window.removeEventListener('popstate', onPopState); }, []);
   useEffect(() => { if (activePage === 'admin' && userDetails?.role !== 'ADMIN') navigate('play'); if (activePage === 'account' && !isUserSignedIn) navigate('play'); }, [activePage, isUserSignedIn, userDetails?.role, navigate]);
   return (
-    <div className="App min-h-screen bg-deepBlack text-mintGlow font-mono">
+    <div className={`App min-h-screen bg-deepBlack text-mintGlow ${arcadeFontEnabled ? 'font-mono' : 'font-sans'}`}>
           <Navbar
             activePage={activePage}
             registrationRequest={registrationRequest}
             pageTitle={showGameChooser ? 'Yahtzee!' : pageTitle[mode]}
-            playButtonLabel={!hasStartedGame ? 'Play' : showGameChooser ? 'Resume game' : 'Game settings'}
+            playButtonLabel={!hasStartedGame ? 'Play' : showGameChooser ? 'Resume game' : 'Choose game'}
             onPlayButtonClick={() => {
               navigate('play');
               if (hasStartedGame) setShowGameChooser((showing) => !showing);
@@ -88,7 +83,7 @@ const AppContent = () => {
           <main>
             <div className={activePage === 'play' ? '' : 'hidden'} aria-hidden={activePage !== 'play'}>
             {showGameChooser && <section className="game-chooser" aria-labelledby="game-chooser-heading">
-              <div className="game-chooser-heading"><p className="eyebrow">Game settings</p><h2 id="game-chooser-heading" className="section-heading">Choose how to play</h2><p className="section-copy">Start a Yahtzee game or open a tool for your physical dice.</p></div>
+              <div className="game-chooser-heading"><p className="eyebrow">Game selection</p><h2 id="game-chooser-heading" className="section-heading">Choose how to play</h2><p className="section-copy">Start a Yahtzee game or open a tool for your physical dice.</p></div>
               <div className="play-picker">
               <section id="game-modes" className="game-mode-picker scroll-mt-28" aria-labelledby="game-mode-heading">
                 <span id="game-mode-heading" className="picker-label">Play Yahtzee</span>
@@ -103,15 +98,11 @@ const AppContent = () => {
                 </div>
               </section>
               </div>
-              <section className="dice-animation-setting" aria-labelledby="dice-animation-heading">
-                <div><span className="picker-label">Dice motion</span><h3 id="dice-animation-heading">Choose your roll style</h3><p>The same animation is used in every digital dice mode.</p></div>
-                <div className="dice-animation-options">{diceAnimations.map((animation, index) => <button key={animation.value} type="button" onClick={() => changeDiceAnimation(animation.value)} className={diceAnimation === animation.value ? 'dice-animation-option-active' : ''}><DiceAnimationPreview animation={animation.value} index={index} active={previewAnimation === animation.value} /><span><strong>{animation.label}</strong><small>{animation.description}</small></span></button>)}</div>
-              </section>
             </section>}
             <div hidden={showGameChooser}>{mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} diceAnimation={diceAnimation} /> : <Game key={resetGameKey} isTwoPlayer={mode === 'pass' || mode === 'computer'} isComputerOpponent={mode === 'computer'} isDailyChallenge={mode === 'daily'} scoreSuggestionsEnabled={scoreSuggestionsEnabled} diceAnimation={diceAnimation} onOpenSettings={() => setShowGameChooser(true)} onCreateAccount={() => setRegistrationRequest((request) => request + 1)} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}</div></div>
             {activePage === 'scores' && <section className="site-page-content max-w-6xl"><div><p className="eyebrow">Shared leaderboard</p><h2 className="section-heading">High Scores</h2><p className="section-copy">Compare Solo games and Daily Challenge results, or review your own scores.</p></div>{!isUserSignedIn && <div className="mb-5 rounded-xl border border-[#315a5e] bg-[#142225] p-4 text-sm text-mintGlow"><strong className="block text-base text-neonYellow">Keep your scores and join the rankings</strong><p className="mt-1">Create a free player profile to save games, unlock your personal leaderboard and sync across devices.</p><button onClick={() => setRegistrationRequest((request) => request + 1)} className="mt-3 font-black text-neonCyan">Create player profile →</button></div>}<Leaderboard showUserScores={showMyScores} onShowUserScoresChange={setShowMyScores} canShowUserScores={isUserSignedIn} hideHeading /></section>}
             {activePage === 'progress' && <Progress embedded onCreateAccount={() => setRegistrationRequest((request) => request + 1)} />}
-            {activePage === 'account' && isUserSignedIn && <Settings embedded scoreSuggestionsEnabled={scoreSuggestionsEnabled} onScoreSuggestionsChange={changeScoreSuggestions} />}
+            {activePage === 'account' && isUserSignedIn && <Settings embedded scoreSuggestionsEnabled={scoreSuggestionsEnabled} onScoreSuggestionsChange={changeScoreSuggestions} diceAnimation={diceAnimation} onDiceAnimationChange={changeDiceAnimation} arcadeFontEnabled={arcadeFontEnabled} onArcadeFontChange={changeArcadeFont} />}
             {activePage === 'about' && <About embedded />}
             {activePage === 'admin' && userDetails?.role === 'ADMIN' && <AdminDashboard embedded />}
           </main>

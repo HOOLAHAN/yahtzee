@@ -420,7 +420,7 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       />
       <div className="web-game-actions">
         <button onClick={() => setShowScoreCard(true)}><FontAwesomeIcon icon={faList} /> Scorecard</button>
-        <button onClick={onOpenSettings}><FontAwesomeIcon icon={faGear} /> Settings</button>
+        <button onClick={onOpenSettings}><FontAwesomeIcon icon={faGear} /> Choose game</button>
         <button onClick={handleResetAction}><FontAwesomeIcon icon={isDailyChallenge ? faLock : faRotate} /> {isDailyChallenge ? 'Protected' : 'Reset'}</button>
       </div>
       <ScoreFlash category={flashCategory} show={showFlash} onEnd={() => setShowFlash(false)} />
