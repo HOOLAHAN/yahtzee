@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { fetchScores, ScoreItem, fetchUserScores } from '../../lib/scoreboardUtils';
 import { useAuth } from '../../context/AuthContext'; 
 import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
-import { bestResultPerPlayer, fetchAllDailyResults, fetchDailyResults, fetchMyGameResults, fetchSoloResults, filterResultsByPeriod, GameResult, ResultMode, ResultPeriod } from '../../services/gameResults';
+import { fetchAllDailyResults, fetchDailyResults, fetchMyGameResults, fetchSoloResults, filterResultsByPeriod, GameResult, ResultMode, ResultPeriod } from '../../services/gameResults';
 import { localDateKey } from '../../lib/dailyChallenge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate, faEarthEurope, faUserCircle } from '@fortawesome/free-solid-svg-icons';
@@ -54,10 +54,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
             .filter((result) => result.mode === 'SOLO')
             .map((result) => ({ ...result, timestamp: result.completedAt } as LeaderboardEntry));
           const indexedIds = new Set(indexed.map((result) => result.id));
-          fetchedScores = bestResultPerPlayer(filterResultsByPeriod([...indexed, ...legacy.filter((score) => !indexedIds.has(score.id))], period));
+          fetchedScores = filterResultsByPeriod([...indexed, ...legacy.filter((score) => !indexedIds.has(score.id))], period)
+            .sort((a, b) => b.score - a.score);
         } else {
           const daily = period === 'today' ? await fetchDailyResults(localDateKey()) : filterResultsByPeriod(await fetchAllDailyResults(1000), period);
-          fetchedScores = bestResultPerPlayer(daily);
+          fetchedScores = [...daily].sort((a, b) => b.score - a.score);
         }
         setScores(fetchedScores.slice(0, 100));
         setLastUpdated(new Date());

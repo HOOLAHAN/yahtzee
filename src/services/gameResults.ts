@@ -90,12 +90,6 @@ export const filterResultsByPeriod = <T extends { completedAt?: string; timestam
   return results.filter((result) => new Date(result.completedAt ?? result.timestamp ?? 0) >= start);
 };
 
-export const bestResultPerPlayer = <T extends { userId: string; score: number }>(results: T[]) => {
-  const best = new Map<string, T>();
-  results.forEach((result) => { if (!best.has(result.userId) || result.score > best.get(result.userId)!.score) best.set(result.userId, result); });
-  return [...best.values()].sort((a, b) => b.score - a.score);
-};
-
 export async function fetchMyGameResults(userId: string): Promise<GameResult[]> {
   const result = await (client as any).graphql({ query: `query Progress($userId:String!){gameResultsByUser(userId:$userId,sortDirection:DESC,limit:500){items{${fields}}}}`, authMode: 'apiKey', variables: { userId } });
   return (result.data?.gameResultsByUser?.items ?? []).filter(Boolean);
