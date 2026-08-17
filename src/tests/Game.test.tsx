@@ -2,6 +2,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import Game from '../components/game/Game';
 import * as AuthContext from '../context/AuthContext';
+import { localDateKey } from '../lib/dailyChallenge';
+import { fetchDailyResults } from '../services/gameResults';
 
 HTMLCanvasElement.prototype.getContext = jest.fn();
 
@@ -12,6 +14,37 @@ jest.mock('jspdf', () => {
 jest.mock('../context/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
+
+jest.mock('../services/gameResults', () => ({
+  ...jest.requireActual('../services/gameResults'),
+  fetchDailyResults: jest.fn().mockResolvedValue([]),
+}));
+
+afterEach(() => {
+  localStorage.clear();
+  jest.clearAllMocks();
+});
+
+test('daily completion is scoped to the signed-in user', async () => {
+  (fetchDailyResults as jest.Mock).mockResolvedValue([]);
+  let currentUserId = 'user-a';
+  (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({
+    isUserSignedIn: true,
+    userDetails: { userId: currentUserId, preferred_username: currentUserId },
+  }));
+  localStorage.setItem(`yahtzee.daily.completed.${localDateKey()}.user-a`, 'true');
+
+  const { rerender } = render(<Game isDailyChallenge isTwoPlayer={false} setIsTwoPlayer={jest.fn()} />);
+  expect(await screen.findByText('Challenge completed')).toBeInTheDocument();
+
+  currentUserId = 'user-b';
+  rerender(<Game isDailyChallenge isTwoPlayer={false} setIsTwoPlayer={jest.fn()} />);
+
+  expect(await screen.findByTestId('roll-dice-button')).toBeInTheDocument();
+  expect(screen.queryByText('Challenge completed')).not.toBeInTheDocument();
+  expect(fetchDailyResults).toHaveBeenCalledWith(localDateKey());
+  expect(localStorage.getItem(`yahtzee.daily.completed.${localDateKey()}.user-b`)).toBeNull();
+});
 
 test('initial roll count is 3', () => {
   (AuthContext.useAuth as jest.Mock).mockImplementation(() => ({

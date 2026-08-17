@@ -176,6 +176,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await amplifySignOut();
       setIsUserSignedIn(false);
+      setUserDetails(null);
     } catch (error) {
       console.error('Error signing out:', error);
     }

@@ -118,6 +118,8 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   const [scoreSaveStatus, setScoreSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const gameId = useRef(`web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
   const scoreSaveAttempted = useRef(false);
+  const dailyPlayerKey = isUserSignedIn && userDetails?.userId ? userDetails.userId : 'guest';
+  const previousDailyPlayerKey = useRef(dailyPlayerKey);
   const leaderboardRefresh = useOptionalLeaderboardRefresh();
 
   const windowSize = useWindowSize();
@@ -209,6 +211,14 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
     }
     handleResetGame();
   };
+
+  useEffect(() => {
+    if (!isDailyChallenge || previousDailyPlayerKey.current === dailyPlayerKey) return;
+    previousDailyPlayerKey.current = dailyPlayerKey;
+    handleResetGame();
+    // A Daily Challenge in progress belongs to the account that started it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dailyPlayerKey, isDailyChallenge]);
 
   useEffect(() => {
     if (!isDailyChallenge) return;
@@ -313,9 +323,10 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
   useEffect(() => {
     if (!isDailyChallenge) { setDailyAlreadyCompleted(false); return; }
     let cancelled = false;
-    const completionKey = `yahtzee.daily.completed.${dailyDate}.${userDetails?.userId ?? 'guest'}`;
-    if (localStorage.getItem(completionKey) === 'true') setDailyAlreadyCompleted(true);
-    if (!isUserSignedIn || !userDetails?.userId) return;
+    const completionKey = `yahtzee.daily.completed.${dailyDate}.${dailyPlayerKey}`;
+    setDailyAlreadyCompleted(localStorage.getItem(completionKey) === 'true');
+    setCheckingDailyCompletion(false);
+    if (!isUserSignedIn || !userDetails?.userId) return () => { cancelled = true; };
     setCheckingDailyCompletion(true);
     void fetchDailyResults(dailyDate).then((results) => {
       if (!cancelled && results.some((result) => result.userId === userDetails.userId)) {
@@ -324,15 +335,18 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       }
     }).catch((error) => console.error('[dailyChallenge.check]', error)).finally(() => { if (!cancelled) setCheckingDailyCompletion(false); });
     return () => { cancelled = true; };
-  }, [dailyDate, isDailyChallenge, isUserSignedIn, userDetails?.userId]);
+  }, [dailyDate, dailyPlayerKey, isDailyChallenge, isUserSignedIn, userDetails?.userId]);
 
   useEffect(() => {
     if (!isDailyChallenge || !gameComplete) return;
     // Apply the lock immediately; writing the completion marker and result to
     // storage/API happens asynchronously and must not leave a replay window.
     setDailyAlreadyCompleted(true);
-    localStorage.setItem(`yahtzee.daily.completed.${dailyDate}.${userDetails?.userId ?? 'guest'}`, 'true');
-  }, [dailyDate, gameComplete, isDailyChallenge, userDetails?.userId]);
+    localStorage.setItem(`yahtzee.daily.completed.${dailyDate}.${dailyPlayerKey}`, 'true');
+    // Deliberately exclude identity: changing accounts must not attribute an
+    // already-finished game to the account that has just signed in.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dailyDate, gameComplete, isDailyChallenge]);
 
   useEffect(() => {
     if (!gameComplete || progressRecorded || !isUserSignedIn || !userDetails?.userId) return;
