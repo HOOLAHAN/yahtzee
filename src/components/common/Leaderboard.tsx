@@ -15,12 +15,24 @@ interface LeaderboardProps {
   onShowUserScoresChange?: (showUserScores: boolean) => void;
   canShowUserScores?: boolean;
 }
+type LeaderboardEntry = ScoreItem & Partial<GameResult> & { aggregate?: boolean };
+const topScoresPerUser = (entries: LeaderboardEntry[], perUser: number) => {
+  const counts = new Map<string, number>();
+  return [...entries]
+    .sort((a, b) => b.score - a.score || new Date(b.completedAt ?? b.timestamp).getTime() - new Date(a.completedAt ?? a.timestamp).getTime())
+    .filter((entry) => {
+      const count = counts.get(entry.userId) ?? 0;
+      if (count >= perUser) return false;
+      counts.set(entry.userId, count + 1);
+      return true;
+    })
+    .slice(0, 50);
+};
 const scoreLabels: Record<string, string> = { Ones: 'Ones', Twos: 'Twos', Threes: 'Threes', Fours: 'Fours', Fives: 'Fives', Sixes: 'Sixes', ThreeOfAKind: '3 of a Kind', FourOfAKind: '4 of a Kind', FullHouse: 'Full House', SmallStraight: 'Small Straight', LargeStraight: 'Large Straight', Yahtzee: 'Yahtzee', Chance: 'Chance' };
 const ScorecardBreakdown = ({ value }: { value?: string }) => { if (!value) return null; let card: Record<string, number>; try { card = JSON.parse(value); } catch { return null; } const upper = ['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes'].reduce((sum, key) => sum + (card[key] ?? 0), 0); return <div className="mt-3 rounded-xl bg-deepBlack p-4"><div className="mb-2 flex justify-between"><strong className="text-neonYellow">Full scorecard</strong><small className="text-gray-500">Upper {upper} · Bonus {upper >= 63 ? 35 : 0}</small></div><div className="max-h-64 overflow-y-auto">{Object.entries(card).map(([category, score]) => <div key={category} className="flex justify-between border-b border-gray-800 py-2 text-sm"><span className="text-mintGlow">{scoreLabels[category] ?? category}</span><strong className={score === 0 ? 'text-electricPink' : 'text-neonCyan'}>{score}</strong></div>)}</div></div>; };
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading = false, onShowUserScoresChange, canShowUserScores = true }) => {
   type Competition = 'solo' | 'daily';
-  type LeaderboardEntry = ScoreItem & Partial<GameResult> & { aggregate?: boolean };
   const [scores, setScores] = useState<LeaderboardEntry[]>([]);
   const [historyScores, setHistoryScores] = useState<LeaderboardEntry[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -54,13 +66,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
             .filter((result) => result.mode === 'SOLO')
             .map((result) => ({ ...result, timestamp: result.completedAt } as LeaderboardEntry));
           const indexedIds = new Set(indexed.map((result) => result.id));
-          fetchedScores = filterResultsByPeriod([...indexed, ...legacy.filter((score) => !indexedIds.has(score.id))], period)
-            .sort((a, b) => b.score - a.score);
+          fetchedScores = topScoresPerUser(filterResultsByPeriod([...indexed, ...legacy.filter((score) => !indexedIds.has(score.id))], period), 3);
         } else {
           const daily = period === 'today' ? await fetchDailyResults(localDateKey()) : filterResultsByPeriod(await fetchAllDailyResults(1000), period);
-          fetchedScores = [...daily].sort((a, b) => b.score - a.score);
+          fetchedScores = topScoresPerUser(daily as LeaderboardEntry[], 1);
         }
-        setScores(fetchedScores.slice(0, 100));
+        setScores(showUserScores ? fetchedScores.slice(0, 100) : fetchedScores.slice(0, 50));
         setLastUpdated(new Date());
       } catch (error) {
         console.error('Error fetching scores:', error);
