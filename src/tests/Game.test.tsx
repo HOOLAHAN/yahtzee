@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { StrictMode } from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import Game from '../components/game/Game';
 import * as AuthContext from '../context/AuthContext';
@@ -21,6 +22,8 @@ jest.mock('../services/gameResults', () => ({
 }));
 
 afterEach(() => {
+  jest.useRealTimers();
+  jest.restoreAllMocks();
   localStorage.clear();
   jest.clearAllMocks();
 });
@@ -59,6 +62,18 @@ test('initial roll count is 3', () => {
   fireEvent.click(rollButton);
   
   expect(rollButton).toHaveTextContent('Roll Dice (3 left)');
+});
+
+test('computer begins rolling when effects are replayed by Strict Mode', async () => {
+  jest.useFakeTimers();
+  jest.spyOn(Math, 'random').mockReturnValue(0.5);
+  (AuthContext.useAuth as jest.Mock).mockReturnValue({ isUserSignedIn: false, userDetails: null });
+
+  render(<StrictMode><Game isComputerOpponent isTwoPlayer setIsTwoPlayer={jest.fn()} /></StrictMode>);
+  expect(screen.getByText(/Computer is thinking/)).toBeInTheDocument();
+
+  await act(async () => { jest.advanceTimersByTime(750); });
+  screen.getAllByRole('button', { name: '1' }).forEach((die) => expect(die).toHaveClass('dice-rolling'));
 });
 
 

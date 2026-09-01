@@ -172,7 +172,14 @@ const Game: React.FC<GameProps> = ({ initialDice = defaultDice, isTwoPlayer, set
       setCurrentPlayer(1); computerRunning.current = false; setComputerThinking(false);
     };
     void play();
-    return () => { cancelled = true; setShouldShake(false); };
+    return () => {
+      cancelled = true;
+      // React Strict Mode mounts, cleans up and replays effects in development.
+      // Release the guard here so that replay can start the computer's turn.
+      computerRunning.current = false;
+      setComputerThinking(false);
+      setShouldShake(false);
+    };
   }, [currentPlayer, initialDice, isComputerOpponent, player2ScoreHistory, player2UsedCategories]);
 
   useEffect(() => {
