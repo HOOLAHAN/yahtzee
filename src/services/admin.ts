@@ -7,6 +7,7 @@ export interface AdminUser {
   status: string; enabled: boolean; profileComplete: boolean; signedUpAt: string | null; accountUpdatedAt: string | null;
   lastPlayedAt: string | null; gamesPlayed: number; soloGames: number; dailyGames: number; bestScore: number | null; averageScore: number | null;
   pushNotificationsEnabled: boolean;
+  isAdmin: boolean;
 }
 
 export interface AdminNotificationResult { audienceCount: number; sentCount: number; failedCount: number }
