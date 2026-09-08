@@ -1055,3 +1055,22 @@ html, body, #root {
   background:#5cff88;
   box-shadow:0 0 18px rgba(92,255,136,.25);
 }
+.live-game-die { transform-origin:center; }
+.live-dice-rolling .live-game-die {
+  animation:liveRemoteDiceRoll 620ms cubic-bezier(.2,.75,.25,1);
+}
+.live-dice-rolling .live-game-die:nth-child(2) { animation-delay:25ms; }
+.live-dice-rolling .live-game-die:nth-child(3) { animation-delay:50ms; }
+.live-dice-rolling .live-game-die:nth-child(4) { animation-delay:75ms; }
+.live-dice-rolling .live-game-die:nth-child(5) { animation-delay:100ms; }
+section.max-w-5xl > .mt-6.flex.justify-center.gap-2 { gap:clamp(.75rem,2.2vw,1.5rem); }
+@keyframes liveRemoteDiceRoll {
+  0% { transform:translateY(0) rotate(0) scale(1); }
+  30% { transform:translateY(-28px) rotate(125deg) scale(.92); }
+  58% { transform:translateY(3px) rotate(255deg) scale(1.08,.88); }
+  76% { transform:translateY(-11px) rotate(325deg) scale(.97); }
+  100% { transform:translateY(0) rotate(360deg) scale(1); }
+}
+@media (prefers-reduced-motion:reduce) {
+  .live-dice-rolling .live-game-die { animation-duration:180ms; }
+}
