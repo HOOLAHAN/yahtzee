@@ -1,6 +1,6 @@
 // Leaderboard.tsx
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fetchScores, ScoreItem, fetchUserScores } from '../../lib/scoreboardUtils';
 import { useAuth } from '../../context/AuthContext'; 
 import { useLeaderboardRefresh } from '../../context/LeaderboardRefreshContext';
@@ -45,8 +45,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const { userDetails } = useAuth();
   const { refreshLeaderboard } = useLeaderboardRefresh();
+  const loadRequest = useRef(0);
 
   const loadScores = useCallback(async () => {
+      const request = ++loadRequest.current;
       setLoading(true);
       try {
         setErrorMessage('');
@@ -56,6 +58,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
           const indexedIds = new Set(details.map((result) => result.id));
           const history = [...details.map((result) => ({ ...result, timestamp: result.completedAt } as LeaderboardEntry)), ...legacy.filter((score) => !indexedIds.has(score.id)).map((score) => ({ ...score, mode: 'SOLO' as const } as LeaderboardEntry))];
           const datedHistory = filterResultsByPeriod(history, historyDate);
+          if (request !== loadRequest.current) return;
           setHistoryScores(datedHistory);
           fetchedScores = datedHistory.filter((result) => historyMode === 'ALL' || result.mode === historyMode).sort((a, b) => new Date(b.completedAt ?? b.timestamp).getTime() - new Date(a.completedAt ?? a.timestamp).getTime());
         } else if (competition === 'solo') {
@@ -71,14 +74,16 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
           const daily = period === 'today' ? await fetchDailyResults(localDateKey()) : filterResultsByPeriod(await fetchAllDailyResults(1000), period);
           fetchedScores = topScoresPerUser(daily as LeaderboardEntry[], 1);
         }
+        if (request !== loadRequest.current) return;
         setScores(showUserScores ? fetchedScores.slice(0, 100) : fetchedScores.slice(0, 50));
         setLastUpdated(new Date());
       } catch (error) {
+        if (request !== loadRequest.current) return;
         console.error('Error fetching scores:', error);
         setScores([]);
         setErrorMessage(error instanceof Error ? error.message : 'Failed to load leaderboard.');
       } finally {
-        setLoading(false);
+        if (request === loadRequest.current) setLoading(false);
       }
     }, [competition, historyDate, historyMode, period, showUserScores, userDetails]);
 
