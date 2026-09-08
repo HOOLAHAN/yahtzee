@@ -1035,3 +1035,23 @@ html, body, #root {
 .desktop-dropdown-panel button{display:block;width:100%;padding:.75rem .85rem;border-radius:.7rem;color:#bafce9;text-align:left;font-size:.8rem;font-weight:900}.desktop-dropdown-panel button:hover{background:#192729;color:#08d9df}.desktop-dropdown-panel small{display:block;margin-top:.2rem;color:#748287;font-size:.62rem;font-weight:700;line-height:1.4}.desktop-dropdown-panel .desktop-dropdown-danger{border-top:1px solid #273538;border-radius:0;color:#ff7180;margin-top:.25rem}
 @media (max-width: 940px){.play-picker{grid-template-columns:1fr}.dice-tools{margin-top:.3rem}.dice-tool-tabs{grid-template-columns:repeat(2,1fr)}.dice-tool-tab{min-width:0}.dice-animation-setting{grid-template-columns:1fr}.dice-animation-options{grid-template-columns:repeat(2,1fr)}}
 @media (max-width: 640px){.game-chooser{margin:1.25rem auto;padding:0 1rem 2rem}.game-mode-tabs,.dice-tool-tabs{grid-template-columns:1fr}.game-choice-card{min-height:0}.dice-tool-tab{min-height:4.5rem}.virtual-dice-tray{padding:1rem .5rem}.site-footer{padding-bottom:2rem}}
+
+/* Remote games use mint as the other player's visual identity. */
+.live-opponent-turn section.max-w-5xl header h2,
+.live-opponent-turn section.max-w-5xl h3 { color:#5cff88; }
+.live-opponent-turn section.max-w-5xl .web-panel.mt-4 {
+  border-color:#315f42;
+  background:#13251a;
+  box-shadow:0 0 20px rgba(92,255,136,.08);
+}
+.live-opponent-turn section.max-w-5xl .web-panel.mt-4 strong:last-child { color:#9dffb7; }
+.live-opponent-turn section.max-w-5xl > .mt-3.rounded-xl {
+  background:#173322;
+  color:#9dffb7;
+}
+.live-opponent-turn section.max-w-5xl > .mt-3.rounded-xl i { background:#5cff88; }
+.live-opponent-turn .live-game-die:not(.\!\-translate-y-1) {
+  border-color:#5cff88;
+  background:#5cff88;
+  box-shadow:0 0 18px rgba(92,255,136,.25);
+}
