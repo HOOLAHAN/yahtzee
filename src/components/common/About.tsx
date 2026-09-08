@@ -12,6 +12,7 @@ const modes = [
   { name: 'Solo', icon: faDice, copy: 'Play all 13 rounds, submit your final score and climb the shared leaderboard.' },
   { name: 'Vs Computer', icon: faComputer, copy: 'Battle an automated opponent that rolls and makes logical category choices.' },
   { name: 'Pass & Play', icon: faPeopleGroup, copy: 'Take turns on one screen with independent scores and scorecards.' },
+  { name: 'Remote Game', icon: faPeopleGroup, copy: 'Create or join a private two-device game, watch each turn live and resume whenever you are ready.' },
   { name: 'Real Dice', icon: faCalculator, copy: 'Keep score for up to ten named players while using physical dice.' },
 ];
 

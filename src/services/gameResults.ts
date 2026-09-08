@@ -2,7 +2,7 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import { client } from '../lib/amplifyClient';
 import { ScoreEntry } from '../lib/types';
 
-export type ResultMode = 'SOLO' | 'DAILY' | 'COMPUTER' | 'PASS' | 'REAL';
+export type ResultMode = 'SOLO' | 'DAILY' | 'COMPUTER' | 'PASS' | 'REAL' | 'REMOTE';
 export interface GameResult {
   id: string; userId: string; username: string; mode: ResultMode; modeDate: string;
   challengeDate?: string; score: number; completedAt: string; yahtzeeCount: number;

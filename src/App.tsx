@@ -6,6 +6,7 @@ import Navbar from './components/layout/Navbar';
 import Game from './components/game/Game';
 import RealDiceGame from './components/game/RealDiceGame';
 import VirtualDice from './components/game/VirtualDice';
+import LiveGame from './components/game/LiveGame';
 import { AuthProvider } from './context/AuthContext';
 import { LeaderboardRefreshProvider } from './context/LeaderboardRefreshContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,7 +25,7 @@ const pageFromPath = (): SitePage => window.location.pathname.startsWith('/admin
   ? 'admin'
   : (Object.entries(pagePaths).find(([, path]) => window.location.pathname === path)?.[0] as SitePage | undefined) ?? 'play';
 const AppContent = () => {
-  type GameMode = 'solo' | 'daily' | 'computer' | 'pass' | 'virtual' | 'real';
+  type GameMode = 'solo' | 'daily' | 'computer' | 'pass' | 'live' | 'virtual' | 'real';
   const [mode, setMode] = useState<GameMode>('solo');
   const [showGameChooser, setShowGameChooser] = useState(true);
   const [hasStartedGame, setHasStartedGame] = useState(false);
@@ -41,12 +42,13 @@ const AppContent = () => {
     { value: 'daily' as GameMode, label: 'Daily Challenge', description: 'Play today’s fixed roll sequence and compare your score. Everyone receives the same candidate dice on each numbered roll, but your holds and category choices are your own.', icon: faDice },
     { value: 'computer' as GameMode, label: 'Vs Computer', description: 'Test your choices against a strategic computer opponent.', icon: faComputer },
     { value: 'pass' as GameMode, label: 'Pass & Play', description: 'Share this device and take turns in a two-player game.', icon: faPeopleGroup },
+    { value: 'live' as GameMode, label: 'Remote Game', description: 'Create or join a private game and take turns live on two devices.', icon: faPeopleGroup },
   ];
   const diceTools = [
     { value: 'virtual' as GameMode, label: 'Dice roller', description: 'Roll 1 or 2 dice', icon: faDice },
     { value: 'real' as GameMode, label: 'Scorecard', description: 'For physical dice', icon: faCalculator },
   ];
-  const pageTitle: Record<GameMode, string> = { solo: 'Single Player', daily: 'Daily Challenge', computer: 'Vs Computer', pass: 'Pass & Play', virtual: 'Dice Roller', real: 'Scorecard' };
+  const pageTitle: Record<GameMode, string> = { solo: 'Single Player', daily: 'Daily Challenge', computer: 'Vs Computer', pass: 'Pass & Play', live: 'Remote Game', virtual: 'Dice Roller', real: 'Scorecard' };
 
   const changeMode = (nextMode: GameMode) => { setHasStartedGame(true); if (nextMode === mode) { setShowGameChooser(false); return; } setMode(nextMode); setShowGameChooser(false); setResetGameKey((key) => key + 1); };
   const changeScoreSuggestions = (enabled: boolean) => {
@@ -99,7 +101,7 @@ const AppContent = () => {
               </section>
               </div>
             </section>}
-            <div hidden={showGameChooser}>{mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} diceAnimation={diceAnimation} /> : <Game key={resetGameKey} isTwoPlayer={mode === 'pass' || mode === 'computer'} isComputerOpponent={mode === 'computer'} isDailyChallenge={mode === 'daily'} scoreSuggestionsEnabled={scoreSuggestionsEnabled} diceAnimation={diceAnimation} onOpenSettings={() => setShowGameChooser(true)} onCreateAccount={() => setRegistrationRequest((request) => request + 1)} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}</div></div>
+            <div hidden={showGameChooser}>{mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} diceAnimation={diceAnimation} /> : mode === 'live' ? <LiveGame key={resetGameKey} onBack={() => setShowGameChooser(true)} onCreateAccount={() => setRegistrationRequest((request) => request + 1)} /> : <Game key={resetGameKey} isTwoPlayer={mode === 'pass' || mode === 'computer'} isComputerOpponent={mode === 'computer'} isDailyChallenge={mode === 'daily'} scoreSuggestionsEnabled={scoreSuggestionsEnabled} diceAnimation={diceAnimation} onOpenSettings={() => setShowGameChooser(true)} onCreateAccount={() => setRegistrationRequest((request) => request + 1)} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}</div></div>
             {activePage === 'scores' && <section className="site-page-content max-w-6xl"><div><p className="eyebrow">Shared leaderboard</p><h2 className="section-heading">High Scores</h2><p className="section-copy">Compare Solo games and Daily Challenge results, or review your own scores.</p></div>{!isUserSignedIn && <div className="mb-5 rounded-xl border border-[#315a5e] bg-[#142225] p-4 text-sm text-mintGlow"><strong className="block text-base text-neonYellow">Keep your scores and join the rankings</strong><p className="mt-1">Create a free player profile to save games, unlock your personal leaderboard and sync across devices.</p><button onClick={() => setRegistrationRequest((request) => request + 1)} className="mt-3 font-black text-neonCyan">Create player profile →</button></div>}<Leaderboard showUserScores={showMyScores} onShowUserScoresChange={setShowMyScores} canShowUserScores={isUserSignedIn} hideHeading /></section>}
             {activePage === 'progress' && <Progress embedded onCreateAccount={() => setRegistrationRequest((request) => request + 1)} />}
             {activePage === 'account' && isUserSignedIn && <Settings embedded scoreSuggestionsEnabled={scoreSuggestionsEnabled} onScoreSuggestionsChange={changeScoreSuggestions} diceAnimation={diceAnimation} onDiceAnimationChange={changeDiceAnimation} arcadeFontEnabled={arcadeFontEnabled} onArcadeFontChange={changeArcadeFont} />}
