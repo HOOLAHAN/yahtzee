@@ -5,7 +5,7 @@ export interface DailyAdminActivity { date: string; games: number; players: numb
 export interface AdminUser {
   userId: string; email: string; emailVerified: boolean; username: string; firstName: string; lastName: string;
   status: string; enabled: boolean; profileComplete: boolean; signedUpAt: string | null; accountUpdatedAt: string | null;
-  lastPlayedAt: string | null; gamesPlayed: number; soloGames: number; dailyGames: number; bestScore: number | null; averageScore: number | null;
+  lastPlayedAt: string | null; gamesPlayed: number; soloGames: number; dailyGames: number; remoteGames: number; remoteWins: number; bestScore: number | null; averageScore: number | null;
   pushNotificationsEnabled: boolean;
   isAdmin: boolean;
 }
@@ -21,6 +21,10 @@ export interface AdminDashboardData {
   completedGames: number;
   soloGames: number;
   dailyGames: number;
+  remoteGames: number;
+  remoteMatches: number;
+  remoteWins: number;
+  remoteDraws: number;
   gamesToday: number;
   gamesLast7Days: number;
   gamesLast30Days: number;
@@ -79,7 +83,7 @@ export async function fetchAdminDashboard(): Promise<AdminDashboardData> {
     const authToken = session.tokens?.idToken?.toString();
     if (!authToken) throw new Error('Sign in required.');
     const result = await (client as any).graphql({
-      query: `query AdminDashboard { adminDashboard { totalUsers completedGames soloGames dailyGames gamesToday gamesLast7Days gamesLast30Days activeUsersLast7Days activeUsersLast30Days averageScore yahtzeesRolled upperBonusesEarned generatedAt dailyActivity users recentSubmissions } }`,
+      query: `query AdminDashboard { adminDashboard { totalUsers completedGames soloGames dailyGames remoteGames remoteMatches remoteWins remoteDraws gamesToday gamesLast7Days gamesLast30Days activeUsersLast7Days activeUsersLast30Days averageScore yahtzeesRolled upperBonusesEarned generatedAt dailyActivity users recentSubmissions } }`,
       authMode: 'userPool', authToken,
     });
     if (!result.data?.adminDashboard) throw new Error(result.errors?.[0]?.message || 'Unable to load the admin dashboard.');
