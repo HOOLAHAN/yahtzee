@@ -69,7 +69,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
             .filter((result) => result.mode === 'SOLO')
             .map((result) => ({ ...result, timestamp: result.completedAt } as LeaderboardEntry));
           const indexedIds = new Set(indexed.map((result) => result.id));
-          fetchedScores = topScoresPerUser(filterResultsByPeriod([...indexed, ...legacy.filter((score) => !indexedIds.has(score.id))], period), 3);
+          fetchedScores = topScoresPerUser(filterResultsByPeriod([...indexed, ...legacy.filter((score) => !indexedIds.has(score.id))], period), 1);
         } else {
           const daily = period === 'today' ? await fetchDailyResults(localDateKey()) : filterResultsByPeriod(await fetchAllDailyResults(1000), period);
           fetchedScores = topScoresPerUser(daily as LeaderboardEntry[], 1);

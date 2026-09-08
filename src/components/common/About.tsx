@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalculator, faComputer, faDice, faPaperPlane, faPeopleGroup, faQrcode, faShieldHalved, faTrophy, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCalculator, faComputer, faDice, faPaperPlane, faPeopleGroup, faQrcode, faShieldHalved, faSun, faTrophy, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { QRCodeSVG } from 'qrcode.react';
 import { recordSharedApp } from '../../lib/achievements';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ interface AboutProps { onClose?: () => void; embedded?: boolean }
 
 const modes = [
   { name: 'Solo', icon: faDice, copy: 'Play all 13 rounds, submit your final score and climb the shared leaderboard.' },
+  { name: 'Daily Challenge', icon: faSun, copy: 'Play the shared fixed roll sequence, compare your result on the Daily leaderboard and build a streak.' },
   { name: 'Vs Computer', icon: faComputer, copy: 'Battle an automated opponent that rolls and makes logical category choices.' },
   { name: 'Pass & Play', icon: faPeopleGroup, copy: 'Take turns on one screen with independent scores and scorecards.' },
   { name: 'Remote Game', icon: faPeopleGroup, copy: 'Create or join a private two-device game, watch each turn live and resume whenever you are ready.' },
@@ -25,7 +26,7 @@ const About: React.FC<AboutProps> = ({ onClose, embedded = false }) => {
   };
   return <aside className={embedded ? "site-page-content" : "fixed right-0 top-0 z-50 h-full w-full max-w-xl overflow-y-auto border-l border-neonCyan bg-deepBlack p-6 text-mintGlow shadow-2xl"}>
   <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Web and mobile</p><h2 className="section-heading">About Yahtzee</h2></div>{onClose && <button onClick={onClose} aria-label="Close about" className="text-4xl text-neonCyan hover:text-electricPink">&times;</button>}</div>
-  <p className="section-copy">One shared account and leaderboard, with four ways to play at home or on the move.</p>
+  <p className="section-copy">One shared account and leaderboard, with multiple ways to play at home or on the move.</p>
   <section className="app-download-card"><div><p className="eyebrow">Play on mobile</p><h3>Take Yahtzee Hub with you</h3><p>Send someone the App Store link or show a code they can scan in person. Available on iPhone and iPad today, with Android planned.</p><div className="app-share-actions"><button type="button" onClick={() => void shareApp()}><FontAwesomeIcon icon={faPaperPlane} />Send link</button><button type="button" aria-expanded={showQr} onClick={() => setShowQr((visible) => !visible)} className="app-share-qr-button"><FontAwesomeIcon icon={showQr ? faXmark : faQrcode} />{showQr ? 'Hide QR' : 'Show QR'}</button></div></div>{showQr && <a href={appStoreUrl} target="_blank" rel="noreferrer" aria-label="Scan or open Yahtzee Hub on the App Store" className="app-qr"><QRCodeSVG value={appStoreUrl} size={116} bgColor="#ffffff" fgColor="#071012" level="M" marginSize={1} /><small>Scan to download</small></a>}</section>
   <section className="web-panel p-4 mb-3 border-neonYellow"><h3 className="text-neonYellow font-black">Daily Challenge</h3><p className="mt-2 text-sm leading-6">Everyone receives the same candidate dice for each numbered roll. Your holds and scoring decisions determine your result, Daily leaderboard position and streak.</p></section>
   <section className="web-panel p-4 mb-5 border-electricPink"><h3 className="text-electricPink font-black">Progress & achievements</h3><p className="mt-2 text-sm leading-6">Track games, personal bests, averages and Daily streaks. Unlock achievements for scoring milestones, combinations, consistency and sharing Yahtzee Hub.</p></section>
