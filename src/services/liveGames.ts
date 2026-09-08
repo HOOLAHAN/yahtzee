@@ -14,8 +14,20 @@ export interface LiveGame {
 export type LiveGameAction = { type: 'ROLL' } | { type: 'TOGGLE_HOLD'; index: number } | { type: 'SELECT_CATEGORY'; category: LiveCategory } | { type: 'LOCK_CATEGORY'; category: LiveCategory } | { type: 'LEAVE' };
 
 const fields = 'id code status hostUserId hostUsername guestUserId guestUsername currentUserId round dice held rollsLeft hasRolled selectedCategory hostScores guestScores winnerUserId endedByUserId createdAt updatedAt';
-const parseJson = <T,>(value: T | string): T => typeof value === 'string' ? JSON.parse(value) as T : value;
-const parseGame = (game: LiveGame): LiveGame => ({ ...game, dice: parseJson(game.dice), held: parseJson(game.held), hostScores: parseJson(game.hostScores), guestScores: parseJson(game.guestScores) });
+const parseJsonArray = <T,>(value: T[] | string | null | undefined): T[] => {
+  let parsed: unknown = value;
+  try {
+    for (let pass = 0; pass < 2 && typeof parsed === 'string'; pass += 1) parsed = JSON.parse(parsed);
+    return Array.isArray(parsed) ? parsed as T[] : [];
+  } catch { return []; }
+};
+const parseGame = (game: LiveGame): LiveGame => ({
+  ...game,
+  dice: parseJsonArray<number>(game.dice),
+  held: parseJsonArray<number>(game.held),
+  hostScores: parseJsonArray<LiveScoreEntry>(game.hostScores),
+  guestScores: parseJsonArray<LiveScoreEntry>(game.guestScores),
+});
 
 async function authToken() {
   const session = await fetchAuthSession();
