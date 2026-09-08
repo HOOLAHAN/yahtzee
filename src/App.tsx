@@ -26,8 +26,9 @@ const pageFromPath = (): SitePage => window.location.pathname.startsWith('/admin
   : (Object.entries(pagePaths).find(([, path]) => window.location.pathname === path)?.[0] as SitePage | undefined) ?? 'play';
 const AppContent = () => {
   type GameMode = 'solo' | 'daily' | 'computer' | 'pass' | 'live' | 'virtual' | 'real';
-  const [mode, setMode] = useState<GameMode>('solo');
-  const [showGameChooser, setShowGameChooser] = useState(true);
+  const initialJoinCode = new URLSearchParams(window.location.search).get('join')?.replace(/\D/g, '').slice(0, 6) ?? '';
+  const [mode, setMode] = useState<GameMode>(initialJoinCode.length === 6 ? 'live' : 'solo');
+  const [showGameChooser, setShowGameChooser] = useState(initialJoinCode.length !== 6);
   const [hasStartedGame, setHasStartedGame] = useState(false);
   const [resetGameKey, setResetGameKey] = useState(0);
   const [scoreSuggestionsEnabled, setScoreSuggestionsEnabled] = useState(() => localStorage.getItem('yahtzee.score-suggestions.v1') !== 'false');
@@ -101,7 +102,7 @@ const AppContent = () => {
               </section>
               </div>
             </section>}
-            <div hidden={showGameChooser}>{mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} diceAnimation={diceAnimation} /> : mode === 'live' ? <LiveGame key={resetGameKey} onBack={() => setShowGameChooser(true)} onCreateAccount={() => setRegistrationRequest((request) => request + 1)} /> : <Game key={resetGameKey} isTwoPlayer={mode === 'pass' || mode === 'computer'} isComputerOpponent={mode === 'computer'} isDailyChallenge={mode === 'daily'} scoreSuggestionsEnabled={scoreSuggestionsEnabled} diceAnimation={diceAnimation} onOpenSettings={() => setShowGameChooser(true)} onCreateAccount={() => setRegistrationRequest((request) => request + 1)} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}</div></div>
+            <div hidden={showGameChooser}>{mode === 'real' ? <RealDiceGame key={resetGameKey} /> : mode === 'virtual' ? <VirtualDice key={resetGameKey} diceAnimation={diceAnimation} /> : mode === 'live' ? <LiveGame key={resetGameKey} initialCode={initialJoinCode} onBack={() => setShowGameChooser(true)} onCreateAccount={() => setRegistrationRequest((request) => request + 1)} /> : <Game key={resetGameKey} isTwoPlayer={mode === 'pass' || mode === 'computer'} isComputerOpponent={mode === 'computer'} isDailyChallenge={mode === 'daily'} scoreSuggestionsEnabled={scoreSuggestionsEnabled} diceAnimation={diceAnimation} onOpenSettings={() => setShowGameChooser(true)} onCreateAccount={() => setRegistrationRequest((request) => request + 1)} setIsTwoPlayer={(enabled) => changeMode(enabled ? 'pass' : 'solo')} />}</div></div>
             {activePage === 'scores' && <section className="site-page-content max-w-6xl"><div><p className="eyebrow">Shared leaderboard</p><h2 className="section-heading">High Scores</h2><p className="section-copy">Compare Solo games and Daily Challenge results, or review your own scores.</p></div>{!isUserSignedIn && <div className="mb-5 rounded-xl border border-[#315a5e] bg-[#142225] p-4 text-sm text-mintGlow"><strong className="block text-base text-neonYellow">Keep your scores and join the rankings</strong><p className="mt-1">Create a free player profile to save games, unlock your personal leaderboard and sync across devices.</p><button onClick={() => setRegistrationRequest((request) => request + 1)} className="mt-3 font-black text-neonCyan">Create player profile →</button></div>}<Leaderboard showUserScores={showMyScores} onShowUserScoresChange={setShowMyScores} canShowUserScores={isUserSignedIn} hideHeading /></section>}
             {activePage === 'progress' && <Progress embedded onCreateAccount={() => setRegistrationRequest((request) => request + 1)} />}
             {activePage === 'account' && isUserSignedIn && <Settings embedded scoreSuggestionsEnabled={scoreSuggestionsEnabled} onScoreSuggestionsChange={changeScoreSuggestions} diceAnimation={diceAnimation} onDiceAnimationChange={changeDiceAnimation} arcadeFontEnabled={arcadeFontEnabled} onArcadeFontChange={changeArcadeFont} />}

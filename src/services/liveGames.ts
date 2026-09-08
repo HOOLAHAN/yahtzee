@@ -11,7 +11,7 @@ export interface LiveGame {
   hostScores: LiveScoreEntry[]; guestScores: LiveScoreEntry[]; winnerUserId?: string | null;
   endedByUserId?: string | null; createdAt: string; updatedAt: string;
 }
-export type LiveGameAction = { type: 'ROLL' } | { type: 'TOGGLE_HOLD'; index: number } | { type: 'SELECT_CATEGORY'; category: LiveCategory } | { type: 'LOCK_CATEGORY'; category: LiveCategory } | { type: 'LEAVE' };
+export type LiveGameAction = { type: 'ROLL'; actionId?: string } | { type: 'TOGGLE_HOLD'; index: number; actionId?: string } | { type: 'SELECT_CATEGORY'; category: LiveCategory; actionId?: string } | { type: 'LOCK_CATEGORY'; category: LiveCategory; actionId?: string } | { type: 'LEAVE'; actionId?: string } | { type: 'REMATCH'; actionId?: string };
 
 const fields = 'id code status hostUserId hostUsername guestUserId guestUsername currentUserId round dice held rollsLeft hasRolled selectedCategory hostScores guestScores winnerUserId endedByUserId createdAt updatedAt';
 const parseJsonArray = <T,>(value: T[] | string | null | undefined): T[] => {
@@ -47,7 +47,15 @@ export const createLiveGame = async () => parseGame(await request<LiveGame>(`mut
 export const joinLiveGame = async (code: string) => parseGame(await request<LiveGame>(`mutation JoinLiveGame($code:String!){joinLiveGame(code:$code){${fields}}}`, 'joinLiveGame', { code }));
 export const fetchLiveGame = async (gameId: string) => parseGame(await request<LiveGame>(`query LiveGame($gameId:ID!){liveGame(gameId:$gameId){${fields}}}`, 'liveGame', { gameId }));
 export const fetchMyLiveGames = async () => (await request<LiveGame[]>(`query MyLiveGames { myLiveGames { ${fields} } }`, 'myLiveGames')).map(parseGame);
-export const updateLiveGame = async (gameId: string, action: LiveGameAction) => parseGame(await request<LiveGame>(`mutation UpdateLiveGame($gameId:ID!,$action:AWSJSON!){updateLiveGame(gameId:$gameId,action:$action){${fields}}}`, 'updateLiveGame', { gameId, action: JSON.stringify(action) }));
+export const updateLiveGame = async (gameId: string, action: LiveGameAction) => {
+  const stableAction = { ...action, actionId: action.actionId || `${Date.now()}-${Math.random().toString(36).slice(2)}` };
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try { return parseGame(await request<LiveGame>(`mutation UpdateLiveGame($gameId:ID!,$action:AWSJSON!){updateLiveGame(gameId:$gameId,action:$action){${fields}}}`, 'updateLiveGame', { gameId, action: JSON.stringify(stableAction) })); }
+    catch (error) { lastError = error; if (!attempt) await new Promise((resolve) => setTimeout(resolve, 450)); }
+  }
+  throw lastError;
+};
 
 export async function subscribeToLiveGame(gameId: string, onGame: (game: LiveGame) => void, onError: (error: Error) => void) {
   const operation = (client as any).graphql({ query: `subscription LiveGameChanged($id:ID!){onLiveGameChanged(id:$id){${fields}}}`, variables: { id: gameId }, authMode: 'userPool', authToken: await authToken() });
