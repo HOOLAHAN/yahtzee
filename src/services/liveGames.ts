@@ -44,7 +44,7 @@ async function request<T>(query: string, field: string, variables?: Record<strin
 }
 
 export const createLiveGame = async () => parseGame(await request<LiveGame>(`mutation CreateLiveGame { createLiveGame { ${fields} } }`, 'createLiveGame'));
-export const challengeLiveGame = async (userId: string) => parseGame(await request<LiveGame>(`mutation ChallengeLiveGame($userId:ID!){challengeLiveGame(userId:$userId){${fields}}}`, 'challengeLiveGame', { userId }));
+export const challengeLiveGame = async (userId: string, username?: string) => parseGame(await request<LiveGame>(`mutation ChallengeLiveGame($userId:ID!,$username:String){challengeLiveGame(userId:$userId,username:$username){${fields}}}`, 'challengeLiveGame', { userId, username }));
 export const joinLiveGame = async (code: string) => parseGame(await request<LiveGame>(`mutation JoinLiveGame($code:String!){joinLiveGame(code:$code){${fields}}}`, 'joinLiveGame', { code }));
 export const fetchLiveGame = async (gameId: string) => parseGame(await request<LiveGame>(`query LiveGame($gameId:ID!){liveGame(gameId:$gameId){${fields}}}`, 'liveGame', { gameId }));
 export const fetchMyLiveGames = async () => (await request<LiveGame[]>(`query MyLiveGames { myLiveGames { ${fields} } }`, 'myLiveGames')).map(parseGame);
