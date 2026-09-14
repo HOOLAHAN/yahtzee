@@ -42,13 +42,25 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
   const [historyMode, setHistoryMode] = useState<'ALL' | ResultMode>('ALL');
   const [historyDate, setHistoryDate] = useState<'all' | 'week' | 'month'>('all');
   const [selected, setSelected] = useState<LeaderboardEntry | null>(null);
+  const [challengeBusy, setChallengeBusy] = useState(false);
+  const [challengeMessage, setChallengeMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const challengeOrView = async (score: LeaderboardEntry) => {
-    if (!userDetails || score.userId === userDetails.userId) { setSelected(score); return; }
-    if (!window.confirm(`Challenge ${score.username} to a Remote Game?\n\nChoose Cancel to view their score instead.`)) { setSelected(score); return; }
-    try { await challengeLiveGame(score.userId); window.alert(`Challenge sent to ${score.username}.`); }
-    catch (error) { window.alert(error instanceof Error ? error.message : 'Unable to send challenge.'); }
+  const openPlayer = (score: LeaderboardEntry) => {
+    setChallengeMessage('');
+    setSelected(score);
+  };
+  const sendChallenge = async (score: LeaderboardEntry) => {
+    setChallengeBusy(true);
+    setChallengeMessage('');
+    try {
+      await challengeLiveGame(score.userId);
+      setChallengeMessage(`Challenge sent to ${score.username}.`);
+    } catch (error) {
+      setChallengeMessage(error instanceof Error ? error.message : 'Unable to send challenge.');
+    } finally {
+      setChallengeBusy(false);
+    }
   };
   const { userDetails } = useAuth();
   const { refreshLeaderboard } = useLeaderboardRefresh();
@@ -134,7 +146,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
           {scores.map((score, index) => (
             <li
               key={score.id}
-              onClick={() => void challengeOrView(score)}
+              onClick={() => openPlayer(score)}
               className="flex cursor-pointer items-center justify-between rounded-xl border border-[#2d3c40] bg-[#11191b] px-4 py-4 shadow-md transition hover:border-neonCyan hover:bg-[#162225]"
             >
               <div><div className="text-lg font-semibold text-neonCyan">{showUserScores ? '' : `${index + 1}. `}{score.username}</div><div className="mt-1 text-[10px] font-bold uppercase tracking-wide text-gray-500">{score.mode === 'DAILY' ? 'Daily Challenge' : score.mode === 'COMPUTER' ? 'Vs Computer' : score.mode === 'PASS' ? 'Pass & Play' : score.mode === 'REAL' ? 'Real Dice' : score.mode === 'REMOTE' ? 'Remote Game' : 'Solo'}{(score.completedAt ?? score.timestamp) ? ` · ${new Date(score.completedAt ?? score.timestamp).toLocaleDateString()}` : ''}</div></div>
@@ -151,6 +163,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
       ) : (
         <p className="text-center text-gray-400 mt-6">No scores available.</p>
       )}
+      {selected && userDetails && selected.userId !== userDetails.userId && <div className="fixed inset-x-4 top-24 z-[60] mx-auto max-w-xl rounded-2xl border border-neonCyan bg-[#11191b] p-3 shadow-2xl"><button type="button" disabled={challengeBusy || challengeMessage.startsWith('Challenge sent')} onClick={() => void sendChallenge(selected)} className="w-full rounded-xl bg-neonCyan px-5 py-3 font-black text-deepBlack disabled:opacity-60">{challengeBusy ? 'Sending challenge…' : challengeMessage.startsWith('Challenge sent') ? challengeMessage : `Challenge ${selected.username} to a Remote Game`}</button>{challengeMessage && !challengeMessage.startsWith('Challenge sent') && <p className="mt-2 text-center text-sm text-red-400">{challengeMessage}</p>}</div>}
       {selected && <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-sm" onClick={() => setSelected(null)}><section role="dialog" aria-modal="true" aria-labelledby="score-detail-title" className="w-full max-w-xl rounded-t-3xl border border-neonCyan bg-[#11191b] p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}><div className="flex items-start justify-between"><div><p className="eyebrow">{selected.aggregate ? 'Weekly Daily Challenge' : selected.mode === 'DAILY' ? 'Daily Challenge' : 'Solo game'}</p><h3 id="score-detail-title" className="text-2xl font-black text-white">{selected.username}</h3></div><button onClick={() => setSelected(null)} aria-label="Close score details" className="text-3xl text-neonCyan">&times;</button></div><div className="mt-3 text-6xl font-black text-neonYellow">{selected.score}</div>{selected.aggregate ? <p className="mt-4 text-sm text-mintGlow">Weekly score: the total of this player’s best five Daily Challenge results.</p> : selected.completedAt ? <><p className="mt-1 text-xs text-gray-500">{new Date(selected.completedAt).toLocaleString()}</p><div className="mt-5 grid grid-cols-3 gap-2"><div className="rounded-xl bg-deepBlack p-3 text-center"><strong className="block text-2xl text-neonCyan">{selected.yahtzeeCount ?? 0}</strong><small className="text-gray-500">Yahtzees</small></div><div className="rounded-xl bg-deepBlack p-3 text-center"><strong className="block text-2xl text-neonCyan">{selected.earnedUpperBonus ? '✓' : '—'}</strong><small className="text-gray-500">Upper bonus</small></div><div className="rounded-xl bg-deepBlack p-3 text-center"><strong className="block text-2xl text-neonCyan">{selected.noZeroScores ? '✓' : '—'}</strong><small className="text-gray-500">No zeroes</small></div></div><div className="mt-3 rounded-xl bg-deepBlack px-4 text-sm text-mintGlow"><p className="border-b border-gray-800 py-3">Small straight <span className="float-right">{selected.completedSmallStraight ? '✓' : '—'}</span></p><p className="border-b border-gray-800 py-3">Large straight <span className="float-right">{selected.completedLargeStraight ? '✓' : '—'}</span></p><p className="py-3">Both straights <span className="float-right">{selected.completedSmallStraight && selected.completedLargeStraight ? '✓' : '—'}</span></p></div><ScorecardBreakdown value={selected.scorecard} /></> : <p className="mt-4 text-sm leading-6 text-mintGlow">This is a historical leaderboard score. Detailed game statistics were not recorded for older entries.</p>}</section></div>}
     </div>
   );
