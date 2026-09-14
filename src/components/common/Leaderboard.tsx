@@ -8,6 +8,7 @@ import { fetchAllDailyResults, fetchDailyResults, fetchMyGameResults, fetchSoloR
 import { localDateKey } from '../../lib/dailyChallenge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate, faEarthEurope, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { challengeLiveGame } from '../../services/liveGames';
 
 interface LeaderboardProps {
   showUserScores: boolean;
@@ -43,6 +44,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
   const [selected, setSelected] = useState<LeaderboardEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const challengeOrView = async (score: LeaderboardEntry) => {
+    if (!userDetails || score.userId === userDetails.userId) { setSelected(score); return; }
+    if (!window.confirm(`Challenge ${score.username} to a Remote Game?\n\nChoose Cancel to view their score instead.`)) { setSelected(score); return; }
+    try { await challengeLiveGame(score.userId); window.alert(`Challenge sent to ${score.username}.`); }
+    catch (error) { window.alert(error instanceof Error ? error.message : 'Unable to send challenge.'); }
+  };
   const { userDetails } = useAuth();
   const { refreshLeaderboard } = useLeaderboardRefresh();
   const loadRequest = useRef(0);
@@ -127,7 +134,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ showUserScores, hideHeading =
           {scores.map((score, index) => (
             <li
               key={score.id}
-              onClick={() => setSelected(score)}
+              onClick={() => void challengeOrView(score)}
               className="flex cursor-pointer items-center justify-between rounded-xl border border-[#2d3c40] bg-[#11191b] px-4 py-4 shadow-md transition hover:border-neonCyan hover:bg-[#162225]"
             >
               <div><div className="text-lg font-semibold text-neonCyan">{showUserScores ? '' : `${index + 1}. `}{score.username}</div><div className="mt-1 text-[10px] font-bold uppercase tracking-wide text-gray-500">{score.mode === 'DAILY' ? 'Daily Challenge' : score.mode === 'COMPUTER' ? 'Vs Computer' : score.mode === 'PASS' ? 'Pass & Play' : score.mode === 'REAL' ? 'Real Dice' : score.mode === 'REMOTE' ? 'Remote Game' : 'Solo'}{(score.completedAt ?? score.timestamp) ? ` · ${new Date(score.completedAt ?? score.timestamp).toLocaleDateString()}` : ''}</div></div>

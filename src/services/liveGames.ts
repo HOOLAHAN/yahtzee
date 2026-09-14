@@ -2,7 +2,7 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import { client } from '../lib/amplifyClient';
 
 export type LiveCategory = 'Ones' | 'Twos' | 'Threes' | 'Fours' | 'Fives' | 'Sixes' | 'Three of a Kind' | 'Four of a Kind' | 'Full House' | 'Small Straight' | 'Large Straight' | 'Yahtzee' | 'Chance';
-export type LiveGameStatus = 'WAITING' | 'ACTIVE' | 'COMPLETED' | 'ABANDONED';
+export type LiveGameStatus = 'INVITED' | 'WAITING' | 'ACTIVE' | 'COMPLETED' | 'DECLINED' | 'ABANDONED';
 export interface LiveScoreEntry { category: LiveCategory; score: number; dice: number[]; yahtzeeBonus?: number; }
 export interface LiveGame {
   id: string; code: string; status: LiveGameStatus; hostUserId: string; hostUsername: string;
@@ -11,7 +11,7 @@ export interface LiveGame {
   hostScores: LiveScoreEntry[]; guestScores: LiveScoreEntry[]; winnerUserId?: string | null;
   endedByUserId?: string | null; createdAt: string; updatedAt: string;
 }
-export type LiveGameAction = { type: 'ROLL'; actionId?: string } | { type: 'TOGGLE_HOLD'; index: number; actionId?: string } | { type: 'SELECT_CATEGORY'; category: LiveCategory; actionId?: string } | { type: 'LOCK_CATEGORY'; category: LiveCategory; actionId?: string } | { type: 'LEAVE'; actionId?: string } | { type: 'REMATCH'; actionId?: string };
+export type LiveGameAction = { type: 'ROLL'; actionId?: string } | { type: 'TOGGLE_HOLD'; index: number; actionId?: string } | { type: 'SELECT_CATEGORY'; category: LiveCategory; actionId?: string } | { type: 'LOCK_CATEGORY'; category: LiveCategory; actionId?: string } | { type: 'LEAVE'; actionId?: string } | { type: 'REMATCH'; actionId?: string } | { type: 'RESPOND_INVITE'; accept: boolean; actionId?: string };
 
 const fields = 'id code status hostUserId hostUsername guestUserId guestUsername currentUserId round dice held rollsLeft hasRolled selectedCategory hostScores guestScores winnerUserId endedByUserId createdAt updatedAt';
 const parseJsonArray = <T,>(value: T[] | string | null | undefined): T[] => {
@@ -44,6 +44,7 @@ async function request<T>(query: string, field: string, variables?: Record<strin
 }
 
 export const createLiveGame = async () => parseGame(await request<LiveGame>(`mutation CreateLiveGame { createLiveGame { ${fields} } }`, 'createLiveGame'));
+export const challengeLiveGame = async (userId: string) => parseGame(await request<LiveGame>(`mutation ChallengeLiveGame($userId:ID!){challengeLiveGame(userId:$userId){${fields}}}`, 'challengeLiveGame', { userId }));
 export const joinLiveGame = async (code: string) => parseGame(await request<LiveGame>(`mutation JoinLiveGame($code:String!){joinLiveGame(code:$code){${fields}}}`, 'joinLiveGame', { code }));
 export const fetchLiveGame = async (gameId: string) => parseGame(await request<LiveGame>(`query LiveGame($gameId:ID!){liveGame(gameId:$gameId){${fields}}}`, 'liveGame', { gameId }));
 export const fetchMyLiveGames = async () => (await request<LiveGame[]>(`query MyLiveGames { myLiveGames { ${fields} } }`, 'myLiveGames')).map(parseGame);
