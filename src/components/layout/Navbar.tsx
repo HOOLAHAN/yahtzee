@@ -43,7 +43,7 @@ const Navbar: React.FC<NavbarProps> = ({ activePage, pageTitle = 'Yahtzee!', onN
       </div>
       <button onClick={() => setIsMenuOpen(true)} className="flex h-10 items-center gap-2 rounded-full bg-neonCyan px-3 font-black text-deepBlack transition hover:bg-electricPink hover:text-white md:hidden" aria-label="Open navigation"><FontAwesomeIcon icon={faBars} /><span>Menu</span></button>
     </div></nav>
-    {showAuthModal && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={handleCloseModal}><div className="relative w-full max-w-[410px] rounded-lg" onClick={(event) => event.stopPropagation()}><AuthenticationManager initialForm={initialAuthForm} onClose={() => setShowAuthModal(false)} onFormChange={setCurrentForm} /><button onClick={() => setShowAuthModal(false)} className="absolute right-3 top-2 text-3xl text-neonCyan">&times;</button></div></div>}
+    {showAuthModal && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4" onClick={handleCloseModal}><div role="dialog" aria-modal="true" aria-label="Account access" className="auth-modal" onClick={(event) => event.stopPropagation()}><AuthenticationManager initialForm={initialAuthForm} onClose={() => setShowAuthModal(false)} onFormChange={setCurrentForm} /><button type="button" aria-label="Close account form" onClick={() => setShowAuthModal(false)} className="auth-modal-close">&times;</button></div></div>}
     <Menu isOpen={isMenuOpen} activePage={activePage} onClose={() => setIsMenuOpen(false)} onNavigate={go} onSignIn={() => openAuth('login')} onSignOut={() => void signOut()} />
   </>;
 };

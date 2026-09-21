@@ -37,7 +37,7 @@ const AuthenticationManager: React.FC<AuthenticationManagerProps & { onFormChang
   }, [currentForm, onFormChange]);
 
   return (
-    <div className="flex justify-center items-center min-h-[400px] p-4 bg-deepBlack rounded-xl shadow-lg">
+    <div className="auth-modal-scroll">
       {currentForm === 'login' && (
         <div className="transition-opacity duration-300 ease-in-out w-full max-w-md">
           <LoginForm
