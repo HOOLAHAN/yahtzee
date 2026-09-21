@@ -2,10 +2,15 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import { client } from '../lib/amplifyClient';
 
 export interface DailyAdminActivity { date: string; games: number; players: number }
+export interface AdminLifecycleEvent { gameId: string; action: string; mode: string; round: number; score: number; categoriesFilled: number; platform: string; occurredAt: string }
+export interface AdminRecentGame { id: string; mode: string; score: number; completedAt: string; yahtzeeCount: number; earnedUpperBonus: boolean; remoteOutcome?: string | null; opponent?: string | null }
+export interface AdminModeBreakdown { mode: string; starts: number; abandons: number; completions: number }
 export interface AdminUser {
   userId: string; email: string; emailVerified: boolean; username: string; firstName: string; lastName: string;
   status: string; enabled: boolean; profileComplete: boolean; signedUpAt: string | null; accountUpdatedAt: string | null;
-  lastPlayedAt: string | null; gamesPlayed: number; soloGames: number; dailyGames: number; remoteGames: number; remoteWins: number; bestScore: number | null; averageScore: number | null;
+  lastPlayedAt: string | null; gamesPlayed: number; soloGames: number; dailyGames: number; remoteGames: number; remoteWins: number; remoteDraws: number; remoteLosses: number;
+  gameStarts: number; abandonedGames: number; resetGames: number; modeSwitchAbandons: number; remoteExits: number; averageAbandonRound: number; lastAbandonedAt: string | null;
+  lifecyclePlatforms: string[]; lifecycleModeBreakdown: AdminModeBreakdown[]; recentAbandonments: AdminLifecycleEvent[]; recentGames: AdminRecentGame[]; bestScore: number | null; averageScore: number | null;
   pushNotificationsEnabled: boolean;
   isAdmin: boolean;
 }
@@ -33,6 +38,16 @@ export interface AdminDashboardData {
   averageScore: number;
   yahtzeesRolled: number;
   upperBonusesEarned: number;
+  gameStarts: number;
+  abandonedGames: number;
+  resetGames: number;
+  modeSwitchAbandons: number;
+  remoteExits: number;
+  staleGames: number;
+  gameCompletionRate: number;
+  averageAbandonRound: number;
+  abandonmentByMode: AdminModeBreakdown[];
+  recentAbandonments: AdminLifecycleEvent[];
   generatedAt: string;
   dailyActivity: DailyAdminActivity[];
   users: AdminUser[];
@@ -83,13 +98,13 @@ export async function fetchAdminDashboard(): Promise<AdminDashboardData> {
     const authToken = session.tokens?.idToken?.toString();
     if (!authToken) throw new Error('Sign in required.');
     const result = await (client as any).graphql({
-      query: `query AdminDashboard { adminDashboard { totalUsers completedGames soloGames dailyGames remoteGames remoteMatches remoteWins remoteDraws gamesToday gamesLast7Days gamesLast30Days activeUsersLast7Days activeUsersLast30Days averageScore yahtzeesRolled upperBonusesEarned generatedAt dailyActivity users recentSubmissions } }`,
+      query: `query AdminDashboard { adminDashboard { totalUsers completedGames soloGames dailyGames remoteGames remoteMatches remoteWins remoteDraws gamesToday gamesLast7Days gamesLast30Days activeUsersLast7Days activeUsersLast30Days averageScore yahtzeesRolled upperBonusesEarned gameStarts abandonedGames resetGames modeSwitchAbandons remoteExits staleGames gameCompletionRate averageAbandonRound abandonmentByMode recentAbandonments generatedAt dailyActivity users recentSubmissions } }`,
       authMode: 'userPool', authToken,
     });
     if (!result.data?.adminDashboard) throw new Error(result.errors?.[0]?.message || 'Unable to load the admin dashboard.');
     const dashboard = result.data.adminDashboard;
     const activity = parseDashboardActivity(dashboard.recentSubmissions);
-    return { ...dashboard, dailyActivity: parseJsonArray<DailyAdminActivity>(dashboard.dailyActivity), users: parseJsonArray<AdminUser>(dashboard.users), recentSubmissions: activity.scores, notificationHistory: activity.notifications };
+    return { ...dashboard, dailyActivity: parseJsonArray<DailyAdminActivity>(dashboard.dailyActivity), users: parseJsonArray<AdminUser>(dashboard.users), abandonmentByMode: parseJsonArray<AdminModeBreakdown>(dashboard.abandonmentByMode), recentAbandonments: parseJsonArray<AdminLifecycleEvent>(dashboard.recentAbandonments), recentSubmissions: activity.scores, notificationHistory: activity.notifications };
   } catch (error) {
     if (typeof error === 'object' && error !== null) {
       const response = error as { errors?: Array<{ message?: string }>; message?: string };
