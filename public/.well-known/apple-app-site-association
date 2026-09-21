@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "8SW8G445G8.com.iainhoolahan.yahtzee",
+        "components": [{ "/": "/play", "?": { "join": "*" } }]
+      },
+      {
+        "appID": "8SW8G445G8.com.iainhoolahan.yahtzee.dev",
+        "components": [{ "/": "/play-dev", "?": { "join": "*" } }]
+      },
+      {
+        "appID": "8SW8G445G8.com.iainhoolahan.yahtzee.preview",
+        "components": [{ "/": "/play-preview", "?": { "join": "*" } }]
+      }
+    ]
+  }
+}
