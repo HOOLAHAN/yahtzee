@@ -23,6 +23,7 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
   const [lastName, setLastName] = useState('');
   const [errors, setErrors] = useState<SignUpFormErrors>({});
   const [generalError, setGeneralError] = useState('');
+  const [lifecycleEmailOptIn, setLifecycleEmailOptIn] = useState(false);
   const { signUp } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -40,7 +41,7 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
         setErrors({ preferred_username: 'That username is already taken.' });
         return;
       }
-      await signUp({ username, password, preferred_username, given_name: firstName.trim(), family_name: lastName.trim() });
+      await signUp({ username, password, preferred_username, given_name: firstName.trim(), family_name: lastName.trim(), lifecycleEmailOptIn });
       onSignUpSuccess(username);
     } catch (error) {
       console.error('Error during sign-up:', error);
@@ -134,6 +135,11 @@ const SignUpForm: React.FC<SignUpFormProps & { onSwitchToVerifyEmail?: (email: s
           </div>
         )}
       </div>
+
+      <label className="mb-5 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-700 bg-slate-950/70 p-3 text-sm">
+        <input type="checkbox" checked={lifecycleEmailOptIn} onChange={(event) => setLifecycleEmailOptIn(event.target.checked)} className="mt-1 h-4 w-4 accent-cyan-400" />
+        <span><strong className="block text-mintGlow">Email me occasional Yahtzee Hub updates</strong><small className="mt-1 block leading-5 text-gray-400">Get useful game tips, reminders and app news. Optional, and you can unsubscribe at any time.</small></span>
+      </label>
 
       <div className="mt-6 space-y-3">
         <button

@@ -6,6 +6,7 @@ import { fetchUserAttributes } from 'aws-amplify/auth';
 import { deleteUser as amplifyDeleteUser} from 'aws-amplify/auth';
 import { resetPassword, confirmResetPassword, updatePassword, fetchAuthSession } from 'aws-amplify/auth';
 import { deleteMyProfile, updateMyProfile } from '../services/profiles';
+import { applyPendingLifecycleConsent, deleteLifecycleEmailData, recordWebActivity, rememberPendingLifecycleConsent } from '../services/lifecycleEmails';
 
 
 type SignUpParameters = {
@@ -14,6 +15,7 @@ type SignUpParameters = {
   preferred_username: string;
   given_name: string;
   family_name: string;
+  lifecycleEmailOptIn?: boolean;
 };
 
 interface AuthContextType {
@@ -63,6 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       setUserDetails(userInfo);
       await fetchAndSetUserAttributes();
+      void recordWebActivity().catch(() => undefined);
     } catch {
       setIsUserSignedIn(false);
       setUserDetails(null);
@@ -109,6 +112,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
 
+      await applyPendingLifecycleConsent(username).catch(() => undefined);
+
       setIsUserSignedIn(true);
       await checkAuthStatus();
     } catch (error) {
@@ -123,6 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     preferred_username,
     given_name,
     family_name,
+    lifecycleEmailOptIn = false,
   }: SignUpParameters) => {
     try {
       await amplifySignUp({
@@ -138,6 +144,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           autoSignIn: { enabled: true }
         }
       });
+      rememberPendingLifecycleConsent(username, lifecycleEmailOptIn);
     } catch (error) {
       console.error('Error signing up:', error);
       throw error;
@@ -165,7 +172,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         username,
         confirmationCode,
       });
-      try { await autoSignIn(); await checkAuthStatus(); } catch { /* Verification succeeded; the user can still sign in normally. */ }
+      try {
+        await autoSignIn();
+        await checkAuthStatus();
+        await applyPendingLifecycleConsent(username);
+      } catch { /* Verification succeeded; the pending preference is applied after normal sign-in. */ }
     } catch (error) {
       console.error("Error confirming sign up:", error);
       throw error; 
@@ -206,6 +217,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   async function deleteUser() {
     try {
+      await deleteLifecycleEmailData().catch(() => undefined);
       try {
         await deleteMyProfile();
       } catch (profileError) {

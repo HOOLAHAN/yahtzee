@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getMyProfile, updateMyPreferences, updateMyProfile } from '../../services/profiles';
 import { DiceAnimation, diceAnimations } from '../../lib/diceAnimation';
 import DiceFace from '../game/DiceFace';
+import { getLifecycleEmailPreference, updateLifecycleEmailPreference } from '../../services/lifecycleEmails';
 
 interface SettingsProps {
   onClose?: () => void;
@@ -31,6 +32,8 @@ const Settings: React.FC<SettingsProps> = ({ onClose, embedded = false, scoreSug
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [lifecycleEmailsEnabled, setLifecycleEmailsEnabled] = useState(false);
+  const [lifecycleEmailsBusy, setLifecycleEmailsBusy] = useState(false);
   const {
     deleteUser,
     resetUserPassword, 
@@ -43,10 +46,17 @@ const Settings: React.FC<SettingsProps> = ({ onClose, embedded = false, scoreSug
   useEffect(() => {
     if (!isUserSignedIn) return;
     void getMyProfile().then((profile) => onScoreSuggestionsChange?.(profile.scoreSuggestionsEnabled)).catch(() => undefined);
+    void getLifecycleEmailPreference().then((preference) => setLifecycleEmailsEnabled(preference.enabled)).catch(() => undefined);
     // Load once when authentication becomes available; the callback is intentionally not a trigger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUserSignedIn]);
   const changeSuggestions = (enabled: boolean) => { onScoreSuggestionsChange?.(enabled); if (isUserSignedIn) void getMyProfile().then((profile) => updateMyPreferences(enabled, profile.dailyReminderEnabled, profile.dailyReminderHour)).catch(() => setProfileError('Saved in this browser, but could not sync to your account.')); };
+  const changeLifecycleEmails = async (enabled: boolean) => {
+    setLifecycleEmailsBusy(true); setProfileError(''); setProfileMessage('');
+    try { const preference = await updateLifecycleEmailPreference(enabled); setLifecycleEmailsEnabled(preference.enabled); setProfileMessage(enabled ? 'Email updates enabled.' : 'Email updates disabled.'); }
+    catch (error) { setProfileError(error instanceof Error ? error.message : 'Could not update email preferences.'); }
+    finally { setLifecycleEmailsBusy(false); }
+  };
 
   useEffect(() => {
     setUsername(userDetails?.preferred_username ?? '');
@@ -142,6 +152,14 @@ const Settings: React.FC<SettingsProps> = ({ onClose, embedded = false, scoreSug
               Edit Profile
             </button>
           )}
+        </section>
+
+        <section className="account-panel">
+          <div className="account-panel-heading"><span className="account-panel-icon">✉</span><div><h3>Email updates</h3><p>Optional tips, reminders and app news</p></div></div>
+          <label className="mt-3 flex cursor-pointer items-center justify-between gap-4">
+            <span><strong className="block text-mintGlow">Lifecycle emails</strong><small className="mt-1 block leading-5 text-gray-400">Receive occasional Yahtzee Hub emails. You can unsubscribe here or from any email.</small></span>
+            <input type="checkbox" checked={lifecycleEmailsEnabled} disabled={lifecycleEmailsBusy} onChange={(event) => void changeLifecycleEmails(event.target.checked)} className="account-toggle" />
+          </label>
         </section>
 
         {editingProfile && (
