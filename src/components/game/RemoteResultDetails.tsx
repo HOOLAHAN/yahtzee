@@ -1,0 +1,19 @@
+import { LiveCategory, LiveScoreEntry } from '../../services/liveGames';
+
+const categories: LiveCategory[] = ['Ones', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'Three of a Kind', 'Four of a Kind', 'Full House', 'Small Straight', 'Large Straight', 'Yahtzee', 'Chance'];
+const upper = categories.slice(0, 6);
+const labels: Record<LiveCategory, string> = { Ones: 'Ones', Twos: 'Twos', Threes: 'Threes', Fours: 'Fours', Fives: 'Fives', Sixes: 'Sixes', 'Three of a Kind': '3 of a Kind', 'Four of a Kind': '4 of a Kind', 'Full House': 'Full House', 'Small Straight': 'Sm. Straight', 'Large Straight': 'Lg. Straight', Yahtzee: 'Yahtzee', Chance: 'Chance' };
+const subtotal = (scores: LiveScoreEntry[], top: boolean) => scores.filter((entry) => upper.includes(entry.category) === top).reduce((sum, entry) => sum + entry.score, 0);
+const yahtzeeBonus = (scores: LiveScoreEntry[]) => scores.reduce((sum, entry) => sum + (entry.yahtzeeBonus ?? 0), 0);
+const total = (scores: LiveScoreEntry[]) => subtotal(scores, true) + subtotal(scores, false) + yahtzeeBonus(scores) + (subtotal(scores, true) >= 63 ? 35 : 0);
+
+export default function RemoteResultDetails({ mine, theirs, opponent }: { mine: LiveScoreEntry[]; theirs: LiveScoreEntry[]; opponent: string }) {
+  const max = Math.max(1, total(mine), total(theirs));
+  const line = (scores: LiveScoreEntry[]) => Array.from({ length: 14 }, (_, round) => `${12 + round * 576 / 13},${136 - total(scores.slice(0, round)) * 120 / max}`).join(' ');
+  const score = (scores: LiveScoreEntry[], category: LiveCategory) => scores.find((entry) => entry.category === category)?.score ?? 0;
+  const row = (name: string, you: number, them: number, highlight = false) => <div key={name} className={`grid grid-cols-3 border-b border-[#243236] py-1.5 text-sm ${highlight ? 'font-black text-neonYellow' : ''}`}><span>{name}</span><span className="text-center">{you}</span><span className="text-center">{them}</span></div>;
+  return <div className="mx-auto mt-5 w-full max-w-xl text-left">
+    <div className="web-panel p-4"><h3 className="font-black text-neonYellow">How the lead changed</h3><p className="text-xs text-gray-400">Cumulative scores after each completed round</p><div className="mt-3 flex justify-between text-sm font-black"><span className="text-neonCyan">● You</span><span className="text-[#9dffb7]">● {opponent}</span></div><svg viewBox="0 0 600 144" role="img" aria-label="Line chart of each player's cumulative score after rounds zero through thirteen" className="mt-2 w-full rounded-lg bg-deepBlack"><line x1="12" y1="136" x2="588" y2="136" stroke="#466065" /><polyline points={line(mine)} fill="none" stroke="#08d9df" strokeWidth="3" strokeLinejoin="round" /><polyline points={line(theirs)} fill="none" stroke="#9dffb7" strokeWidth="3" strokeLinejoin="round" /></svg><div className="flex justify-between text-xs text-gray-400"><span>Start</span><span>Round 7</span><span>Round 13</span></div></div>
+    <div className="web-panel mt-4 p-4"><div className="grid grid-cols-3 border-b border-[#315a5e] py-2 font-black"><span>Final scorecard</span><span className="text-center text-neonCyan">You</span><span className="truncate text-center text-[#9dffb7]">{opponent}</span></div><h4 className="mt-3 font-black text-neonCyan">Upper section</h4>{upper.map((category) => row(labels[category], score(mine, category), score(theirs, category)))}{row('Upper subtotal', subtotal(mine, true), subtotal(theirs, true), true)}{row('Upper bonus', subtotal(mine, true) >= 63 ? 35 : 0, subtotal(theirs, true) >= 63 ? 35 : 0, true)}<h4 className="mt-4 font-black text-electricPink">Lower section</h4>{categories.slice(6).map((category) => row(labels[category], score(mine, category), score(theirs, category)))}{row('Lower subtotal', subtotal(mine, false), subtotal(theirs, false), true)}{row('Extra Yahtzee bonuses', yahtzeeBonus(mine), yahtzeeBonus(theirs), true)}{row('Total', total(mine), total(theirs), true)}</div>
+  </div>;
+}
