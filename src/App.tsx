@@ -26,7 +26,13 @@ const pageFromPath = (): SitePage => window.location.pathname.startsWith('/admin
   : (Object.entries(pagePaths).find(([, path]) => window.location.pathname === path)?.[0] as SitePage | undefined) ?? 'play';
 const AppContent = () => {
   type GameMode = 'solo' | 'daily' | 'computer' | 'pass' | 'live' | 'virtual' | 'real';
-  const initialJoinCode = new URLSearchParams(window.location.search).get('join')?.replace(/\D/g, '').slice(0, 6) ?? '';
+  const [initialJoinCode] = useState(() => new URLSearchParams(window.location.search).get('join')?.replace(/\D/g, '').slice(0, 6) ?? '');
+  const [appInviteScheme] = useState(() => {
+    if (initialJoinCode.length !== 6) return null;
+    const schemes: Record<string, string> = { '/play': 'yahtzee', '/play-dev': 'yahtzee-dev', '/play-preview': 'yahtzee-preview' };
+    return schemes[window.location.pathname] ?? null;
+  });
+  const [showAppInvite, setShowAppInvite] = useState(Boolean(appInviteScheme));
   const [mode, setMode] = useState<GameMode>(initialJoinCode.length === 6 ? 'live' : 'solo');
   const [showGameChooser, setShowGameChooser] = useState(initialJoinCode.length !== 6);
   const [hasStartedGame, setHasStartedGame] = useState(false);
@@ -83,6 +89,10 @@ const AppContent = () => {
             }}
             onNavigate={navigate}
           />
+          {showAppInvite && appInviteScheme && <section className="mx-auto mt-4 flex max-w-4xl flex-col gap-3 rounded-2xl border border-neonCyan bg-[#152326] px-5 py-4 text-mintGlow sm:flex-row sm:items-center sm:justify-between">
+            <div><strong className="block text-lg text-neonYellow">Open this invite in the app</strong><span className="text-sm">If your browser kept the app link here, tap below. Game code: {initialJoinCode}</span></div>
+            <div className="flex shrink-0 gap-2"><a href={`${appInviteScheme}://play?join=${initialJoinCode}`} className="rounded-xl bg-neonCyan px-4 py-3 text-center font-black text-deepBlack">Open app</a><button onClick={() => setShowAppInvite(false)} className="rounded-xl border border-neonCyan px-4 py-3 font-black text-neonCyan">Play on website</button></div>
+          </section>}
           <main>
             <div className={activePage === 'play' ? '' : 'hidden'} aria-hidden={activePage !== 'play'}>
             {showGameChooser && <section className="game-chooser" aria-labelledby="game-chooser-heading">
