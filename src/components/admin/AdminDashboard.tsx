@@ -1,121 +1,1541 @@
-import { useEffect, useMemo, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faChartLine, faCircleExclamation, faDice, faPaperPlane, faRotate, faTrashCan, faUserCheck, faUserClock, faUsers } from '@fortawesome/free-solid-svg-icons';
-import { AdminDashboardData, AdminUser, fetchAdminDashboard, sendAdminNotification } from '../../services/admin';
+import { useEffect, useMemo, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBell,
+  faChartLine,
+  faCircleExclamation,
+  faDice,
+  faPaperPlane,
+  faRotate,
+  faTrashCan,
+  faUserCheck,
+  faUserClock,
+  faUsers,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  AdminDashboardData,
+  AdminUser,
+  fetchAdminDashboard,
+  sendAdminNotification,
+} from "../../services/admin";
 
-type AdminSection = 'overview' | 'users' | 'engagement' | 'notifications';
-type UserFilter = 'all' | 'new' | 'pending' | 'onboarding' | 'neverPlayed' | 'inactive30' | 'inactive90';
+type AdminSection = "overview" | "users" | "engagement" | "notifications";
+type UserFilter =
+  | "all"
+  | "new"
+  | "pending"
+  | "onboarding"
+  | "neverPlayed"
+  | "inactive30"
+  | "inactive90";
 const sections: { value: AdminSection; label: string; copy: string }[] = [
-  { value: 'overview', label: 'Overview', copy: 'Health and highlights' },
-  { value: 'users', label: 'Users', copy: 'Accounts and activity' },
-  { value: 'engagement', label: 'Engagement', copy: 'Games and retention' },
-  { value: 'notifications', label: 'Notifications', copy: 'Messages and automation' },
+  { value: "overview", label: "Overview", copy: "Health and highlights" },
+  { value: "users", label: "Users", copy: "Accounts and activity" },
+  { value: "engagement", label: "Engagement", copy: "Games and retention" },
+  {
+    value: "notifications",
+    label: "Notifications",
+    copy: "Messages and automation",
+  },
 ];
 const sectionFromPath = (): AdminSection => {
-  const section = window.location.pathname.split('/')[2] as AdminSection | undefined;
-  return sections.some((item) => item.value === section) ? section! : 'overview';
+  const section = window.location.pathname.split("/")[2] as
+    AdminSection | undefined;
+  return sections.some((item) => item.value === section)
+    ? section!
+    : "overview";
 };
-const dateTime = (value: string | null) => value ? new Date(value).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Never';
-const daysSince = (value: string | null, now = Date.now()) => value ? Math.floor((now - new Date(value).getTime()) / 86400000) : null;
-const panel = 'web-panel p-5';
+const dateTime = (value: string | null) =>
+  value
+    ? new Date(value).toLocaleString([], {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : "Never";
+const daysSince = (value: string | null, now = Date.now()) =>
+  value ? Math.floor((now - new Date(value).getTime()) / 86400000) : null;
+const panel = "web-panel p-5";
 
-function StatCard({ label, value, copy, icon = faChartLine, tone = 'text-neonYellow', onClick }: { label: string; value: string | number; copy?: string; icon?: any; tone?: string; onClick?: () => void }) {
-  const content = <div className="flex items-start justify-between gap-3"><span><small className="block uppercase tracking-wider text-gray-500">{label}</small><strong className={`mt-2 block text-3xl ${tone}`}>{value}</strong>{copy && <span className="mt-1 block text-xs text-gray-500">{copy}</span>}</span><FontAwesomeIcon icon={icon} className="mt-1 text-electricPink" /></div>;
-  return onClick ? <button type="button" onClick={onClick} className={`${panel} w-full text-left transition hover:-translate-y-0.5 hover:border-neonCyan focus:outline-none focus:ring-2 focus:ring-neonCyan`}>{content}<span className="mt-3 block text-[10px] font-black uppercase text-neonCyan">View details →</span></button> : <div className={panel}>{content}</div>;
+function StatCard({
+  label,
+  value,
+  copy,
+  icon = faChartLine,
+  tone = "text-neonYellow",
+  onClick,
+}: {
+  label: string;
+  value: string | number;
+  copy?: string;
+  icon?: any;
+  tone?: string;
+  onClick?: () => void;
+}) {
+  const content = (
+    <div className="flex items-start justify-between gap-3">
+      <span>
+        <small className="block uppercase tracking-wider text-gray-500">
+          {label}
+        </small>
+        <strong className={`mt-2 block text-3xl ${tone}`}>{value}</strong>
+        {copy && (
+          <span className="mt-1 block text-xs text-gray-500">{copy}</span>
+        )}
+      </span>
+      <FontAwesomeIcon icon={icon} className="mt-1 text-electricPink" />
+    </div>
+  );
+  return onClick ? (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${panel} w-full text-left transition hover:-translate-y-0.5 hover:border-neonCyan focus:outline-none focus:ring-2 focus:ring-neonCyan`}
+    >
+      {content}
+      <span className="mt-3 block text-[10px] font-black uppercase text-neonCyan">
+        View details →
+      </span>
+    </button>
+  ) : (
+    <div className={panel}>{content}</div>
+  );
 }
 
 function SignupChart({ users }: { users: AdminUser[] }) {
-  const days = Array.from({ length: 14 }, (_, index) => { const value = new Date(); value.setHours(0, 0, 0, 0); value.setDate(value.getDate() - (13 - index)); return value; });
-  const points = days.map((day) => users.filter((user) => user.signedUpAt && new Date(user.signedUpAt).toDateString() === day.toDateString()).length);
+  const days = Array.from({ length: 14 }, (_, index) => {
+    const value = new Date();
+    value.setHours(0, 0, 0, 0);
+    value.setDate(value.getDate() - (13 - index));
+    return value;
+  });
+  const points = days.map(
+    (day) =>
+      users.filter(
+        (user) =>
+          user.signedUpAt &&
+          new Date(user.signedUpAt).toDateString() === day.toDateString(),
+      ).length,
+  );
   const max = Math.max(1, ...points);
-  return <section className={panel}><div className="flex items-end justify-between gap-4"><div><h3 className="text-xl font-black text-neonCyan">New accounts</h3><p className="mt-1 text-xs text-gray-500">Daily registrations over the last 14 days.</p></div><strong className="text-2xl text-neonYellow">{points.reduce((sum, value) => sum + value, 0)}</strong></div><div className="mt-5 flex h-40 items-stretch gap-2 border-b border-[#315057] pt-6">{points.map((value, index) => <div key={days[index].toISOString()} title={`${days[index].toLocaleDateString()}: ${value} registrations`} className="group relative h-full min-w-0 flex-1"><span className="absolute left-1/2 top-[-20px] -translate-x-1/2 text-[10px] font-black text-neonYellow opacity-0 group-hover:opacity-100">{value}</span><div className="absolute inset-x-0 bottom-0 min-h-[4px] rounded-t bg-electricPink transition group-hover:bg-neonCyan" style={{ height: `${Math.max(4, value / max * 100)}%` }} /></div>)}</div><div className="mt-2 flex justify-between text-[10px] text-gray-600"><span>{days[0].toLocaleDateString([], { day: 'numeric', month: 'short' })}</span><span>Today</span></div></section>;
+  return (
+    <section className={panel}>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h3 className="text-xl font-black text-neonCyan">New accounts</h3>
+          <p className="mt-1 text-xs text-gray-500">
+            Daily registrations over the last 14 days.
+          </p>
+        </div>
+        <strong className="text-2xl text-neonYellow">
+          {points.reduce((sum, value) => sum + value, 0)}
+        </strong>
+      </div>
+      <div className="mt-5 flex h-40 items-stretch gap-2 border-b border-[#315057] pt-6">
+        {points.map((value, index) => (
+          <div
+            key={days[index].toISOString()}
+            title={`${days[index].toLocaleDateString()}: ${value} registrations`}
+            className="group relative h-full min-w-0 flex-1"
+          >
+            <span className="absolute left-1/2 top-[-20px] -translate-x-1/2 text-[10px] font-black text-neonYellow opacity-0 group-hover:opacity-100">
+              {value}
+            </span>
+            <div
+              className="absolute inset-x-0 bottom-0 min-h-[4px] rounded-t bg-electricPink transition group-hover:bg-neonCyan"
+              style={{ height: `${Math.max(4, (value / max) * 100)}%` }}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="mt-2 flex justify-between text-[10px] text-gray-600">
+        <span>
+          {days[0].toLocaleDateString([], { day: "numeric", month: "short" })}
+        </span>
+        <span>Today</span>
+      </div>
+    </section>
+  );
 }
 
 function lifecycleFor(data: AdminDashboardData | null) {
-  const users = data?.users ?? []; const now = Date.now();
-  const confirmed = users.filter((user) => user.status === 'CONFIRMED' && user.emailVerified);
+  const users = data?.users ?? [];
+  const now = Date.now();
+  const confirmed = users.filter(
+    (user) => user.status === "CONFIRMED" && user.emailVerified,
+  );
   return {
     confirmed,
-    pending: users.filter((user) => user.status === 'UNCONFIRMED' || !user.emailVerified),
-    new7: users.filter((user) => user.signedUpAt && daysSince(user.signedUpAt, now)! < 7),
-    new30: users.filter((user) => user.signedUpAt && daysSince(user.signedUpAt, now)! < 30),
+    pending: users.filter(
+      (user) => user.status === "UNCONFIRMED" || !user.emailVerified,
+    ),
+    new7: users.filter(
+      (user) => user.signedUpAt && daysSince(user.signedUpAt, now)! < 7,
+    ),
+    new30: users.filter(
+      (user) => user.signedUpAt && daysSince(user.signedUpAt, now)! < 30,
+    ),
     onboarding: confirmed.filter((user) => !user.profileComplete),
     neverPlayed: confirmed.filter((user) => user.gamesPlayed === 0),
-    inactive30: confirmed.filter((user) => !user.lastPlayedAt || daysSince(user.lastPlayedAt, now)! >= 30),
-    inactive90: confirmed.filter((user) => !user.lastPlayedAt || daysSince(user.lastPlayedAt, now)! >= 90),
+    inactive30: confirmed.filter(
+      (user) => !user.lastPlayedAt || daysSince(user.lastPlayedAt, now)! >= 30,
+    ),
+    inactive90: confirmed.filter(
+      (user) => !user.lastPlayedAt || daysSince(user.lastPlayedAt, now)! >= 90,
+    ),
   };
 }
 
-function Overview({ data, open }: { data: AdminDashboardData; open: (section: AdminSection) => void }) {
+function Overview({
+  data,
+  open,
+}: {
+  data: AdminDashboardData;
+  open: (section: AdminSection) => void;
+}) {
   const lifecycle = lifecycleFor(data);
-  const profileCount = lifecycle.confirmed.filter((user) => user.profileComplete).length;
-  const players = lifecycle.confirmed.filter((user) => user.gamesPlayed > 0).length;
-  const optIns = data.users.filter((user) => user.pushNotificationsEnabled).length;
+  const profileCount = lifecycle.confirmed.filter(
+    (user) => user.profileComplete,
+  ).length;
+  const players = lifecycle.confirmed.filter(
+    (user) => user.gamesPlayed > 0,
+  ).length;
+  const optIns = data.users.filter(
+    (user) => user.pushNotificationsEnabled,
+  ).length;
   const attention = [
-    lifecycle.pending.length && `${lifecycle.pending.length} sign-up${lifecycle.pending.length === 1 ? '' : 's'} awaiting verification`,
-    lifecycle.onboarding.length && `${lifecycle.onboarding.length} verified player${lifecycle.onboarding.length === 1 ? '' : 's'} without a completed profile`,
-    lifecycle.inactive30.length && `${lifecycle.inactive30.length} confirmed player${lifecycle.inactive30.length === 1 ? '' : 's'} inactive for 30+ days`,
+    lifecycle.pending.length &&
+      `${lifecycle.pending.length} sign-up${lifecycle.pending.length === 1 ? "" : "s"} awaiting verification`,
+    lifecycle.onboarding.length &&
+      `${lifecycle.onboarding.length} verified player${lifecycle.onboarding.length === 1 ? "" : "s"} without a completed profile`,
+    lifecycle.inactive30.length &&
+      `${lifecycle.inactive30.length} confirmed player${lifecycle.inactive30.length === 1 ? "" : "s"} inactive for 30+ days`,
   ].filter(Boolean) as string[];
-  return <div className="space-y-6">
-    <section><div className="mb-3 flex items-end justify-between"><div><h3 className="text-2xl font-black text-neonCyan">Today at a glance</h3><p className="text-sm text-gray-500">Select a metric to investigate it.</p></div><button onClick={() => open('engagement')} className="text-sm font-black text-neonCyan">Explore engagement →</button></div><div className="grid grid-cols-2 gap-3 lg:grid-cols-4"><StatCard label="Registered users" value={data.totalUsers} icon={faUsers} copy={`${lifecycle.new7.length} joined in 7 days`} onClick={() => open('users')} /><StatCard label="Active · 7 days" value={data.activeUsersLast7Days} copy={`${data.activeUsersLast30Days} in 30 days`} onClick={() => open('engagement')} /><StatCard label="Games today" value={data.gamesToday} icon={faDice} copy={`${data.gamesLast7Days} in 7 days`} onClick={() => open('engagement')} /><StatCard label="Notification opt-in" value={`${data.totalUsers ? Math.round(optIns / data.totalUsers * 100) : 0}%`} icon={faBell} copy={`${optIns} enabled devices`} onClick={() => open('notifications')} /></div></section>
-    <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]"><section className={panel}><h3 className="text-xl font-black text-neonCyan">Sign-up funnel</h3><p className="mt-1 text-xs text-gray-500">From account creation to a completed game.</p><div className="mt-5 space-y-4">{[['Accounts created', data.totalUsers], ['Email verified', lifecycle.confirmed.length], ['Profile completed', profileCount], ['Played a game', players]].map(([label, value]) => { const percent = data.totalUsers ? Number(value) / data.totalUsers * 100 : 0; return <div key={String(label)}><div className="flex justify-between text-xs"><span>{label}</span><b className="text-neonYellow">{value} · {Math.round(percent)}%</b></div><div className="mt-1 h-2 overflow-hidden rounded-full bg-deepBlack"><div className="h-full rounded-full bg-neonCyan" style={{ width: `${percent}%` }} /></div></div>; })}</div></section><section className={panel}><div className="flex items-center justify-between"><h3 className="text-xl font-black text-neonCyan">Needs attention</h3><FontAwesomeIcon icon={faCircleExclamation} className="text-amber-300" /></div><div className="mt-4 space-y-3">{attention.length ? attention.map((message) => <p key={message} className="rounded-xl bg-deepBlack p-3 text-xs leading-5 text-gray-300">{message}</p>) : <p className="text-sm text-gray-500">Nothing unusual requires attention.</p>}</div><button onClick={() => open('users')} className="mt-4 text-sm font-black text-neonCyan">Review users →</button></section></div>
-    <section><div className="mb-3"><h3 className="text-2xl font-black text-neonCyan">30-day performance</h3><p className="text-sm text-gray-500">A compact view of play volume and scoring.</p></div><div className="grid grid-cols-2 gap-3 lg:grid-cols-4"><StatCard label="Completed games" value={data.gamesLast30Days} icon={faDice} /><StatCard label="Active players" value={data.activeUsersLast30Days} icon={faUsers} /><StatCard label="Average score" value={data.averageScore} /><StatCard label="Yahtzees rolled" value={data.yahtzeesRolled} /></div></section>
-    <div className="grid gap-4 lg:grid-cols-2"><SignupChart users={data.users} /><section className={panel}><h3 className="text-xl font-black text-neonCyan">Game activity</h3><p className="mt-1 text-xs text-gray-500">Games and distinct players over the last 14 days.</p><div className="mt-5 space-y-2">{data.dailyActivity.slice(-14).map((day) => { const max = Math.max(1, ...data.dailyActivity.map((item) => item.games)); return <button key={day.date} onClick={() => open('engagement')} className="grid w-full grid-cols-[56px_1fr_68px] items-center gap-2 text-left text-[10px]"><span className="text-gray-500">{new Date(`${day.date}T12:00:00`).toLocaleDateString([], { weekday: 'short', day: 'numeric' })}</span><span className="h-2 overflow-hidden rounded-full bg-deepBlack"><span className="block h-full rounded-full bg-neonCyan" style={{ width: `${Math.max(3, day.games / max * 100)}%` }} /></span><b className="text-right text-neonYellow">{day.games} · {day.players}p</b></button>; })}</div></section></div>
-  </div>;
+  return (
+    <div className="space-y-6">
+      <section>
+        <div className="mb-3 flex items-end justify-between">
+          <div>
+            <h3 className="text-2xl font-black text-neonCyan">
+              Today at a glance
+            </h3>
+            <p className="text-sm text-gray-500">
+              Select a metric to investigate it.
+            </p>
+          </div>
+          <button
+            onClick={() => open("engagement")}
+            className="text-sm font-black text-neonCyan"
+          >
+            Explore engagement →
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <StatCard
+            label="Registered users"
+            value={data.totalUsers}
+            icon={faUsers}
+            copy={`${lifecycle.new7.length} joined in 7 days`}
+            onClick={() => open("users")}
+          />
+          <StatCard
+            label="Active · 7 days"
+            value={data.activeUsersLast7Days}
+            copy={`${data.activeUsersLast30Days} in 30 days`}
+            onClick={() => open("engagement")}
+          />
+          <StatCard
+            label="Games today"
+            value={data.gamesToday}
+            icon={faDice}
+            copy={`${data.gamesLast7Days} in 7 days`}
+            onClick={() => open("engagement")}
+          />
+          <StatCard
+            label="Notification opt-in"
+            value={`${data.totalUsers ? Math.round((optIns / data.totalUsers) * 100) : 0}%`}
+            icon={faBell}
+            copy={`${optIns} enabled devices`}
+            onClick={() => open("notifications")}
+          />
+        </div>
+      </section>
+      <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]">
+        <section className={panel}>
+          <h3 className="text-xl font-black text-neonCyan">Sign-up funnel</h3>
+          <p className="mt-1 text-xs text-gray-500">
+            From account creation to a completed game.
+          </p>
+          <div className="mt-5 space-y-4">
+            {[
+              ["Accounts created", data.totalUsers],
+              ["Email verified", lifecycle.confirmed.length],
+              ["Profile completed", profileCount],
+              ["Played a game", players],
+            ].map(([label, value]) => {
+              const percent = data.totalUsers
+                ? (Number(value) / data.totalUsers) * 100
+                : 0;
+              return (
+                <div key={String(label)}>
+                  <div className="flex justify-between text-xs">
+                    <span>{label}</span>
+                    <b className="text-neonYellow">
+                      {value} · {Math.round(percent)}%
+                    </b>
+                  </div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-deepBlack">
+                    <div
+                      className="h-full rounded-full bg-neonCyan"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+        <section className={panel}>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-black text-neonCyan">
+              Needs attention
+            </h3>
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              className="text-amber-300"
+            />
+          </div>
+          <div className="mt-4 space-y-3">
+            {attention.length ? (
+              attention.map((message) => (
+                <p
+                  key={message}
+                  className="rounded-xl bg-deepBlack p-3 text-xs leading-5 text-gray-300"
+                >
+                  {message}
+                </p>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">
+                Nothing unusual requires attention.
+              </p>
+            )}
+          </div>
+          <button
+            onClick={() => open("users")}
+            className="mt-4 text-sm font-black text-neonCyan"
+          >
+            Review users →
+          </button>
+        </section>
+      </div>
+      <section>
+        <div className="mb-3">
+          <h3 className="text-2xl font-black text-neonCyan">
+            30-day performance
+          </h3>
+          <p className="text-sm text-gray-500">
+            A compact view of play volume and scoring.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <StatCard
+            label="Completed games"
+            value={data.gamesLast30Days}
+            icon={faDice}
+          />
+          <StatCard
+            label="Active players"
+            value={data.activeUsersLast30Days}
+            icon={faUsers}
+          />
+          <StatCard label="Average score" value={data.averageScore} />
+          <StatCard label="Yahtzees rolled" value={data.yahtzeesRolled} />
+        </div>
+      </section>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <SignupChart users={data.users} />
+        <section className={panel}>
+          <h3 className="text-xl font-black text-neonCyan">Game activity</h3>
+          <p className="mt-1 text-xs text-gray-500">
+            Games and distinct players over the last 14 days.
+          </p>
+          <div className="mt-5 space-y-2">
+            {data.dailyActivity.slice(-14).map((day) => {
+              const max = Math.max(
+                1,
+                ...data.dailyActivity.map((item) => item.games),
+              );
+              return (
+                <button
+                  key={day.date}
+                  onClick={() => open("engagement")}
+                  className="grid w-full grid-cols-[56px_1fr_68px] items-center gap-2 text-left text-[10px]"
+                >
+                  <span className="text-gray-500">
+                    {new Date(`${day.date}T12:00:00`).toLocaleDateString([], {
+                      weekday: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                  <span className="h-2 overflow-hidden rounded-full bg-deepBlack">
+                    <span
+                      className="block h-full rounded-full bg-neonCyan"
+                      style={{
+                        width: `${Math.max(3, (day.games / max) * 100)}%`,
+                      }}
+                    />
+                  </span>
+                  <b className="text-right text-neonYellow">
+                    {day.games} · {day.players}p
+                  </b>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
 }
 
 function Users({ data }: { data: AdminDashboardData }) {
-  const [query, setQuery] = useState(''); const [filter, setFilter] = useState<UserFilter>('all'); const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null); const lifecycle = lifecycleFor(data);
-  const users = useMemo(() => data.users.filter((user) => { const confirmed = user.status === 'CONFIRMED' && user.emailVerified; const age = daysSince(user.lastPlayedAt); if (filter === 'new' && !(user.signedUpAt && daysSince(user.signedUpAt)! < 30)) return false; if (filter === 'pending' && !(user.status === 'UNCONFIRMED' || !user.emailVerified)) return false; if (filter === 'onboarding' && !(confirmed && !user.profileComplete)) return false; if (filter === 'neverPlayed' && !(confirmed && user.gamesPlayed === 0)) return false; if (filter === 'inactive30' && !(confirmed && (!user.lastPlayedAt || age! >= 30))) return false; if (filter === 'inactive90' && !(confirmed && (!user.lastPlayedAt || age! >= 90))) return false; return `${user.username} ${user.email} ${user.firstName} ${user.lastName}`.toLowerCase().includes(query.toLowerCase()); }), [data.users, filter, query]);
-  const filters: [UserFilter, string][] = [['all','All'],['new','New · 30d'],['pending','Pending'],['onboarding','Incomplete'],['neverPlayed','Never played'],['inactive30','Inactive · 30d'],['inactive90','Inactive · 90d']];
-  return <div className="space-y-6"><div className="grid grid-cols-2 gap-3 md:grid-cols-4"><StatCard label="Confirmed" value={lifecycle.confirmed.length} icon={faUserCheck} /><StatCard label="Pending" value={lifecycle.pending.length} icon={faUserClock} tone="text-amber-300" /><StatCard label="Incomplete" value={lifecycle.onboarding.length} icon={faCircleExclamation} /><StatCard label="Never played" value={lifecycle.neverPlayed.length} icon={faDice} /></div><section className="web-panel overflow-hidden"><div className="flex flex-wrap items-end justify-between gap-4 p-5"><div><h3 className="text-2xl font-black text-neonCyan">Player directory <span className="text-base text-gray-500">({users.length})</span></h3><p className="text-sm text-gray-500">Select a player to inspect scores, modes and abandonment history.</p></div><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search username or email" className="w-full rounded-xl border border-[#315a5e] bg-deepBlack px-4 py-3 text-white sm:w-80" /></div><div className="flex flex-wrap gap-2 px-5 pb-5">{filters.map(([key,label]) => <button key={key} onClick={() => setFilter(key)} className={`rounded-full border px-3 py-1.5 text-xs font-black ${filter === key ? 'border-neonCyan bg-[#20383b] text-neonCyan' : 'border-[#315057] text-gray-400'}`}>{label}</button>)}</div><div className="overflow-x-auto"><table className="w-full min-w-[1180px] text-left text-sm"><thead className="bg-[#142225] text-xs uppercase tracking-wider text-gray-400"><tr>{['Player','Account','Signed up','Last game','Inactive','Games','Abandoned','Average / Best'].map((heading) => <th key={heading} className="px-4 py-3">{heading}</th>)}</tr></thead><tbody>{users.map((user) => <UserRow key={user.userId} user={user} onOpen={() => setSelectedUser(user)} />)}{!users.length && <tr><td colSpan={8} className="px-4 py-10 text-center text-gray-500">No users match this cohort.</td></tr>}</tbody></table></div></section><p className="text-xs leading-5 text-gray-600"><FontAwesomeIcon icon={faTrashCan} className="mr-2" />Historic account deletion totals cannot be reconstructed after Cognito records are removed. A privacy-safe event counter is needed for future reporting.</p>{selectedUser && <UserDetail user={selectedUser} onClose={() => setSelectedUser(null)} />}</div>;
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<UserFilter>("all");
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+  const lifecycle = lifecycleFor(data);
+  const users = useMemo(
+    () =>
+      data.users.filter((user) => {
+        const confirmed = user.status === "CONFIRMED" && user.emailVerified;
+        const age = daysSince(user.lastPlayedAt);
+        if (
+          filter === "new" &&
+          !(user.signedUpAt && daysSince(user.signedUpAt)! < 30)
+        )
+          return false;
+        if (
+          filter === "pending" &&
+          !(user.status === "UNCONFIRMED" || !user.emailVerified)
+        )
+          return false;
+        if (filter === "onboarding" && !(confirmed && !user.profileComplete))
+          return false;
+        if (filter === "neverPlayed" && !(confirmed && user.gamesPlayed === 0))
+          return false;
+        if (
+          filter === "inactive30" &&
+          !(confirmed && (!user.lastPlayedAt || age! >= 30))
+        )
+          return false;
+        if (
+          filter === "inactive90" &&
+          !(confirmed && (!user.lastPlayedAt || age! >= 90))
+        )
+          return false;
+        return `${user.username} ${user.email} ${user.firstName} ${user.lastName}`
+          .toLowerCase()
+          .includes(query.toLowerCase());
+      }),
+    [data.users, filter, query],
+  );
+  const filters: [UserFilter, string][] = [
+    ["all", "All"],
+    ["new", "New · 30d"],
+    ["pending", "Pending"],
+    ["onboarding", "Incomplete"],
+    ["neverPlayed", "Never played"],
+    ["inactive30", "Inactive · 30d"],
+    ["inactive90", "Inactive · 90d"],
+  ];
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatCard
+          label="Confirmed"
+          value={lifecycle.confirmed.length}
+          icon={faUserCheck}
+        />
+        <StatCard
+          label="Pending"
+          value={lifecycle.pending.length}
+          icon={faUserClock}
+          tone="text-amber-300"
+        />
+        <StatCard
+          label="Incomplete"
+          value={lifecycle.onboarding.length}
+          icon={faCircleExclamation}
+        />
+        <StatCard
+          label="Never played"
+          value={lifecycle.neverPlayed.length}
+          icon={faDice}
+        />
+      </div>
+      <section className="web-panel overflow-hidden">
+        <div className="flex flex-wrap items-end justify-between gap-4 p-5">
+          <div>
+            <h3 className="text-2xl font-black text-neonCyan">
+              Player directory{" "}
+              <span className="text-base text-gray-500">({users.length})</span>
+            </h3>
+            <p className="text-sm text-gray-500">
+              Select a player to inspect scores, modes and abandonment history.
+            </p>
+          </div>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search username or email"
+            className="w-full rounded-xl border border-[#315a5e] bg-deepBlack px-4 py-3 text-white sm:w-80"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2 px-5 pb-5">
+          {filters.map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-black ${filter === key ? "border-neonCyan bg-[#20383b] text-neonCyan" : "border-[#315057] text-gray-400"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1180px] text-left text-sm">
+            <thead className="bg-[#142225] text-xs uppercase tracking-wider text-gray-400">
+              <tr>
+                {[
+                  "Player",
+                  "Account",
+                  "Signed up",
+                  "Last game",
+                  "Inactive",
+                  "Games",
+                  "Abandoned",
+                  "Average / Best",
+                ].map((heading) => (
+                  <th key={heading} className="px-4 py-3">
+                    {heading}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <UserRow
+                  key={user.userId}
+                  user={user}
+                  onOpen={() => setSelectedUser(user)}
+                />
+              ))}
+              {!users.length && (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="px-4 py-10 text-center text-gray-500"
+                  >
+                    No users match this cohort.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <p className="text-xs leading-5 text-gray-600">
+        <FontAwesomeIcon icon={faTrashCan} className="mr-2" />
+        Historic account deletion totals cannot be reconstructed after Cognito
+        records are removed. A privacy-safe event counter is needed for future
+        reporting.
+      </p>
+      {selectedUser && (
+        <UserDetail user={selectedUser} onClose={() => setSelectedUser(null)} />
+      )}
+    </div>
+  );
 }
-function UserRow({ user, onOpen }: { user: AdminUser; onOpen: () => void }) { return <tr onClick={onOpen} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') onOpen(); }} tabIndex={0} className="cursor-pointer border-t border-slate-800 transition hover:bg-[#142225] focus:bg-[#142225] focus:outline-none"><td className="px-4 py-4"><strong className="block text-mintGlow">{user.username || 'No username'} {user.isAdmin && <span className="ml-2 rounded-full border border-neonYellow px-2 py-0.5 text-[9px] uppercase text-neonYellow">Admin</span>}</strong><small className="text-gray-500">{user.firstName} {user.lastName}</small></td><td className="px-4 py-4"><span className="block text-white">{user.email}</span><small className={user.emailVerified ? 'text-green-400' : 'text-amber-400'}>{user.status} · {user.profileComplete ? 'Profile complete' : 'Onboarding incomplete'}</small></td><td className="px-4 py-4 text-gray-300">{dateTime(user.signedUpAt)}</td><td className="px-4 py-4 text-gray-300">{dateTime(user.lastPlayedAt)}</td><td className="px-4 py-4"><b className={!user.lastPlayedAt || (daysSince(user.lastPlayedAt) ?? 0) >= 30 ? 'text-amber-300' : 'text-gray-300'}>{user.lastPlayedAt ? `${daysSince(user.lastPlayedAt)}d` : 'Never'}</b></td><td className="px-4 py-4 font-black text-neonYellow">{user.gamesPlayed}</td><td className="px-4 py-4 font-black text-electricPink">{user.abandonedGames ?? 0}</td><td className="px-4 py-4">{user.averageScore ?? '—'} / <b className="text-neonYellow">{user.bestScore ?? '—'}</b><span className="ml-3 text-neonCyan">View →</span></td></tr>; }
+function UserRow({ user, onOpen }: { user: AdminUser; onOpen: () => void }) {
+  return (
+    <tr
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") onOpen();
+      }}
+      tabIndex={0}
+      className="cursor-pointer border-t border-slate-800 transition hover:bg-[#142225] focus:bg-[#142225] focus:outline-none"
+    >
+      <td className="px-4 py-4">
+        <strong className="block text-mintGlow">
+          {user.username || "No username"}{" "}
+          {user.isAdmin && (
+            <span className="ml-2 rounded-full border border-neonYellow px-2 py-0.5 text-[9px] uppercase text-neonYellow">
+              Admin
+            </span>
+          )}
+        </strong>
+        <small className="text-gray-500">
+          {user.firstName} {user.lastName}
+        </small>
+      </td>
+      <td className="px-4 py-4">
+        <span className="block text-white">{user.email}</span>
+        <small
+          className={user.emailVerified ? "text-green-400" : "text-amber-400"}
+        >
+          {user.status} ·{" "}
+          {user.profileComplete ? "Profile complete" : "Onboarding incomplete"}
+        </small>
+      </td>
+      <td className="px-4 py-4 text-gray-300">{dateTime(user.signedUpAt)}</td>
+      <td className="px-4 py-4 text-gray-300">{dateTime(user.lastPlayedAt)}</td>
+      <td className="px-4 py-4">
+        <b
+          className={
+            !user.lastPlayedAt || (daysSince(user.lastPlayedAt) ?? 0) >= 30
+              ? "text-amber-300"
+              : "text-gray-300"
+          }
+        >
+          {user.lastPlayedAt ? `${daysSince(user.lastPlayedAt)}d` : "Never"}
+        </b>
+      </td>
+      <td className="px-4 py-4 font-black text-neonYellow">
+        {user.gamesPlayed}
+      </td>
+      <td className="px-4 py-4 font-black text-electricPink">
+        {user.abandonedGames ?? 0}
+      </td>
+      <td className="px-4 py-4">
+        {user.averageScore ?? "—"} /{" "}
+        <b className="text-neonYellow">{user.bestScore ?? "—"}</b>
+        <span className="ml-3 text-neonCyan">View →</span>
+      </td>
+    </tr>
+  );
+}
 
-function Detail({ label, value }: { label: string; value: string | number }) { return <div className="flex justify-between gap-4 border-b border-slate-800 pb-2"><dt className="text-gray-500">{label}</dt><dd className="text-right text-white">{value}</dd></div>; }
+function Detail({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="flex justify-between gap-4 border-b border-slate-800 pb-2">
+      <dt className="text-gray-500">{label}</dt>
+      <dd className="text-right text-white">{value}</dd>
+    </div>
+  );
+}
 
-function UserDetail({ user, onClose }: { user: AdminUser; onClose: () => void }) {
-  return <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-3 sm:p-6" role="dialog" aria-modal="true" aria-label={`Details for ${user.username || user.email}`} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-neonCyan bg-[#10191b] p-5 shadow-2xl sm:p-7"><header className="flex items-start justify-between gap-4"><div><p className="eyebrow">Player details</p><h3 className="text-3xl font-black text-neonYellow">{user.username || 'No username'}</h3><p className="text-sm text-gray-400">{user.email}</p></div><button onClick={onClose} aria-label="Close player details" className="h-11 w-11 rounded-full border border-[#315057] text-2xl text-neonCyan">×</button></header><div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4"><StatCard label="Games" value={user.gamesPlayed} /><StatCard label="Average" value={user.averageScore ?? '—'} /><StatCard label="Best" value={user.bestScore ?? '—'} /><StatCard label="Abandoned" value={user.abandonedGames ?? 0} tone="text-electricPink" /></div><div className="mt-5 grid gap-4 lg:grid-cols-2"><section className={panel}><h4 className="text-lg font-black text-neonCyan">Account</h4><dl className="mt-3 space-y-2 text-sm"><Detail label="Name" value={`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Not supplied'} /><Detail label="Status" value={`${user.status} · ${user.emailVerified ? 'Verified' : 'Not verified'}`} /><Detail label="Signed up" value={dateTime(user.signedUpAt)} /><Detail label="Last played" value={dateTime(user.lastPlayedAt)} /><Detail label="Platforms" value={user.lifecyclePlatforms?.join(', ') || 'Unknown'} /></dl></section><section className={panel}><h4 className="text-lg font-black text-neonCyan">Performance</h4><dl className="mt-3 space-y-2 text-sm"><Detail label="Solo / Daily / Remote" value={`${user.soloGames} / ${user.dailyGames} / ${user.remoteGames}`} /><Detail label="Remote W / D / L" value={`${user.remoteWins} / ${user.remoteDraws ?? 0} / ${user.remoteLosses ?? 0}`} /><Detail label="Push notifications" value={user.pushNotificationsEnabled ? 'Enabled' : 'Disabled'} /></dl></section><section className={panel}><h4 className="text-lg font-black text-electricPink">Abandonment</h4><dl className="mt-3 space-y-2 text-sm"><Detail label="Game starts" value={user.gameStarts ?? 0} /><Detail label="Abandoned / reset" value={`${user.abandonedGames ?? 0} / ${user.resetGames ?? 0}`} /><Detail label="Mode switches / remote exits" value={`${user.modeSwitchAbandons ?? 0} / ${user.remoteExits ?? 0}`} /><Detail label="Average abandon round" value={user.averageAbandonRound ?? '—'} /><Detail label="Last abandonment" value={dateTime(user.lastAbandonedAt ?? null)} /></dl></section><section className={panel}><h4 className="text-lg font-black text-neonCyan">Mode behaviour</h4><div className="mt-3 space-y-2">{user.lifecycleModeBreakdown?.length ? user.lifecycleModeBreakdown.map((mode) => <div key={mode.mode} className="rounded-lg bg-deepBlack px-3 py-2 text-sm"><b className="capitalize text-mintGlow">{mode.mode}</b><span className="float-right">{mode.starts} starts · <b className="text-electricPink">{mode.abandons} left</b> · {mode.completions} complete</span></div>) : <p className="text-sm text-gray-500">No lifecycle events recorded.</p>}</div></section></div><section className={`${panel} mt-4`}><h4 className="text-lg font-black text-neonCyan">Recent games</h4><div className="mt-3 space-y-2">{user.recentGames?.length ? user.recentGames.map((game) => <div key={game.id} className="grid grid-cols-[1fr_auto] gap-3 rounded-xl bg-deepBlack p-3 text-sm"><span><b className="capitalize text-mintGlow">{game.mode}</b>{game.opponent ? ` vs ${game.opponent}` : ''}<small className="block text-gray-500">{dateTime(game.completedAt)}</small></span><strong className="text-xl text-neonYellow">{game.score}</strong></div>) : <p className="text-sm text-gray-500">No completed games recorded.</p>}</div></section><section className={`${panel} mt-4`}><h4 className="text-lg font-black text-electricPink">Recent abandoned games</h4><div className="mt-3 space-y-2">{user.recentAbandonments?.length ? user.recentAbandonments.map((event, index) => <div key={`${event.occurredAt}-${index}`} className="flex flex-wrap justify-between gap-2 rounded-xl bg-deepBlack p-3 text-sm"><span><b className="capitalize text-mintGlow">{event.mode}</b> · {event.action}</span><span className="text-gray-400">Round {event.round ?? '—'} · {dateTime(event.occurredAt)}</span></div>) : <p className="text-sm text-gray-500">No abandonment events recorded.</p>}</div></section></section></div>;
+function UserDetail({
+  user,
+  onClose,
+}: {
+  user: AdminUser;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-3 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Details for ${user.username || user.email}`}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-neonCyan bg-[#10191b] p-5 shadow-2xl sm:p-7">
+        <header className="flex items-start justify-between gap-4">
+          <div>
+            <p className="eyebrow">Player details</p>
+            <h3 className="text-3xl font-black text-neonYellow">
+              {user.username || "No username"}
+            </h3>
+            <p className="text-sm text-gray-400">{user.email}</p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close player details"
+            className="h-11 w-11 rounded-full border border-[#315057] text-2xl text-neonCyan"
+          >
+            ×
+          </button>
+        </header>
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard label="Games" value={user.gamesPlayed} />
+          <StatCard label="Average" value={user.averageScore ?? "—"} />
+          <StatCard label="Best" value={user.bestScore ?? "—"} />
+          <StatCard
+            label="Abandoned"
+            value={user.abandonedGames ?? 0}
+            tone="text-electricPink"
+          />
+        </div>
+        <div className="mt-5 grid gap-4 lg:grid-cols-2">
+          <section className={panel}>
+            <h4 className="text-lg font-black text-neonCyan">Account</h4>
+            <dl className="mt-3 space-y-2 text-sm">
+              <Detail
+                label="Name"
+                value={
+                  `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+                  "Not supplied"
+                }
+              />
+              <Detail
+                label="Status"
+                value={`${user.status} · ${user.emailVerified ? "Verified" : "Not verified"}`}
+              />
+              <Detail label="Signed up" value={dateTime(user.signedUpAt)} />
+              <Detail label="Last played" value={dateTime(user.lastPlayedAt)} />
+              <Detail
+                label="Platforms"
+                value={user.lifecyclePlatforms?.join(", ") || "Unknown"}
+              />
+            </dl>
+          </section>
+          <section className={panel}>
+            <h4 className="text-lg font-black text-neonCyan">Performance</h4>
+            <dl className="mt-3 space-y-2 text-sm">
+              <Detail
+                label="Solo / Daily / Remote"
+                value={`${user.soloGames} / ${user.dailyGames} / ${user.remoteGames}`}
+              />
+              <Detail
+                label="Remote W / D / L"
+                value={`${user.remoteWins} / ${user.remoteDraws ?? 0} / ${user.remoteLosses ?? 0}`}
+              />
+              <Detail
+                label="Push notifications"
+                value={user.pushNotificationsEnabled ? "Enabled" : "Disabled"}
+              />
+            </dl>
+          </section>
+          <section className={panel}>
+            <h4 className="text-lg font-black text-electricPink">
+              Abandonment
+            </h4>
+            <dl className="mt-3 space-y-2 text-sm">
+              <Detail label="Game starts" value={user.gameStarts ?? 0} />
+              <Detail
+                label="Abandoned / reset"
+                value={`${user.abandonedGames ?? 0} / ${user.resetGames ?? 0}`}
+              />
+              <Detail
+                label="Mode switches / remote exits"
+                value={`${user.modeSwitchAbandons ?? 0} / ${user.remoteExits ?? 0}`}
+              />
+              <Detail
+                label="Average abandon round"
+                value={user.averageAbandonRound ?? "—"}
+              />
+              <Detail
+                label="Last abandonment"
+                value={dateTime(user.lastAbandonedAt ?? null)}
+              />
+            </dl>
+          </section>
+          <section className={panel}>
+            <h4 className="text-lg font-black text-neonCyan">Mode behaviour</h4>
+            <div className="mt-3 space-y-2">
+              {user.lifecycleModeBreakdown?.length ? (
+                user.lifecycleModeBreakdown.map((mode) => (
+                  <div
+                    key={mode.mode}
+                    className="rounded-lg bg-deepBlack px-3 py-2 text-sm"
+                  >
+                    <b className="capitalize text-mintGlow">{mode.mode}</b>
+                    <span className="float-right">
+                      {mode.starts} starts ·{" "}
+                      <b className="text-electricPink">{mode.abandons} left</b>{" "}
+                      · {mode.completions} complete
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No lifecycle events recorded.
+                </p>
+              )}
+            </div>
+          </section>
+        </div>
+        <section className={`${panel} mt-4`}>
+          <h4 className="text-lg font-black text-neonCyan">Recent games</h4>
+          <div className="mt-3 space-y-2">
+            {user.recentGames?.length ? (
+              user.recentGames.map((game) => (
+                <div
+                  key={game.id}
+                  className="grid grid-cols-[1fr_auto] gap-3 rounded-xl bg-deepBlack p-3 text-sm"
+                >
+                  <span>
+                    <b className="capitalize text-mintGlow">{game.mode}</b>
+                    {game.opponent ? ` vs ${game.opponent}` : ""}
+                    <small className="block text-gray-500">
+                      {dateTime(game.completedAt)}
+                    </small>
+                  </span>
+                  <strong className="text-xl text-neonYellow">
+                    {game.score}
+                  </strong>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">
+                No completed games recorded.
+              </p>
+            )}
+          </div>
+        </section>
+        <section className={`${panel} mt-4`}>
+          <h4 className="text-lg font-black text-electricPink">
+            Recent abandoned games
+          </h4>
+          <div className="mt-3 space-y-2">
+            {user.recentAbandonments?.length ? (
+              user.recentAbandonments.map((event, index) => (
+                <div
+                  key={`${event.occurredAt}-${index}`}
+                  className="flex flex-wrap justify-between gap-2 rounded-xl bg-deepBlack p-3 text-sm"
+                >
+                  <span>
+                    <b className="capitalize text-mintGlow">{event.mode}</b> ·{" "}
+                    {event.action}
+                  </span>
+                  <span className="text-gray-400">
+                    Round {event.round ?? "—"} · {dateTime(event.occurredAt)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">
+                No abandonment events recorded.
+              </p>
+            )}
+          </div>
+        </section>
+      </section>
+    </div>
+  );
 }
 
 function Engagement({ data }: { data: AdminDashboardData }) {
-  const [mode, setMode] = useState<'all' | 'solo' | 'daily'>('all');
+  const [mode, setMode] = useState<"all" | "solo" | "daily">("all");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const activity = data.dailyActivity.slice(-14);
   const maxGames = Math.max(1, ...activity.map((day) => day.games));
   const maxPlayers = Math.max(1, ...activity.map((day) => day.players));
-  const dailyShare = data.completedGames ? Math.round(data.dailyGames / data.completedGames * 100) : 0;
-  const submissions = data.recentSubmissions.filter((item) => mode === 'all' || item.mode.toLowerCase().includes(mode));
+  const dailyShare = data.completedGames
+    ? Math.round((data.dailyGames / data.completedGames) * 100)
+    : 0;
+  const submissions = data.recentSubmissions.filter(
+    (item) => mode === "all" || item.mode.toLowerCase().includes(mode),
+  );
   const selectedDay = activity.find((day) => day.date === selectedDate);
-  return <div className="space-y-6">
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4"><StatCard label="All completed games" value={data.completedGames} icon={faDice} onClick={() => setMode('all')} /><StatCard label="Solo games" value={data.soloGames} onClick={() => setMode('solo')} /><StatCard label="Daily games" value={data.dailyGames} onClick={() => setMode('daily')} /><StatCard label="Daily share" value={`${dailyShare}%`} onClick={() => setMode('daily')} /></div>
-    <div className="grid gap-4 lg:grid-cols-3"><section className={`${panel} lg:col-span-2`}><div className="flex flex-wrap items-end justify-between gap-3"><div><h3 className="text-xl font-black text-neonCyan">Daily activity</h3><p className="text-xs text-gray-500">Select a day to inspect completed games and distinct players.</p></div><div className="flex gap-4 text-[10px] font-black uppercase"><span className="text-neonCyan">■ Games</span><span className="text-electricPink">● Players</span></div></div><div className="mt-5 grid h-64 grid-cols-14 items-end gap-1.5 border-b border-[#315057] px-1 pt-8">{activity.map((day) => <button key={day.date} type="button" onClick={() => setSelectedDate(day.date)} title={`${day.date}: ${day.games} games, ${day.players} players`} className={`group relative flex h-full min-w-0 items-end justify-center rounded-t border-x border-t transition ${selectedDate === day.date ? 'border-neonYellow bg-neonYellow/10' : 'border-transparent hover:bg-[#142225]'}`}><span className="absolute top-0 text-[10px] font-black text-neonYellow opacity-0 group-hover:opacity-100">{day.games}</span><span className="relative block w-full max-w-8 rounded-t bg-neonCyan" style={{ height: `${Math.max(3, day.games / maxGames * 88)}%` }}><span className="absolute left-1/2 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink" style={{ bottom: `${Math.max(0, day.players / maxPlayers * 92)}%` }} /></span></button>)}</div><div className="mt-2 flex justify-between text-[10px] text-gray-600"><span>{activity[0]?.date ? new Date(`${activity[0].date}T12:00:00`).toLocaleDateString([], { day: 'numeric', month: 'short' }) : '14 days ago'}</span><span>Today</span></div>{selectedDay && <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl border border-neonYellow/40 bg-deepBlack p-4"><div><small className="text-gray-500">Date</small><strong className="block text-neonYellow">{new Date(`${selectedDay.date}T12:00:00`).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'short' })}</strong></div><div><small className="text-gray-500">Games</small><strong className="block text-2xl text-neonCyan">{selectedDay.games}</strong></div><div><small className="text-gray-500">Players</small><strong className="block text-2xl text-electricPink">{selectedDay.players}</strong></div></div>}</section><section className={panel}><h3 className="text-xl font-black text-neonCyan">30-day snapshot</h3><p className="mt-1 text-xs text-gray-500">Key volume and quality measures.</p><dl className="mt-5 grid grid-cols-2 gap-5"><div><dt className="text-xs text-gray-500">Games</dt><dd className="text-2xl font-black text-neonYellow">{data.gamesLast30Days}</dd></div><div><dt className="text-xs text-gray-500">Players</dt><dd className="text-2xl font-black text-neonYellow">{data.activeUsersLast30Days}</dd></div><div><dt className="text-xs text-gray-500">Average</dt><dd className="text-2xl font-black text-neonYellow">{data.averageScore}</dd></div><div><dt className="text-xs text-gray-500">Upper bonuses</dt><dd className="text-2xl font-black text-neonYellow">{data.upperBonusesEarned}</dd></div></dl><div className="mt-6 border-t border-[#294348] pt-4"><p className="text-xs text-gray-500">Completion health</p><strong className="mt-1 block text-3xl text-neonCyan">{data.gameCompletionRate}%</strong><p className="mt-1 text-xs text-gray-500">{data.abandonedGames} tracked abandons · average round {data.averageAbandonRound}</p></div></section></div>
-    <section className="web-panel overflow-hidden"><div className="flex flex-wrap items-end justify-between gap-3 p-5"><div><h3 className="text-2xl font-black text-neonCyan">Recent score submissions</h3><p className="text-sm text-gray-500">Showing {mode === 'all' ? 'all modes' : mode} · {submissions.length} records.</p></div><div className="flex gap-2">{(['all','solo','daily'] as const).map((value) => <button key={value} onClick={() => setMode(value)} className={`rounded-full border px-4 py-2 text-xs font-black capitalize ${mode === value ? 'border-neonCyan bg-[#20383b] text-neonCyan' : 'border-[#315057] text-gray-400'}`}>{value}</button>)}</div></div><div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead className="bg-[#142225] text-xs uppercase text-gray-400"><tr><th className="px-4 py-3">Player</th><th className="px-4 py-3">Mode</th><th className="px-4 py-3">Score</th><th className="px-4 py-3">Submitted</th></tr></thead><tbody>{submissions.map((result) => <tr key={result.id} className="border-t border-slate-800"><td className="px-4 py-3 text-mintGlow">{result.username || result.userId}</td><td className="px-4 py-3">{result.mode}</td><td className="px-4 py-3 text-xl font-black text-neonYellow">{result.score}</td><td className="px-4 py-3 text-gray-300">{dateTime(result.completedAt)}</td></tr>)}{!submissions.length && <tr><td colSpan={4} className="px-4 py-10 text-center text-gray-500">No recent submissions match this mode.</td></tr>}</tbody></table></div></section>
-  </div>;
+  const playerLine = activity
+    .map((day, index) => {
+      const x = ((index + 0.5) / Math.max(1, activity.length)) * 100;
+      const y = 96 - (day.players / maxPlayers) * 88;
+      return `${x},${y}`;
+    })
+    .join(" ");
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard
+          label="All completed games"
+          value={data.completedGames}
+          icon={faDice}
+          onClick={() => setMode("all")}
+        />
+        <StatCard
+          label="Solo games"
+          value={data.soloGames}
+          onClick={() => setMode("solo")}
+        />
+        <StatCard
+          label="Daily games"
+          value={data.dailyGames}
+          onClick={() => setMode("daily")}
+        />
+        <StatCard
+          label="Daily share"
+          value={`${dailyShare}%`}
+          onClick={() => setMode("daily")}
+        />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <section className={`${panel} lg:col-span-2`}>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h3 className="text-xl font-black text-neonCyan">
+                Daily activity
+              </h3>
+              <p className="text-xs text-gray-500">
+                Select a day to inspect completed games and distinct players.
+              </p>
+            </div>
+            <div className="flex gap-4 text-[10px] font-black uppercase">
+              <span className="text-neonCyan">■ Games</span>
+              <span className="text-electricPink">● Players</span>
+            </div>
+          </div>
+          <div className="relative mt-5 grid h-64 grid-cols-14 items-end gap-1.5 border-b border-[#315057] px-1 pt-8">
+            <svg
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-0 left-1 right-1 top-8 z-10 h-[calc(100%_-_2rem)] w-[calc(100%_-_0.5rem)] overflow-visible"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
+              <polyline
+                points={playerLine}
+                fill="none"
+                stroke="#ff00e0"
+                strokeWidth="2"
+                vectorEffect="non-scaling-stroke"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </svg>
+            {activity.map((day) => (
+              <button
+                key={day.date}
+                type="button"
+                onClick={() => setSelectedDate(day.date)}
+                title={`${day.date}: ${day.games} games, ${day.players} players`}
+                className={`group relative flex h-full min-w-0 items-end justify-center rounded-t border-x border-t transition ${selectedDate === day.date ? "border-neonYellow bg-neonYellow/10" : "border-transparent hover:bg-[#142225]"}`}
+              >
+                <span className="absolute top-0 text-[10px] font-black text-neonYellow opacity-0 group-hover:opacity-100">
+                  {day.games}
+                </span>
+                <span
+                  className="relative block w-full max-w-8 rounded-t bg-neonCyan"
+                  style={{
+                    height: `${Math.max(3, (day.games / maxGames) * 88)}%`,
+                  }}
+                >
+                  <span
+                    className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
+                    style={{
+                      bottom: `${Math.max(0, (day.players / maxPlayers) * 92)}%`,
+                    }}
+                  />
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="mt-2 flex justify-between text-[10px] text-gray-600">
+            <span>
+              {activity[0]?.date
+                ? new Date(`${activity[0].date}T12:00:00`).toLocaleDateString(
+                    [],
+                    { day: "numeric", month: "short" },
+                  )
+                : "14 days ago"}
+            </span>
+            <span>Today</span>
+          </div>
+          {selectedDay && (
+            <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl border border-neonYellow/40 bg-deepBlack p-4">
+              <div>
+                <small className="text-gray-500">Date</small>
+                <strong className="block text-neonYellow">
+                  {new Date(`${selectedDay.date}T12:00:00`).toLocaleDateString(
+                    [],
+                    { weekday: "long", day: "numeric", month: "short" },
+                  )}
+                </strong>
+              </div>
+              <div>
+                <small className="text-gray-500">Games</small>
+                <strong className="block text-2xl text-neonCyan">
+                  {selectedDay.games}
+                </strong>
+              </div>
+              <div>
+                <small className="text-gray-500">Players</small>
+                <strong className="block text-2xl text-electricPink">
+                  {selectedDay.players}
+                </strong>
+              </div>
+            </div>
+          )}
+        </section>
+        <section className={panel}>
+          <h3 className="text-xl font-black text-neonCyan">30-day snapshot</h3>
+          <p className="mt-1 text-xs text-gray-500">
+            Key volume and quality measures.
+          </p>
+          <dl className="mt-5 grid grid-cols-2 gap-5">
+            <div>
+              <dt className="text-xs text-gray-500">Games</dt>
+              <dd className="text-2xl font-black text-neonYellow">
+                {data.gamesLast30Days}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-gray-500">Players</dt>
+              <dd className="text-2xl font-black text-neonYellow">
+                {data.activeUsersLast30Days}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-gray-500">Average</dt>
+              <dd className="text-2xl font-black text-neonYellow">
+                {data.averageScore}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-gray-500">Upper bonuses</dt>
+              <dd className="text-2xl font-black text-neonYellow">
+                {data.upperBonusesEarned}
+              </dd>
+            </div>
+          </dl>
+          <div className="mt-6 border-t border-[#294348] pt-4">
+            <p className="text-xs text-gray-500">Completion health</p>
+            <strong className="mt-1 block text-3xl text-neonCyan">
+              {data.gameCompletionRate}%
+            </strong>
+            <p className="mt-1 text-xs text-gray-500">
+              {data.abandonedGames} tracked abandons · average round{" "}
+              {data.averageAbandonRound}
+            </p>
+          </div>
+        </section>
+      </div>
+      <section className="web-panel overflow-hidden">
+        <div className="flex flex-wrap items-end justify-between gap-3 p-5">
+          <div>
+            <h3 className="text-2xl font-black text-neonCyan">
+              Recent score submissions
+            </h3>
+            <p className="text-sm text-gray-500">
+              Showing {mode === "all" ? "all modes" : mode} ·{" "}
+              {submissions.length} records.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {(["all", "solo", "daily"] as const).map((value) => (
+              <button
+                key={value}
+                onClick={() => setMode(value)}
+                className={`rounded-full border px-4 py-2 text-xs font-black capitalize ${mode === value ? "border-neonCyan bg-[#20383b] text-neonCyan" : "border-[#315057] text-gray-400"}`}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead className="bg-[#142225] text-xs uppercase text-gray-400">
+              <tr>
+                <th className="px-4 py-3">Player</th>
+                <th className="px-4 py-3">Mode</th>
+                <th className="px-4 py-3">Score</th>
+                <th className="px-4 py-3">Submitted</th>
+              </tr>
+            </thead>
+            <tbody>
+              {submissions.map((result) => (
+                <tr key={result.id} className="border-t border-slate-800">
+                  <td className="px-4 py-3 text-mintGlow">
+                    {result.username || result.userId}
+                  </td>
+                  <td className="px-4 py-3">{result.mode}</td>
+                  <td className="px-4 py-3 text-xl font-black text-neonYellow">
+                    {result.score}
+                  </td>
+                  <td className="px-4 py-3 text-gray-300">
+                    {dateTime(result.completedAt)}
+                  </td>
+                </tr>
+              ))}
+              {!submissions.length && (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-4 py-10 text-center text-gray-500"
+                  >
+                    No recent submissions match this mode.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
 }
 
 function Notifications({ data }: { data: AdminDashboardData }) {
-  const optedIn = data.users.filter((user) => user.pushNotificationsEnabled); const [title, setTitle] = useState(''); const [body, setBody] = useState(''); const [audience, setAudience] = useState<'all'|'selected'>('all'); const [selected, setSelected] = useState<string[]>([]); const [busy, setBusy] = useState(false); const [status, setStatus] = useState(''); const [history, setHistory] = useState(data.notificationHistory ?? []);
-  const send = async () => { if (!title.trim() || !body.trim()) return setStatus('Enter a title and message.'); if (audience === 'selected' && !selected.length) return setStatus('Select at least one opted-in player.'); const count = audience === 'all' ? optedIn.length : selected.length; if (!window.confirm(`Send this notification to ${count} eligible device${count === 1 ? '' : 's'}?`)) return; setBusy(true); setStatus(''); try { const sentTitle = title.trim(); const sentBody = body.trim(); const result = await sendAdminNotification(sentTitle, sentBody, audience === 'selected' ? selected : undefined); setStatus(`Sent to ${result.sentCount} of ${result.audienceCount} eligible devices${result.failedCount ? ` · ${result.failedCount} failed` : ''}.`); setHistory((current) => [{ id: `local-${Date.now()}`, title: sentTitle, body: sentBody, sentAt: new Date().toISOString(), audience, selectedCount: audience === 'selected' ? selected.length : 0, ...result, requestedBy: '' }, ...current]); if (result.sentCount) { setTitle(''); setBody(''); } } catch (error) { setStatus(error instanceof Error ? error.message : 'Unable to send notification.'); } finally { setBusy(false); } };
-  return <div className="space-y-6"><div className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]"><section className={panel}><div className="flex items-start justify-between gap-3"><div><h3 className="text-2xl font-black text-neonCyan"><FontAwesomeIcon icon={faBell} className="mr-2 text-electricPink" />Compose notification</h3><p className="mt-1 text-sm text-gray-500">Send a concise message to opted-in app users.</p></div><span className="rounded-full border border-[#315057] px-3 py-1 text-xs">{optedIn.length} opted in</span></div><div className="mt-5 space-y-3"><input value={title} maxLength={60} onChange={(event) => setTitle(event.target.value)} placeholder="Notification title" className="w-full rounded-xl border border-[#315a5e] bg-deepBlack px-4 py-3 text-white" /><textarea value={body} maxLength={220} onChange={(event) => setBody(event.target.value)} placeholder="Write a short message…" rows={5} className="w-full resize-none rounded-xl border border-[#315a5e] bg-deepBlack px-4 py-3 text-white" /><div className="flex justify-between text-[10px] text-gray-600"><span>Keep the important information at the beginning.</span><span>{body.length}/220</span></div><div className="flex gap-2">{(['all','selected'] as const).map((value) => <button key={value} onClick={() => setAudience(value)} className={`rounded-full border px-4 py-2 text-xs font-black ${audience === value ? 'border-neonCyan bg-[#20383b] text-neonCyan' : 'border-[#315057] text-gray-400'}`}>{value === 'all' ? 'All opted-in users' : 'Selected users'}</button>)}</div><button disabled={busy || !optedIn.length} onClick={() => void send()} className="rounded-xl bg-neonCyan px-5 py-3 font-black text-deepBlack disabled:opacity-50"><FontAwesomeIcon icon={faPaperPlane} className="mr-2" />{busy ? 'Sending…' : 'Review and send'}</button>{status && <p className="rounded-xl bg-deepBlack p-3 text-sm text-mintGlow">{status}</p>}</div></section><div className="space-y-5"><section className={panel}><h3 className="text-xl font-black text-neonCyan">Audience</h3><div className={`mt-3 max-h-72 overflow-y-auto rounded-xl bg-deepBlack p-2 ${audience === 'all' ? 'opacity-50' : ''}`}>{optedIn.length ? optedIn.map((user) => <label key={user.userId} className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 hover:bg-[#142225]"><input type="checkbox" disabled={audience === 'all'} checked={selected.includes(user.userId)} onChange={() => setSelected((current) => current.includes(user.userId) ? current.filter((id) => id !== user.userId) : [...current, user.userId])} /><span><b className="block text-sm">{user.username || user.email}</b><small className="text-gray-500">{user.email}</small></span></label>) : <p className="p-4 text-sm text-gray-500">No players have enabled app notifications yet.</p>}</div></section><section className={panel}><p className="eyebrow">Automation</p><div className="mt-2 flex items-start justify-between gap-4"><div><h3 className="text-lg font-black text-neonYellow">Daily Challenge result</h3><p className="mt-1 text-xs leading-5 text-gray-400">Top-three finishers are notified at 10:00 the following day when notifications are enabled.</p></div><span className="rounded-full border border-green-500/50 bg-green-500/10 px-3 py-1 text-xs font-black text-green-300">Active</span></div></section></div></div><section><div className="mb-3"><h3 className="text-2xl font-black text-neonCyan">Custom notification history</h3><p className="text-sm text-gray-500">Newest first. Delivery totals reflect Expo's immediate response when each message was sent.</p></div>{history.length ? <div className="grid gap-3 lg:grid-cols-2">{history.map((item) => <article key={item.id} className="web-panel p-5"><div className="flex items-start justify-between gap-4"><div><strong className="block text-lg text-neonYellow">{item.title}</strong><time className="mt-1 block text-xs text-gray-500">{dateTime(item.sentAt)}</time></div><span className="rounded-full border border-[#315057] px-3 py-1 text-[10px] font-black uppercase text-neonCyan">{item.audience === 'selected' ? `${item.selectedCount} selected` : 'All users'}</span></div><p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-mintGlow">{item.body}</p><div className="mt-4 flex flex-wrap gap-4 border-t border-[#294348] pt-3 text-xs"><span><b className="text-white">{item.audienceCount}</b> eligible</span><span><b className="text-green-300">{item.sentCount}</b> sent</span><span><b className={item.failedCount ? 'text-red-300' : 'text-gray-400'}>{item.failedCount}</b> failed</span></div></article>)}</div> : <div className="web-panel p-8 text-center text-sm text-gray-500">No custom notifications have been recorded yet. Messages sent after this update will appear here.</div>}</section></div>;
+  const optedIn = data.users.filter((user) => user.pushNotificationsEnabled);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [audience, setAudience] = useState<"all" | "selected">("all");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState("");
+  const [history, setHistory] = useState(data.notificationHistory ?? []);
+  const send = async () => {
+    if (!title.trim() || !body.trim())
+      return setStatus("Enter a title and message.");
+    if (audience === "selected" && !selected.length)
+      return setStatus("Select at least one opted-in player.");
+    const count = audience === "all" ? optedIn.length : selected.length;
+    if (
+      !window.confirm(
+        `Send this notification to ${count} eligible device${count === 1 ? "" : "s"}?`,
+      )
+    )
+      return;
+    setBusy(true);
+    setStatus("");
+    try {
+      const sentTitle = title.trim();
+      const sentBody = body.trim();
+      const result = await sendAdminNotification(
+        sentTitle,
+        sentBody,
+        audience === "selected" ? selected : undefined,
+      );
+      setStatus(
+        `Sent to ${result.sentCount} of ${result.audienceCount} eligible devices${result.failedCount ? ` · ${result.failedCount} failed` : ""}.`,
+      );
+      setHistory((current) => [
+        {
+          id: `local-${Date.now()}`,
+          title: sentTitle,
+          body: sentBody,
+          sentAt: new Date().toISOString(),
+          audience,
+          selectedCount: audience === "selected" ? selected.length : 0,
+          ...result,
+          requestedBy: "",
+        },
+        ...current,
+      ]);
+      if (result.sentCount) {
+        setTitle("");
+        setBody("");
+      }
+    } catch (error) {
+      setStatus(
+        error instanceof Error ? error.message : "Unable to send notification.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
+        <section className={panel}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-2xl font-black text-neonCyan">
+                <FontAwesomeIcon
+                  icon={faBell}
+                  className="mr-2 text-electricPink"
+                />
+                Compose notification
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Send a concise message to opted-in app users.
+              </p>
+            </div>
+            <span className="rounded-full border border-[#315057] px-3 py-1 text-xs">
+              {optedIn.length} opted in
+            </span>
+          </div>
+          <div className="mt-5 space-y-3">
+            <input
+              value={title}
+              maxLength={60}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Notification title"
+              className="w-full rounded-xl border border-[#315a5e] bg-deepBlack px-4 py-3 text-white"
+            />
+            <textarea
+              value={body}
+              maxLength={220}
+              onChange={(event) => setBody(event.target.value)}
+              placeholder="Write a short message…"
+              rows={5}
+              className="w-full resize-none rounded-xl border border-[#315a5e] bg-deepBlack px-4 py-3 text-white"
+            />
+            <div className="flex justify-between text-[10px] text-gray-600">
+              <span>Keep the important information at the beginning.</span>
+              <span>{body.length}/220</span>
+            </div>
+            <div className="flex gap-2">
+              {(["all", "selected"] as const).map((value) => (
+                <button
+                  key={value}
+                  onClick={() => setAudience(value)}
+                  className={`rounded-full border px-4 py-2 text-xs font-black ${audience === value ? "border-neonCyan bg-[#20383b] text-neonCyan" : "border-[#315057] text-gray-400"}`}
+                >
+                  {value === "all" ? "All opted-in users" : "Selected users"}
+                </button>
+              ))}
+            </div>
+            <button
+              disabled={busy || !optedIn.length}
+              onClick={() => void send()}
+              className="rounded-xl bg-neonCyan px-5 py-3 font-black text-deepBlack disabled:opacity-50"
+            >
+              <FontAwesomeIcon icon={faPaperPlane} className="mr-2" />
+              {busy ? "Sending…" : "Review and send"}
+            </button>
+            {status && (
+              <p className="rounded-xl bg-deepBlack p-3 text-sm text-mintGlow">
+                {status}
+              </p>
+            )}
+          </div>
+        </section>
+        <div className="space-y-5">
+          <section className={panel}>
+            <h3 className="text-xl font-black text-neonCyan">Audience</h3>
+            <div
+              className={`mt-3 max-h-72 overflow-y-auto rounded-xl bg-deepBlack p-2 ${audience === "all" ? "opacity-50" : ""}`}
+            >
+              {optedIn.length ? (
+                optedIn.map((user) => (
+                  <label
+                    key={user.userId}
+                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 hover:bg-[#142225]"
+                  >
+                    <input
+                      type="checkbox"
+                      disabled={audience === "all"}
+                      checked={selected.includes(user.userId)}
+                      onChange={() =>
+                        setSelected((current) =>
+                          current.includes(user.userId)
+                            ? current.filter((id) => id !== user.userId)
+                            : [...current, user.userId],
+                        )
+                      }
+                    />
+                    <span>
+                      <b className="block text-sm">
+                        {user.username || user.email}
+                      </b>
+                      <small className="text-gray-500">{user.email}</small>
+                    </span>
+                  </label>
+                ))
+              ) : (
+                <p className="p-4 text-sm text-gray-500">
+                  No players have enabled app notifications yet.
+                </p>
+              )}
+            </div>
+          </section>
+          <section className={panel}>
+            <p className="eyebrow">Automation</p>
+            <div className="mt-2 flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-black text-neonYellow">
+                  Daily Challenge result
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-gray-400">
+                  Top-three finishers are notified at 10:00 the following day
+                  when notifications are enabled.
+                </p>
+              </div>
+              <span className="rounded-full border border-green-500/50 bg-green-500/10 px-3 py-1 text-xs font-black text-green-300">
+                Active
+              </span>
+            </div>
+          </section>
+        </div>
+      </div>
+      <section>
+        <div className="mb-3">
+          <h3 className="text-2xl font-black text-neonCyan">
+            Custom notification history
+          </h3>
+          <p className="text-sm text-gray-500">
+            Newest first. Delivery totals reflect Expo's immediate response when
+            each message was sent.
+          </p>
+        </div>
+        {history.length ? (
+          <div className="grid gap-3 lg:grid-cols-2">
+            {history.map((item) => (
+              <article key={item.id} className="web-panel p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <strong className="block text-lg text-neonYellow">
+                      {item.title}
+                    </strong>
+                    <time className="mt-1 block text-xs text-gray-500">
+                      {dateTime(item.sentAt)}
+                    </time>
+                  </div>
+                  <span className="rounded-full border border-[#315057] px-3 py-1 text-[10px] font-black uppercase text-neonCyan">
+                    {item.audience === "selected"
+                      ? `${item.selectedCount} selected`
+                      : "All users"}
+                  </span>
+                </div>
+                <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-mintGlow">
+                  {item.body}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-4 border-t border-[#294348] pt-3 text-xs">
+                  <span>
+                    <b className="text-white">{item.audienceCount}</b> eligible
+                  </span>
+                  <span>
+                    <b className="text-green-300">{item.sentCount}</b> sent
+                  </span>
+                  <span>
+                    <b
+                      className={
+                        item.failedCount ? "text-red-300" : "text-gray-400"
+                      }
+                    >
+                      {item.failedCount}
+                    </b>{" "}
+                    failed
+                  </span>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="web-panel p-8 text-center text-sm text-gray-500">
+            No custom notifications have been recorded yet. Messages sent after
+            this update will appear here.
+          </div>
+        )}
+      </section>
+    </div>
+  );
 }
 
 function EmailHistory({ data }: { data: AdminDashboardData }) {
-  const delivered = data.emailHistory.filter((item) => item.status === 'DELIVERED').length;
+  const delivered = data.emailHistory.filter(
+    (item) => item.status === "DELIVERED",
+  ).length;
   const clicked = data.emailHistory.filter((item) => item.clickedAt).length;
-  const failed = data.emailHistory.filter((item) => ['BOUNCED', 'COMPLAINT', 'FAILED'].includes(item.status)).length;
-  const label = (value: string) => value.toLowerCase().replaceAll('_', ' ').replace(/\b\w/g, (character) => character.toUpperCase());
-  const statusClass = (status: string) => status === 'DELIVERED' ? 'border-green-500/50 text-green-300' : ['BOUNCED', 'COMPLAINT', 'FAILED'].includes(status) ? 'border-red-500/50 text-red-300' : 'border-[#315057] text-neonCyan';
-  return <section className="mt-8"><div className="mb-3 flex flex-wrap items-end justify-between gap-3"><div><h3 className="text-2xl font-black text-neonCyan">Lifecycle email history</h3><p className="text-sm text-gray-500">Recent account and marketing emails recorded by SES. Delivery events can arrive shortly after sending.</p></div><div className="flex gap-2 text-[10px] font-black uppercase"><span className="rounded-full border border-green-500/40 px-3 py-1 text-green-300">{delivered} delivered</span><span className="rounded-full border border-neonCyan/40 px-3 py-1 text-neonCyan">{clicked} clicked</span><span className="rounded-full border border-red-500/40 px-3 py-1 text-red-300">{failed} issues</span></div></div>{data.emailHistory.length ? <div className="web-panel overflow-hidden"><div className="overflow-x-auto"><table className="w-full min-w-[860px] text-left text-sm"><thead className="bg-[#142225] text-xs uppercase text-gray-400"><tr><th className="px-4 py-3">Email</th><th className="px-4 py-3">Campaign</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Sent</th><th className="px-4 py-3">Engagement</th></tr></thead><tbody>{data.emailHistory.map((item) => <tr key={item.id} className="border-t border-slate-800"><td className="px-4 py-3"><strong className="block text-mintGlow">{item.username || item.recipient || 'Unknown user'}</strong>{item.username && <small className="text-gray-500">{item.recipient}</small>}</td><td className="px-4 py-3"><strong className="text-neonYellow">{label(item.campaign)}</strong><small className="block text-gray-500">{label(item.messageType)}</small></td><td className="px-4 py-3"><span className={`rounded-full border px-3 py-1 text-[10px] font-black ${statusClass(item.status)}`}>{item.status}</span></td><td className="px-4 py-3 text-gray-300">{dateTime(item.sentAt)}</td><td className="px-4 py-3 text-xs text-gray-400">{item.clickedAt ? `Clicked ${dateTime(item.clickedAt)}` : item.deliveredAt ? `Delivered ${dateTime(item.deliveredAt)}` : item.lastEventType ? label(item.lastEventType) : 'Awaiting event'}</td></tr>)}</tbody></table></div></div> : <div className="web-panel p-8 text-center text-sm text-gray-500">No lifecycle emails have been recorded yet.</div>}</section>;
+  const failed = data.emailHistory.filter((item) =>
+    ["BOUNCED", "COMPLAINT", "FAILED"].includes(item.status),
+  ).length;
+  const label = (value: string) =>
+    value
+      .toLowerCase()
+      .replaceAll("_", " ")
+      .replace(/\b\w/g, (character) => character.toUpperCase());
+  const statusClass = (status: string) =>
+    status === "DELIVERED"
+      ? "border-green-500/50 text-green-300"
+      : ["BOUNCED", "COMPLAINT", "FAILED"].includes(status)
+        ? "border-red-500/50 text-red-300"
+        : "border-[#315057] text-neonCyan";
+  return (
+    <section className="mt-8">
+      <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h3 className="text-2xl font-black text-neonCyan">
+            Lifecycle email history
+          </h3>
+          <p className="text-sm text-gray-500">
+            Recent account and marketing emails recorded by SES. Delivery events
+            can arrive shortly after sending.
+          </p>
+        </div>
+        <div className="flex gap-2 text-[10px] font-black uppercase">
+          <span className="rounded-full border border-green-500/40 px-3 py-1 text-green-300">
+            {delivered} delivered
+          </span>
+          <span className="rounded-full border border-neonCyan/40 px-3 py-1 text-neonCyan">
+            {clicked} clicked
+          </span>
+          <span className="rounded-full border border-red-500/40 px-3 py-1 text-red-300">
+            {failed} issues
+          </span>
+        </div>
+      </div>
+      {data.emailHistory.length ? (
+        <div className="web-panel overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[860px] text-left text-sm">
+              <thead className="bg-[#142225] text-xs uppercase text-gray-400">
+                <tr>
+                  <th className="px-4 py-3">Email</th>
+                  <th className="px-4 py-3">Campaign</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Sent</th>
+                  <th className="px-4 py-3">Engagement</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.emailHistory.map((item) => (
+                  <tr key={item.id} className="border-t border-slate-800">
+                    <td className="px-4 py-3">
+                      <strong className="block text-mintGlow">
+                        {item.username || item.recipient || "Unknown user"}
+                      </strong>
+                      {item.username && (
+                        <small className="text-gray-500">
+                          {item.recipient}
+                        </small>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <strong className="text-neonYellow">
+                        {label(item.campaign)}
+                      </strong>
+                      <small className="block text-gray-500">
+                        {label(item.messageType)}
+                      </small>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded-full border px-3 py-1 text-[10px] font-black ${statusClass(item.status)}`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-300">
+                      {dateTime(item.sentAt)}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-400">
+                      {item.clickedAt
+                        ? `Clicked ${dateTime(item.clickedAt)}`
+                        : item.deliveredAt
+                          ? `Delivered ${dateTime(item.deliveredAt)}`
+                          : item.lastEventType
+                            ? label(item.lastEventType)
+                            : "Awaiting event"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="web-panel p-8 text-center text-sm text-gray-500">
+          No lifecycle emails have been recorded yet.
+        </div>
+      )}
+    </section>
+  );
 }
 
-export default function AdminDashboard({ embedded = false }: { onClose?: () => void; embedded?: boolean }) {
-  const [section, setSection] = useState<AdminSection>(sectionFromPath); const [data, setData] = useState<AdminDashboardData | null>(null); const [error, setError] = useState(''); const [loading, setLoading] = useState(true);
-  const load = () => { setLoading(true); setError(''); void fetchAdminDashboard().then(setData).catch((caught) => setError(caught instanceof Error ? caught.message : 'Unable to load dashboard.')).finally(() => setLoading(false)); };
+export default function AdminDashboard({
+  embedded = false,
+}: {
+  onClose?: () => void;
+  embedded?: boolean;
+}) {
+  const [section, setSection] = useState<AdminSection>(sectionFromPath);
+  const [data, setData] = useState<AdminDashboardData | null>(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const load = () => {
+    setLoading(true);
+    setError("");
+    void fetchAdminDashboard()
+      .then(setData)
+      .catch((caught) =>
+        setError(
+          caught instanceof Error
+            ? caught.message
+            : "Unable to load dashboard.",
+        ),
+      )
+      .finally(() => setLoading(false));
+  };
   useEffect(load, []);
-  useEffect(() => { const pop = () => setSection(sectionFromPath()); window.addEventListener('popstate', pop); return () => window.removeEventListener('popstate', pop); }, []);
-  const open = (next: AdminSection) => { setSection(next); const path = `/admin/${next}`; if (window.location.pathname !== path) window.history.pushState({}, '', path); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  return <main className={embedded ? 'site-page-content max-w-7xl' : 'min-h-screen bg-deepBlack px-4 py-8'}><div className="mx-auto max-w-7xl"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="eyebrow">Private workspace</p><h2 className="section-heading">Admin</h2><p className="section-copy">Understand player activity and manage communication.</p></div><button onClick={load} disabled={loading} className="rounded-xl border border-neonCyan px-4 py-3 font-black text-neonCyan disabled:opacity-50"><FontAwesomeIcon icon={faRotate} spin={loading} className="mr-2" />Refresh</button></div>
-    <nav className="mt-7 grid gap-2 rounded-2xl border border-[#294348] bg-[#10191b] p-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Admin sections">{sections.map((item) => <button key={item.value} onClick={() => open(item.value)} className={`rounded-xl px-4 py-3 text-left transition ${section === item.value ? 'bg-[#20383b] text-neonCyan shadow-[inset_0_0_0_1px_#00f5ff]' : 'text-gray-400 hover:bg-[#142225]'}`}><strong className="block">{item.label}</strong><small className="mt-0.5 block text-[10px] opacity-70">{item.copy}</small></button>)}</nav>
-    {loading && !data && <div className="web-panel mt-6 p-10 text-center"><FontAwesomeIcon icon={faRotate} spin className="mr-2" />Loading admin data…</div>}{error && <div className="web-panel mt-6 border-red-400 p-6 text-red-300"><strong>Dashboard unavailable</strong><p className="mt-2">{error}</p></div>}{data && <div className="mt-6">{section === 'overview' && <Overview data={data} open={open} />}{section === 'users' && <Users data={data} />}{section === 'engagement' && <Engagement data={data} />}{section === 'notifications' && <><Notifications data={data} /><EmailHistory data={data} /></>}</div>}<p className="py-5 text-right text-xs text-gray-600">{data ? `Updated ${dateTime(data.generatedAt)}` : ''}</p></div></main>;
+  useEffect(() => {
+    const pop = () => setSection(sectionFromPath());
+    window.addEventListener("popstate", pop);
+    return () => window.removeEventListener("popstate", pop);
+  }, []);
+  const open = (next: AdminSection) => {
+    setSection(next);
+    const path = `/admin/${next}`;
+    if (window.location.pathname !== path)
+      window.history.pushState({}, "", path);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  return (
+    <main
+      className={
+        embedded
+          ? "site-page-content max-w-7xl"
+          : "min-h-screen bg-deepBlack px-4 py-8"
+      }
+    >
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="eyebrow">Private workspace</p>
+            <h2 className="section-heading">Admin</h2>
+            <p className="section-copy">
+              Understand player activity and manage communication.
+            </p>
+          </div>
+          <button
+            onClick={load}
+            disabled={loading}
+            className="rounded-xl border border-neonCyan px-4 py-3 font-black text-neonCyan disabled:opacity-50"
+          >
+            <FontAwesomeIcon icon={faRotate} spin={loading} className="mr-2" />
+            Refresh
+          </button>
+        </div>
+        <nav
+          className="mt-7 grid gap-2 rounded-2xl border border-[#294348] bg-[#10191b] p-2 sm:grid-cols-2 lg:grid-cols-4"
+          aria-label="Admin sections"
+        >
+          {sections.map((item) => (
+            <button
+              key={item.value}
+              onClick={() => open(item.value)}
+              className={`rounded-xl px-4 py-3 text-left transition ${section === item.value ? "bg-[#20383b] text-neonCyan shadow-[inset_0_0_0_1px_#00f5ff]" : "text-gray-400 hover:bg-[#142225]"}`}
+            >
+              <strong className="block">{item.label}</strong>
+              <small className="mt-0.5 block text-[10px] opacity-70">
+                {item.copy}
+              </small>
+            </button>
+          ))}
+        </nav>
+        {loading && !data && (
+          <div className="web-panel mt-6 p-10 text-center">
+            <FontAwesomeIcon icon={faRotate} spin className="mr-2" />
+            Loading admin data…
+          </div>
+        )}
+        {error && (
+          <div className="web-panel mt-6 border-red-400 p-6 text-red-300">
+            <strong>Dashboard unavailable</strong>
+            <p className="mt-2">{error}</p>
+          </div>
+        )}
+        {data && (
+          <div className="mt-6">
+            {section === "overview" && <Overview data={data} open={open} />}
+            {section === "users" && <Users data={data} />}
+            {section === "engagement" && <Engagement data={data} />}
+            {section === "notifications" && (
+              <>
+                <Notifications data={data} />
+                <EmailHistory data={data} />
+              </>
+            )}
+          </div>
+        )}
+        <p className="py-5 text-right text-xs text-gray-600">
+          {data ? `Updated ${dateTime(data.generatedAt)}` : ""}
+        </p>
+      </div>
+    </main>
+  );
 }
