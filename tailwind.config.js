@@ -17,6 +17,9 @@ module.exports = {
         neonYellow: '#faff00',
         mintGlow: '#00ffcc',
       },
+      gridTemplateColumns: {
+        14: 'repeat(14, minmax(0, 1fr))',
+      },
       animation: {
         'pulse-glow': 'pulseGlow 2s infinite',
         'ping-glow': 'pingGlow 2s ease-in-out',
