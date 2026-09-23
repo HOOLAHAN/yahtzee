@@ -20,6 +20,14 @@ import {
 } from "../../services/admin";
 
 type AdminSection = "overview" | "users" | "engagement" | "notifications";
+type ChartPeriod = "week" | "month" | "quarter" | "year";
+type DateBucket = {
+  key: string;
+  label: string;
+  title: string;
+  start: Date;
+  end: Date;
+};
 type UserFilter =
   | "all"
   | "new"
@@ -55,6 +63,104 @@ const dateTime = (value: string | null) =>
 const daysSince = (value: string | null, now = Date.now()) =>
   value ? Math.floor((now - new Date(value).getTime()) / 86400000) : null;
 const panel = "web-panel p-5";
+const chartPeriods: { value: ChartPeriod; label: string }[] = [
+  { value: "week", label: "Week" },
+  { value: "month", label: "Month" },
+  { value: "quarter", label: "Quarter" },
+  { value: "year", label: "Year" },
+];
+
+const startOfDay = (value: Date) => {
+  const result = new Date(value);
+  result.setHours(0, 0, 0, 0);
+  return result;
+};
+
+function dateBuckets(period: ChartPeriod): DateBucket[] {
+  const today = startOfDay(new Date());
+  const endOfToday = new Date(today);
+  endOfToday.setHours(23, 59, 59, 999);
+
+  if (period === "year") {
+    return Array.from({ length: 12 }, (_, index) => {
+      const start = new Date(
+        today.getFullYear(),
+        today.getMonth() - (11 - index),
+        1,
+      );
+      const end = new Date(
+        start.getFullYear(),
+        start.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      );
+      return {
+        key: `${start.getFullYear()}-${start.getMonth()}`,
+        label: start.toLocaleDateString([], { month: "short" }),
+        title: start.toLocaleDateString([], { month: "long", year: "numeric" }),
+        start,
+        end,
+      };
+    });
+  }
+
+  const bucketDays = period === "quarter" ? 7 : 1;
+  const bucketCount = period === "week" ? 7 : period === "month" ? 30 : 13;
+  return Array.from({ length: bucketCount }, (_, index) => {
+    const daysBack = (bucketCount - 1 - index) * bucketDays;
+    const end = new Date(endOfToday);
+    end.setDate(end.getDate() - daysBack);
+    const start = startOfDay(end);
+    start.setDate(start.getDate() - (bucketDays - 1));
+    const label =
+      bucketDays === 1
+        ? start.toLocaleDateString([], { day: "numeric", month: "short" })
+        : start.toLocaleDateString([], { day: "numeric", month: "short" });
+    return {
+      key: start.toISOString(),
+      label,
+      title:
+        bucketDays === 1
+          ? start.toLocaleDateString([], {
+              weekday: "long",
+              day: "numeric",
+              month: "short",
+            })
+          : `${label}–${end.toLocaleDateString([], { day: "numeric", month: "short" })}`,
+      start,
+      end,
+    };
+  });
+}
+
+function PeriodTabs({
+  value,
+  onChange,
+}: {
+  value: ChartPeriod;
+  onChange: (period: ChartPeriod) => void;
+}) {
+  return (
+    <div
+      className="flex rounded-xl border border-[#315057] bg-deepBlack p-1"
+      aria-label="Chart period"
+    >
+      {chartPeriods.map((period) => (
+        <button
+          key={period.value}
+          type="button"
+          onClick={() => onChange(period.value)}
+          className={`rounded-lg px-2.5 py-1.5 text-[10px] font-black uppercase transition ${value === period.value ? "bg-neonCyan text-deepBlack" : "text-gray-400 hover:text-neonCyan"}`}
+        >
+          {period.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 function StatCard({
   label,
@@ -102,39 +208,38 @@ function StatCard({
 }
 
 function SignupChart({ users }: { users: AdminUser[] }) {
-  const days = Array.from({ length: 14 }, (_, index) => {
-    const value = new Date();
-    value.setHours(0, 0, 0, 0);
-    value.setDate(value.getDate() - (13 - index));
-    return value;
-  });
-  const points = days.map(
-    (day) =>
-      users.filter(
-        (user) =>
-          user.signedUpAt &&
-          new Date(user.signedUpAt).toDateString() === day.toDateString(),
-      ).length,
+  const [period, setPeriod] = useState<ChartPeriod>("month");
+  const buckets = useMemo(() => dateBuckets(period), [period]);
+  const points = buckets.map(
+    (bucket) =>
+      users.filter((user) => {
+        if (!user.signedUpAt) return false;
+        const signedUp = new Date(user.signedUpAt);
+        return signedUp >= bucket.start && signedUp <= bucket.end;
+      }).length,
   );
   const max = Math.max(1, ...points);
   return (
     <section className={panel}>
-      <div className="flex items-end justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h3 className="text-xl font-black text-neonCyan">New accounts</h3>
           <p className="mt-1 text-xs text-gray-500">
-            Daily registrations over the last 14 days.
+            Registrations across the selected period.
           </p>
         </div>
-        <strong className="text-2xl text-neonYellow">
-          {points.reduce((sum, value) => sum + value, 0)}
-        </strong>
+        <div className="flex items-center gap-3">
+          <strong className="text-2xl text-neonYellow">
+            {points.reduce((sum, value) => sum + value, 0)}
+          </strong>
+          <PeriodTabs value={period} onChange={setPeriod} />
+        </div>
       </div>
       <div className="mt-5 flex h-40 items-stretch gap-2 border-b border-[#315057] pt-6">
         {points.map((value, index) => (
           <div
-            key={days[index].toISOString()}
-            title={`${days[index].toLocaleDateString()}: ${value} registrations`}
+            key={buckets[index].key}
+            title={`${buckets[index].title}: ${value} registrations`}
             className="group relative h-full min-w-0 flex-1"
           >
             <span className="absolute left-1/2 top-[-20px] -translate-x-1/2 text-[10px] font-black text-neonYellow opacity-0 group-hover:opacity-100">
@@ -148,10 +253,8 @@ function SignupChart({ users }: { users: AdminUser[] }) {
         ))}
       </div>
       <div className="mt-2 flex justify-between text-[10px] text-gray-600">
-        <span>
-          {days[0].toLocaleDateString([], { day: "numeric", month: "short" })}
-        </span>
-        <span>Today</span>
+        <span>{buckets[0]?.label}</span>
+        <span>{buckets[buckets.length - 1]?.label}</span>
       </div>
     </section>
   );
@@ -819,8 +922,26 @@ function UserDetail({
 
 function Engagement({ data }: { data: AdminDashboardData }) {
   const [mode, setMode] = useState<"all" | "solo" | "daily">("all");
+  const [period, setPeriod] = useState<ChartPeriod>("month");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const activity = data.dailyActivity.slice(-14);
+  const buckets = useMemo(() => dateBuckets(period), [period]);
+  const activity = buckets.map((bucket) => {
+    const days = data.dailyActivity.filter((day) => {
+      const date = new Date(`${day.date}T12:00:00`);
+      return date >= bucket.start && date <= bucket.end;
+    });
+    return {
+      date: bucket.key,
+      label: bucket.label,
+      title: bucket.title,
+      games: days.reduce((sum, day) => sum + day.games, 0),
+      players: days.length
+        ? Math.round(
+            days.reduce((sum, day) => sum + day.players, 0) / days.length,
+          )
+        : 0,
+    };
+  });
   const maxGames = Math.max(1, ...activity.map((day) => day.games));
   const maxPlayers = Math.max(1, ...activity.map((day) => day.players));
   const dailyShare = data.completedGames
@@ -870,18 +991,40 @@ function Engagement({ data }: { data: AdminDashboardData }) {
                 Daily activity
               </h3>
               <p className="text-xs text-gray-500">
-                Select a day to inspect completed games and distinct players.
+                Completed games and{" "}
+                {period === "week" || period === "month"
+                  ? "daily players"
+                  : "average daily players"}
+                .
               </p>
             </div>
-            <div className="flex gap-4 text-[10px] font-black uppercase">
-              <span className="text-neonCyan">■ Games</span>
-              <span className="text-electricPink">● Players</span>
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <div className="flex gap-4 text-[10px] font-black uppercase">
+                <span className="text-neonCyan">■ Games</span>
+                <span className="text-electricPink">━ Players</span>
+              </div>
+              <PeriodTabs
+                value={period}
+                onChange={(value) => {
+                  setPeriod(value);
+                  setSelectedDate(null);
+                }}
+              />
             </div>
           </div>
-          <div className="relative mt-5 grid h-64 grid-cols-14 items-end gap-1.5 border-b border-[#315057] px-1 pt-8">
+          <div
+            className="relative mt-5 grid h-64 items-end gap-1.5 border-b border-[#315057] px-1 pt-8"
+            style={{
+              gridTemplateColumns: `repeat(${activity.length}, minmax(0, 1fr))`,
+            }}
+          >
             <svg
               aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 left-1 right-1 top-8 z-10 h-[calc(100%_-_2rem)] w-[calc(100%_-_0.5rem)] overflow-visible"
+              className="pointer-events-none absolute bottom-0 left-1 z-10 overflow-visible"
+              style={{
+                width: "calc(100% - 0.5rem)",
+                height: "calc(100% - 2rem)",
+              }}
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
             >
@@ -900,48 +1043,37 @@ function Engagement({ data }: { data: AdminDashboardData }) {
                 key={day.date}
                 type="button"
                 onClick={() => setSelectedDate(day.date)}
-                title={`${day.date}: ${day.games} games, ${day.players} players`}
+                title={`${day.title}: ${day.games} games, ${day.players} ${period === "week" || period === "month" ? "players" : "average daily players"}`}
                 className={`group relative flex h-full min-w-0 items-end justify-center rounded-t border-x border-t transition ${selectedDate === day.date ? "border-neonYellow bg-neonYellow/10" : "border-transparent hover:bg-[#142225]"}`}
               >
                 <span className="absolute top-0 text-[10px] font-black text-neonYellow opacity-0 group-hover:opacity-100">
                   {day.games}
                 </span>
                 <span
-                  className="relative block w-full max-w-8 rounded-t bg-neonCyan"
+                  className="block w-full max-w-8 rounded-t bg-neonCyan"
                   style={{
                     height: `${Math.max(3, (day.games / maxGames) * 88)}%`,
                   }}
-                >
-                  <span
-                    className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
-                    style={{
-                      bottom: `${Math.max(0, (day.players / maxPlayers) * 92)}%`,
-                    }}
-                  />
-                </span>
+                />
+                <span
+                  className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
+                  style={{
+                    bottom: `${Math.max(4, (day.players / maxPlayers) * 88)}%`,
+                  }}
+                />
               </button>
             ))}
           </div>
           <div className="mt-2 flex justify-between text-[10px] text-gray-600">
-            <span>
-              {activity[0]?.date
-                ? new Date(`${activity[0].date}T12:00:00`).toLocaleDateString(
-                    [],
-                    { day: "numeric", month: "short" },
-                  )
-                : "14 days ago"}
-            </span>
-            <span>Today</span>
+            <span>{activity[0]?.label ?? "Earlier"}</span>
+            <span>{activity[activity.length - 1]?.label ?? "Today"}</span>
           </div>
           {selectedDay && (
             <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl border border-neonYellow/40 bg-deepBlack p-4">
               <div>
                 <small className="text-gray-500">Date</small>
                 <strong className="block text-neonYellow">
-                  {new Date(`${selectedDay.date}T12:00:00`).toLocaleDateString(
-                    [],
-                    { weekday: "long", day: "numeric", month: "short" },
-                  )}
+                  {selectedDay.title}
                 </strong>
               </div>
               <div>
@@ -951,7 +1083,11 @@ function Engagement({ data }: { data: AdminDashboardData }) {
                 </strong>
               </div>
               <div>
-                <small className="text-gray-500">Players</small>
+                <small className="text-gray-500">
+                  {period === "week" || period === "month"
+                    ? "Players"
+                    : "Avg players/day"}
+                </small>
                 <strong className="block text-2xl text-electricPink">
                   {selectedDay.players}
                 </strong>
