@@ -992,29 +992,27 @@ function Engagement({ data }: { data: AdminDashboardData }) {
   const selectedDay = activity.find((day) => day.date === selectedDate);
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard
-          label="All completed games"
-          value={data.completedGames}
-          icon={faDice}
-          onClick={() => setMode("all")}
-        />
-        <StatCard
-          label="Solo games"
-          value={data.soloGames}
-          onClick={() => setMode("solo")}
-        />
-        <StatCard
-          label="Daily games"
-          value={data.dailyGames}
-          onClick={() => setMode("daily")}
-        />
-        <StatCard
-          label="Daily share"
-          value={`${dailyShare}%`}
-          onClick={() => setMode("daily")}
-        />
-      </div>
+      <section>
+        <div className="mb-3">
+          <h3 className="text-xl font-black text-neonCyan">
+            Lifetime game totals
+          </h3>
+          <p className="text-xs text-gray-500">
+            Summary figures. Use the filters beside Recent score submissions to
+            inspect individual records.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <StatCard
+            label="All completed games"
+            value={data.completedGames}
+            icon={faDice}
+          />
+          <StatCard label="Solo games" value={data.soloGames} />
+          <StatCard label="Daily games" value={data.dailyGames} />
+          <StatCard label="Daily share" value={`${dailyShare}%`} />
+        </div>
+      </section>
       <div className="grid gap-4 lg:grid-cols-3">
         <section className={`${panel} lg:col-span-2`}>
           <div className="flex flex-wrap items-end justify-between gap-3">
@@ -1186,16 +1184,21 @@ function Engagement({ data }: { data: AdminDashboardData }) {
               {submissions.length} records.
             </p>
           </div>
-          <div className="flex gap-2">
-            {(["all", "solo", "daily"] as const).map((value) => (
-              <button
-                key={value}
-                onClick={() => setMode(value)}
-                className={`rounded-full border px-4 py-2 text-xs font-black capitalize ${mode === value ? "border-neonCyan bg-[#20383b] text-neonCyan" : "border-[#315057] text-gray-400"}`}
-              >
-                {value}
-              </button>
-            ))}
+          <div>
+            <span className="mb-2 block text-[10px] font-black uppercase tracking-wider text-gray-500">
+              Filter submissions
+            </span>
+            <div className="flex gap-2">
+              {(["all", "solo", "daily"] as const).map((value) => (
+                <button
+                  key={value}
+                  onClick={() => setMode(value)}
+                  className={`rounded-full border px-4 py-2 text-xs font-black capitalize ${mode === value ? "border-neonCyan bg-[#20383b] text-neonCyan" : "border-[#315057] text-gray-400"}`}
+                >
+                  {value}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="overflow-x-auto">
