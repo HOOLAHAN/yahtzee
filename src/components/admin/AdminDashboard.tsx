@@ -20,7 +20,7 @@ import {
 } from "../../services/admin";
 
 type AdminSection = "overview" | "users" | "engagement" | "notifications";
-type ChartPeriod = "week" | "month" | "quarter" | "year";
+type ChartPeriod = "week" | "month" | "quarter" | "year" | "all";
 type DateBucket = {
   key: string;
   label: string;
@@ -68,6 +68,7 @@ const chartPeriods: { value: ChartPeriod; label: string }[] = [
   { value: "month", label: "Month" },
   { value: "quarter", label: "Quarter" },
   { value: "year", label: "Year" },
+  { value: "all", label: "All time" },
 ];
 
 const startOfDay = (value: Date) => {
@@ -76,16 +77,28 @@ const startOfDay = (value: Date) => {
   return result;
 };
 
-function dateBuckets(period: ChartPeriod): DateBucket[] {
+function dateBuckets(period: ChartPeriod, earliest?: Date): DateBucket[] {
   const today = startOfDay(new Date());
   const endOfToday = new Date(today);
   endOfToday.setHours(23, 59, 59, 999);
 
-  if (period === "year") {
-    return Array.from({ length: 12 }, (_, index) => {
+  if (period === "year" || period === "all") {
+    const allTimeStart =
+      earliest && !Number.isNaN(earliest.getTime()) ? earliest : today;
+    const monthCount =
+      period === "year"
+        ? 12
+        : Math.max(
+            1,
+            (today.getFullYear() - allTimeStart.getFullYear()) * 12 +
+              today.getMonth() -
+              allTimeStart.getMonth() +
+              1,
+          );
+    return Array.from({ length: monthCount }, (_, index) => {
       const start = new Date(
         today.getFullYear(),
-        today.getMonth() - (11 - index),
+        today.getMonth() - (monthCount - 1 - index),
         1,
       );
       const end = new Date(
@@ -153,7 +166,12 @@ function PeriodTabs({
           key={period.value}
           type="button"
           onClick={() => onChange(period.value)}
-          className={`rounded-lg px-2.5 py-1.5 text-[10px] font-black uppercase transition ${value === period.value ? "bg-neonCyan text-deepBlack" : "text-gray-400 hover:text-neonCyan"}`}
+          className={`rounded-lg px-2.5 py-1.5 text-[10px] font-black uppercase transition ${value === period.value ? "shadow-[0_0_12px_rgba(0,247,255,0.45)]" : "text-gray-400 hover:text-neonCyan"}`}
+          style={
+            value === period.value
+              ? { backgroundColor: "#00f7ff", color: "#0d0d0d" }
+              : undefined
+          }
         >
           {period.label}
         </button>
@@ -209,7 +227,20 @@ function StatCard({
 
 function SignupChart({ users }: { users: AdminUser[] }) {
   const [period, setPeriod] = useState<ChartPeriod>("month");
-  const buckets = useMemo(() => dateBuckets(period), [period]);
+  const firstSignup = useMemo(() => {
+    const dates = users
+      .map((user) => (user.signedUpAt ? new Date(user.signedUpAt) : null))
+      .filter((date): date is Date =>
+        Boolean(date && !Number.isNaN(date.getTime())),
+      );
+    return dates.length
+      ? new Date(Math.min(...dates.map((date) => date.getTime())))
+      : undefined;
+  }, [users]);
+  const buckets = useMemo(
+    () => dateBuckets(period, firstSignup),
+    [period, firstSignup],
+  );
   const points = buckets.map(
     (bucket) =>
       users.filter((user) => {
@@ -924,7 +955,15 @@ function Engagement({ data }: { data: AdminDashboardData }) {
   const [mode, setMode] = useState<"all" | "solo" | "daily">("all");
   const [period, setPeriod] = useState<ChartPeriod>("month");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const buckets = useMemo(() => dateBuckets(period), [period]);
+  const firstActivityKey = data.dailyActivity[0]?.date;
+  const buckets = useMemo(
+    () =>
+      dateBuckets(
+        period,
+        firstActivityKey ? new Date(`${firstActivityKey}T12:00:00`) : undefined,
+      ),
+    [period, firstActivityKey],
+  );
   const activity = buckets.map((bucket) => {
     const days = data.dailyActivity.filter((day) => {
       const date = new Date(`${day.date}T12:00:00`);
@@ -951,13 +990,6 @@ function Engagement({ data }: { data: AdminDashboardData }) {
     (item) => mode === "all" || item.mode.toLowerCase().includes(mode),
   );
   const selectedDay = activity.find((day) => day.date === selectedDate);
-  const playerLine = activity
-    .map((day, index) => {
-      const x = ((index + 0.5) / Math.max(1, activity.length)) * 100;
-      const y = 96 - (day.players / maxPlayers) * 88;
-      return `${x},${y}`;
-    })
-    .join(" ");
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -1018,51 +1050,56 @@ function Engagement({ data }: { data: AdminDashboardData }) {
               gridTemplateColumns: `repeat(${activity.length}, minmax(0, 1fr))`,
             }}
           >
-            <svg
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 left-1 z-10 overflow-visible"
-              style={{
-                width: "calc(100% - 0.5rem)",
-                height: "calc(100% - 2rem)",
-              }}
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-            >
-              <polyline
-                points={playerLine}
-                fill="none"
-                stroke="#ff00e0"
-                strokeWidth="2"
-                vectorEffect="non-scaling-stroke"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-            </svg>
-            {activity.map((day) => (
-              <button
-                key={day.date}
-                type="button"
-                onClick={() => setSelectedDate(day.date)}
-                title={`${day.title}: ${day.games} games, ${day.players} ${period === "week" || period === "month" ? "players" : "average daily players"}`}
-                className={`group relative flex h-full min-w-0 items-end justify-center rounded-t border-x border-t transition ${selectedDate === day.date ? "border-neonYellow bg-neonYellow/10" : "border-transparent hover:bg-[#142225]"}`}
-              >
-                <span className="absolute top-0 text-[10px] font-black text-neonYellow opacity-0 group-hover:opacity-100">
-                  {day.games}
-                </span>
-                <span
-                  className="block w-full max-w-8 rounded-t bg-neonCyan"
-                  style={{
-                    height: `${Math.max(3, (day.games / maxGames) * 88)}%`,
-                  }}
-                />
-                <span
-                  className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
-                  style={{
-                    bottom: `${Math.max(4, (day.players / maxPlayers) * 88)}%`,
-                  }}
-                />
-              </button>
-            ))}
+            {activity.map((day, index) => {
+              const dotBottom = Math.max(4, (day.players / maxPlayers) * 88);
+              const next = activity[index + 1];
+              const nextDotBottom = next
+                ? Math.max(4, (next.players / maxPlayers) * 88)
+                : dotBottom;
+              return (
+                <button
+                  key={day.date}
+                  type="button"
+                  onClick={() => setSelectedDate(day.date)}
+                  title={`${day.title}: ${day.games} games, ${day.players} ${period === "week" || period === "month" ? "players" : "average daily players"}`}
+                  className={`group relative flex h-full min-w-0 items-end justify-center rounded-t border-x border-t transition ${selectedDate === day.date ? "border-neonYellow bg-neonYellow/10" : "border-transparent hover:bg-[#142225]"}`}
+                >
+                  <span className="absolute top-0 text-[10px] font-black text-neonYellow opacity-0 group-hover:opacity-100">
+                    {day.games}
+                  </span>
+                  <span
+                    className="block w-full max-w-8 rounded-t bg-neonCyan"
+                    style={{
+                      height: `${Math.max(3, (day.games / maxGames) * 88)}%`,
+                    }}
+                  />
+                  <span
+                    className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
+                    style={{ bottom: `${dotBottom}%` }}
+                  />
+                  {next && (
+                    <svg
+                      aria-hidden="true"
+                      className="pointer-events-none absolute bottom-0 left-1/2 z-10 h-full overflow-visible"
+                      style={{ width: "calc(100% + 0.375rem)" }}
+                      viewBox="0 0 100 100"
+                      preserveAspectRatio="none"
+                    >
+                      <line
+                        x1="0"
+                        y1={100 - dotBottom}
+                        x2="100"
+                        y2={100 - nextDotBottom}
+                        stroke="#ff00e0"
+                        strokeWidth="2"
+                        vectorEffect="non-scaling-stroke"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
+                </button>
+              );
+            })}
           </div>
           <div className="mt-2 flex justify-between text-[10px] text-gray-600">
             <span>{activity[0]?.label ?? "Earlier"}</span>
