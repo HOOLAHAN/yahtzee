@@ -758,6 +758,141 @@ function Detail({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+function UserEngagementChart({ user }: { user: AdminUser }) {
+  const [period, setPeriod] = useState<ChartPeriod>("month");
+  const history = user.gameHistory?.length
+    ? user.gameHistory
+    : (user.recentGames ?? []);
+  const oldestGame = history.length
+    ? history.reduce((oldest, game) =>
+        game.completedAt < oldest.completedAt ? game : oldest,
+      ).completedAt
+    : user.signedUpAt;
+  const buckets = useMemo(
+    () => dateBuckets(period, oldestGame ? new Date(oldestGame) : undefined),
+    [period, oldestGame],
+  );
+  const points = buckets.map((bucket) => {
+    const games = history.filter((game) => {
+      const completed = new Date(game.completedAt);
+      return completed >= bucket.start && completed <= bucket.end;
+    });
+    return {
+      ...bucket,
+      games: games.length,
+      averageScore: games.length
+        ? Math.round(
+            games.reduce((sum, game) => sum + game.score, 0) / games.length,
+          )
+        : null,
+    };
+  });
+  const maxGames = Math.max(1, ...points.map((point) => point.games));
+  const maxScore = Math.max(
+    1,
+    ...points.map((point) => point.averageScore ?? 0),
+  );
+  const totalGames = points.reduce((sum, point) => sum + point.games, 0);
+
+  return (
+    <section className={`${panel} mt-5`}>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h4 className="text-lg font-black text-neonCyan">
+            Player engagement
+          </h4>
+          <p className="text-xs text-gray-500">
+            Completed games and average score across the selected period.
+          </p>
+        </div>
+        <PeriodTabs value={period} onChange={setPeriod} />
+      </div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <strong className="text-neonYellow">
+          {totalGames} game{totalGames === 1 ? "" : "s"}
+        </strong>
+        <div className="flex gap-4 font-black uppercase">
+          <span className="text-neonCyan">■ Games</span>
+          <span className="text-electricPink">━ Average score</span>
+        </div>
+      </div>
+      <div
+        className="relative mt-3 grid h-52 items-end gap-1.5 border-b border-[#315057] px-1 pt-7"
+        style={{
+          gridTemplateColumns: `repeat(${points.length}, minmax(0, 1fr))`,
+        }}
+      >
+        {points.map((point, index) => {
+          const dotBottom =
+            point.averageScore === null
+              ? null
+              : Math.max(4, (point.averageScore / maxScore) * 86);
+          const nextIndex = points.findIndex(
+            (candidate, candidateIndex) =>
+              candidateIndex > index && candidate.averageScore !== null,
+          );
+          const next = nextIndex >= 0 ? points[nextIndex] : null;
+          const nextBottom = next?.averageScore
+            ? Math.max(4, (next.averageScore / maxScore) * 86)
+            : null;
+          const distance = nextIndex - index;
+          return (
+            <div
+              key={point.key}
+              className="group relative flex h-full min-w-0 items-end justify-center"
+              title={`${point.title}: ${point.games} games${point.averageScore === null ? "" : `, ${point.averageScore} average score`}`}
+            >
+              <span className="absolute top-0 z-30 whitespace-nowrap text-[9px] font-black text-neonYellow opacity-0 group-hover:opacity-100">
+                {point.games}g
+                {point.averageScore === null ? "" : ` · ${point.averageScore}`}
+              </span>
+              <span
+                className="block w-full max-w-8 rounded-t bg-neonCyan"
+                style={{
+                  height: `${point.games ? Math.max(4, (point.games / maxGames) * 86) : 1}%`,
+                  opacity: point.games ? 1 : 0.15,
+                }}
+              />
+              {dotBottom !== null && (
+                <span
+                  className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
+                  style={{ bottom: `${dotBottom}%` }}
+                />
+              )}
+              {dotBottom !== null && nextBottom !== null && distance > 0 && (
+                <svg
+                  aria-hidden="true"
+                  className="pointer-events-none absolute bottom-0 left-1/2 z-10 h-full overflow-visible"
+                  style={{
+                    width: `calc(${distance * 100}% + ${distance * 0.375}rem)`,
+                  }}
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                >
+                  <line
+                    x1="0"
+                    y1={100 - dotBottom}
+                    x2="100"
+                    y2={100 - nextBottom}
+                    stroke="#ff00e0"
+                    strokeWidth="2"
+                    vectorEffect="non-scaling-stroke"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-2 flex justify-between text-[10px] text-gray-600">
+        <span>{points[0]?.label ?? "Earlier"}</span>
+        <span>{points[points.length - 1]?.label ?? "Today"}</span>
+      </div>
+    </section>
+  );
+}
+
 function UserDetail({
   user,
   onClose,
@@ -802,6 +937,7 @@ function UserDetail({
             tone="text-electricPink"
           />
         </div>
+        <UserEngagementChart user={user} />
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           <section className={panel}>
             <h4 className="text-lg font-black text-neonCyan">Account</h4>
