@@ -21,6 +21,11 @@ export interface AdminNotificationHistory {
   audienceCount: number; sentCount: number; failedCount: number; requestedBy: string;
 }
 export interface AdminSubmission { id: string; userId: string; username: string; mode: string; score: number; completedAt: string }
+export interface AdminEmailHistory {
+  id: string; userId: string; recipient: string; username: string; campaign: string; messageType: string; status: string;
+  sentAt: string | null; deliveredAt: string | null; clickedAt: string | null; bouncedAt: string | null;
+  complaintAt: string | null; renderingFailedAt: string | null; lastEventType: string | null;
+}
 export interface AdminDashboardData {
   totalUsers: number;
   completedGames: number;
@@ -53,6 +58,7 @@ export interface AdminDashboardData {
   users: AdminUser[];
   recentSubmissions: AdminSubmission[];
   notificationHistory: AdminNotificationHistory[];
+  emailHistory: AdminEmailHistory[];
 }
 
 export async function sendAdminNotification(title: string, body: string, userIds?: string[]): Promise<AdminNotificationResult> {
@@ -98,13 +104,13 @@ export async function fetchAdminDashboard(): Promise<AdminDashboardData> {
     const authToken = session.tokens?.idToken?.toString();
     if (!authToken) throw new Error('Sign in required.');
     const result = await (client as any).graphql({
-      query: `query AdminDashboard { adminDashboard { totalUsers completedGames soloGames dailyGames remoteGames remoteMatches remoteWins remoteDraws gamesToday gamesLast7Days gamesLast30Days activeUsersLast7Days activeUsersLast30Days averageScore yahtzeesRolled upperBonusesEarned gameStarts abandonedGames resetGames modeSwitchAbandons remoteExits staleGames gameCompletionRate averageAbandonRound abandonmentByMode recentAbandonments generatedAt dailyActivity users recentSubmissions } }`,
+      query: `query AdminDashboard { adminDashboard { totalUsers completedGames soloGames dailyGames remoteGames remoteMatches remoteWins remoteDraws gamesToday gamesLast7Days gamesLast30Days activeUsersLast7Days activeUsersLast30Days averageScore yahtzeesRolled upperBonusesEarned gameStarts abandonedGames resetGames modeSwitchAbandons remoteExits staleGames gameCompletionRate averageAbandonRound abandonmentByMode recentAbandonments generatedAt dailyActivity users recentSubmissions } adminEmailHistory }`,
       authMode: 'userPool', authToken,
     });
     if (!result.data?.adminDashboard) throw new Error(result.errors?.[0]?.message || 'Unable to load the admin dashboard.');
     const dashboard = result.data.adminDashboard;
     const activity = parseDashboardActivity(dashboard.recentSubmissions);
-    return { ...dashboard, dailyActivity: parseJsonArray<DailyAdminActivity>(dashboard.dailyActivity), users: parseJsonArray<AdminUser>(dashboard.users), abandonmentByMode: parseJsonArray<AdminModeBreakdown>(dashboard.abandonmentByMode), recentAbandonments: parseJsonArray<AdminLifecycleEvent>(dashboard.recentAbandonments), recentSubmissions: activity.scores, notificationHistory: activity.notifications };
+    return { ...dashboard, dailyActivity: parseJsonArray<DailyAdminActivity>(dashboard.dailyActivity), users: parseJsonArray<AdminUser>(dashboard.users), abandonmentByMode: parseJsonArray<AdminModeBreakdown>(dashboard.abandonmentByMode), recentAbandonments: parseJsonArray<AdminLifecycleEvent>(dashboard.recentAbandonments), recentSubmissions: activity.scores, notificationHistory: activity.notifications, emailHistory: parseJsonArray<AdminEmailHistory>(result.data.adminEmailHistory) };
   } catch (error) {
     if (typeof error === 'object' && error !== null) {
       const response = error as { errors?: Array<{ message?: string }>; message?: string };
