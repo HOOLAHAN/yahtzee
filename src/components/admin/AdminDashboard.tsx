@@ -851,7 +851,7 @@ function UserEngagementChart({ user }: { user: AdminUser }) {
                 }}
               />
               <span
-                className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
+                className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 translate-y-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
                 style={{ bottom: `${dotBottom}%` }}
               />
               {nextBottom !== null && (
@@ -1201,7 +1201,7 @@ function Engagement({ data }: { data: AdminDashboardData }) {
                     }}
                   />
                   <span
-                    className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
+                    className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 translate-y-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
                     style={{ bottom: `${dotBottom}%` }}
                   />
                   {next && (
