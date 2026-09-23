@@ -825,17 +825,14 @@ function UserEngagementChart({ user }: { user: AdminUser }) {
         {points.map((point, index) => {
           const dotBottom =
             point.averageScore === null
-              ? null
+              ? 0
               : Math.max(4, (point.averageScore / maxScore) * 86);
-          const nextIndex = points.findIndex(
-            (candidate, candidateIndex) =>
-              candidateIndex > index && candidate.averageScore !== null,
-          );
-          const next = nextIndex >= 0 ? points[nextIndex] : null;
-          const nextBottom = next?.averageScore
-            ? Math.max(4, (next.averageScore / maxScore) * 86)
+          const next = points[index + 1];
+          const nextBottom = next
+            ? next.averageScore === null
+              ? 0
+              : Math.max(4, (next.averageScore / maxScore) * 86)
             : null;
-          const distance = nextIndex - index;
           return (
             <div
               key={point.key}
@@ -853,19 +850,15 @@ function UserEngagementChart({ user }: { user: AdminUser }) {
                   opacity: point.games ? 1 : 0.15,
                 }}
               />
-              {dotBottom !== null && (
-                <span
-                  className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
-                  style={{ bottom: `${dotBottom}%` }}
-                />
-              )}
-              {dotBottom !== null && nextBottom !== null && distance > 0 && (
+              <span
+                className="absolute left-1/2 z-20 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-deepBlack bg-electricPink"
+                style={{ bottom: `${dotBottom}%` }}
+              />
+              {nextBottom !== null && (
                 <svg
                   aria-hidden="true"
                   className="pointer-events-none absolute bottom-0 left-1/2 z-10 h-full overflow-visible"
-                  style={{
-                    width: `calc(${distance * 100}% + ${distance * 0.375}rem)`,
-                  }}
+                  style={{ width: "calc(100% + 0.375rem)" }}
                   viewBox="0 0 100 100"
                   preserveAspectRatio="none"
                 >
